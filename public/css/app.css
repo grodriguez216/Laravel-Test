@@ -1,0 +1,84 @@
+body
+{
+	font-family: 'Roboto';
+	font-style: normal;
+	font-weight: 300;
+}
+
+.page-header
+{
+	font-weight: 400 !important;
+}
+
+h4, small
+{
+	font-weight: 100;
+}
+
+.loader
+{
+	position:fixed;
+	background: rgba(255, 255, 255, 1);
+	height: 100vh;
+	width: 100vw;
+	z-index: 10;
+	top: 0;
+}
+
+.loader img
+{
+	position: absolute;
+	transform: translate( -50%, -50% );
+	left: 50%;
+	top: 50%;
+	height: 10vw;
+	filter: contrast(0.7);
+	filter: brightness(1.25);
+	
+}
+
+.form-control:focus
+{
+	border-color: red;
+	outline: 0;
+	-webkit-box-shadow: none;
+	box-shadow: none;
+}
+
+.card, .card-header, .card-footer
+{
+	border-color: rgba(0,0,0,0.35);
+}
+
+.card-menu .card:hover
+{
+	background:#2c2c2c;
+}
+
+.card-menu .card:hover .card-title,
+.card-menu .card:hover .card-text
+{
+	color: #fff;
+}
+
+
+.big-input .form-control,
+.big-input .input-group-addon
+{
+	font-weight: 100;
+	text-align: center;
+	font-size: 3em;
+	border: none;
+}
+
+.big-input .input-group-addon
+{
+	background: transparent;
+}
+
+
+.card-header.active
+{
+	background:#dc3545;
+	color: #fff;
+}

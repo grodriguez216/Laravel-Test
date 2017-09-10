@@ -24,7 +24,7 @@ Route::prefix('prestamos')->group(function ()
   
   /* Posts */
   Route::post('agregar', 'LoansController@store' )->name('loans.store');
-  Route::post('pagar', 'LoansController@pay' )->name('loans.pay');
+  Route::post('pagar', 'LoansController@update' )->name('loans.pay');
   Route::post('extender', 'LoansController@update' )->name('loans.update');
 });
 

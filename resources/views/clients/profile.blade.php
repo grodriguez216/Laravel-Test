@@ -71,8 +71,8 @@
                       
                       <div class="col-12 text-center">
                         <h2 class="w-100 mb-4">₡
-                          <span class="money">{{ $loan->dues }}</span>
-                          <span class="money d-none">{{ $loan->interest }}</span>
+                          <span id="dues_label" class="money">{{ $loan->dues }}</span>
+                          <span id="interest_label" class="money d-none">{{ $loan->interest }}</span>
                         </h2>
                       </div>
                       
@@ -95,6 +95,7 @@
                       
                       <div class="col-12 text-center">
                         {{ csrf_field() }}
+                        <input type="hidden" name="id" value="{{ $loan->id }}">
                         <button type="submit" class="btn btn-outline-danger mt-4 w-50 ">Pagar</button>
                       </div>
                       
@@ -137,36 +138,66 @@
   <script src="{{ asset('js/picker.date.js') }}"></script>
   <script src="{{ asset('js/picker.es_ES.js') }}"></script>
   <script type="text/javascript">
-  var options =
-  {
-    today: false, clear: false, close: false, min: true, onSet: onNextDueSet,
-    format: 'yyyy-mm-dd', formatSubmit: 'yyyy-mm-dd', hiddenName: true
-  };
-  var $datepicker = $('.datepicker').pickadate( options );
   
-  var $active_update_form = null;
+  // Global Scope
+  var $datepicker = null;
+  var $active_form = null;
+  
+  window.onload = function()
+  {
+    window.datepicker_init();
+    window.nicecify_money();
+    toggle('loader', false );
+  };
+  
+  
+  // FUNCTION DEFINITION BEGINS //
   
   function onNextDueClick( form )
   {
     event.stopPropagation();
-    
-    $active_update_form = form;
-    
+    window.$active_form = form;
     var picker = $datepicker.pickadate('picker');
     picker.open();
-    
   }
   
   function onNextDueSet( context )
   {
-    get( $active_update_form ).submit();
+    get( $active_form ).submit();
   }
   
   function onTypeChange(val)
   {
-    
+    var is_full = ( val == 'F' );
+    toggle('dues_label', is_full);
+    toggle('interest_label', !is_full);
   }
   
+  function datepicker_init()
+  {
+    // initialize the DatePicker
+    var options =
+    {
+      min: true,
+      today: false,
+      clear: false,
+      close: false,
+      hiddenName: true,
+      onSet: onNextDueSet,
+      formatSubmit: 'yyyy-mm-dd'
+    };
+    $datepicker = $('.datepicker').pickadate( options );
+  }
+  
+  function nicecify_money()
+  {
+    var items = document.getElementsByClassName('money');
+    
+    for (var i = 0; i < items.length; i++) {
+      items[i].innerHTML = nicecify( items[i].innerHTML );
+    }
+    
+  }
   
   </script>
 @endsection

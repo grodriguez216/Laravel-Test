@@ -89,31 +89,29 @@ class LoansController extends Controller
     $due_date = time();
     $next_due = time();
     
-    $day_to_string = array(
-      1 => 'monday',
-      2 => 'tuesday',
-      3 => 'wednesday',
-      4 => 'thursday',
-      5 => 'friday',
-      6 => 'saturday',
-      7 => 'sunday'
-    );
-    
     switch ( $loan->payplan )
     {
       case 'we':
-      $pay_day = $day_to_string[ $loan->details ];
       $due_date = strtotime("+{$loan->duration} weeks");
-      $next_due = strtotime("next $pay_day");
-      //$next_week = strtotime("+1 week");
+      $next_due = strtotime("+1 week");
       break;
       
       case 'bw':
-      $pay_day = $day_to_string[ $loan->details ];
+      
       $in_weeks = $loan->duration * 2;
       $due_date = strtotime("+{$in_weeks} weeks");
-      $next_week = strtotime("+1 week");
-      $next_due = strtotime("next $pay_day", $next_week);
+      $eom = ( date('m') == 2 ) ? 28 : 30;
+      
+      if ( date('d') >= $eom )
+      {
+        $next_ft = strtotime( date('Y-m-15') );
+        $next_due = date('Y-m-d', strtotime( '+1 month', $next_ft ) );
+      }
+      else if ( date('d') < 15)
+      $next_due = date('Y-m-15');
+      
+      else // between the 15 and the EOM
+      $next_due = date('Y-m-30');
       break;
       
       case 'mo':
@@ -201,11 +199,12 @@ class LoansController extends Controller
     
     if ( $request->path() == 'prestamos/pagar')
     {
-      
-      $payment = $request->input('amount');
+      /* Payment Type | Full or Minimun */
+      $type = $request->input('type');
       
       /* Update the balance */
-      $loan->balance = $loan->balance - $payment;
+      $amount = ( $type == 'F' ) ? $loan->dues : $loan->interest;
+      $loan->balance = $loan->balance - $amount;
       
       /* Close the loan if balance is zero */
       if ( $loan->balance <= 0)
@@ -213,31 +212,52 @@ class LoansController extends Controller
       
       /* Next Due Timestamp */
       $ndt = strtotime( $loan->next_due );
+      /* Created at Timestamp */
+      $cat = strtotime( $loan->created_at );
       
       switch ($loan->payplan)
       {
         case 'we':
-        
-        
-        $loan->next_due = date('Y-m-d', strtotime( '+1 week', $ndt ));
-        
+        $original_day = date('l', $cat);
+        $loan->next_due = date('Y-m-d', strtotime( "next $original_day", $ndt ));
         break;
+        
         case 'bw':
-        # code...
+        $eom = ( date('m', $ndt) == 2 ) ? 28 : 30;
+        if ( date('d', $ndt) >= $eom )
+        {
+          $next_ft = strtotime( date('Y-m-15', $ndt) );
+          $next_due = date('Y-m-d', strtotime( '+1 month', $next_ft ) );
+        }
+        else if ( date('d') < 15)
+        $next_due = date('Y-m-15', $ndt);
+        else // between the 15 and the EOM
+        $next_due = date('Y-m-30', $ndt);
         break;
+        
         case 'mo':
-        # code...
+        $original_date = date('d', $cat);
+        $loan->next_due = date("Y-m-$original_date", strtotime( "+1 month", $ndt ));
         break;
       }
       
-    }
+      /* Register the Payment */
+      $PaymentsController = new PaymentsController;
+      $payment = $PaymentsController->store( $loan->id, $loan->type );
+      
+    } /* Extentions */
     else if ( $request->path() == 'prestamos/extender')
     {
       $loan->next_due =  $request->input('next_due');
       $loans->extentions = $loans->extentions +1;
-      $loan->update();
-      
     }
+    
+    /* Commit the changes */
+    $loan->update();
+    
+    /* Redirect back to the profile */
+    return back();
+    
   }
   
   /**

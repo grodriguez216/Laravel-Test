@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
+use App\Model\Payment;
+
 class PaymentsController extends Controller
 {
   /**
@@ -39,12 +41,18 @@ class PaymentsController extends Controller
   /**
   * Store a newly created resource in storage.
   *
-  * @param  \Illuminate\Http\Request  $request
+  * @param  StdClass  $request
   * @return \Illuminate\Http\Response
   */
-  public function store(Request $request)
+  public function store( $loan, $type)
   {
-    //
+    $payment = new Payment;
+    
+    $payment->loan_id = $loan;
+    $payment->type = $type;
+    $payment->save();
+    
+    return $payment;
   }
   
   /**

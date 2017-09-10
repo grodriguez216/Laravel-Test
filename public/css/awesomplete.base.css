@@ -10,8 +10,8 @@
 .awesomplete
 {
     position: relative;
-    width: 75%;
-    padding-right: 15px;
+    #width: 75%;
+    #padding-right: 15px;
 }
 
 .awesomplete > input {

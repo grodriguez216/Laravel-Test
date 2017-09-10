@@ -10,7 +10,7 @@ body
 	font-weight: 400 !important;
 }
 
-h4, small
+h4, h2, small
 {
 	font-weight: 100;
 }
@@ -81,4 +81,20 @@ h4, small
 {
 	background:#dc3545;
 	color: #fff;
+}
+
+.scroll
+{
+	background: #efefef;
+	padding: 1rem;
+	max-height: 85vh;
+	overflow-y: scroll;
+	border: solid 1px #999;
+	border-right: none;
+}
+
+
+.custom-control-input:checked~.custom-control-indicator {
+    color: #fff;
+    background-color: #dc3545;
 }

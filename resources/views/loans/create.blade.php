@@ -1,29 +1,31 @@
 @extends('layouts.app')
 
+@section('styles')
+  <link rel="stylesheet" type="text/css" href="{{ asset('css/nouislider.css') }}">
+@endsection
+
 @section('content')
   <div class="container pb-5">
     
     <div class="row">
       <div class="col-12 ">
-        <br><h5 class="page-header text-center">1. Defina el monto</h5><br>
+        <br><h5 class="page-header text-center">1. Definir el monto</h5><br>
         <div class="form-row justify-content-center">
           <div class="col-9 col-md-6 big-input">
             <div class="input-group">
               <span class="input-group-addon">₡</span>
-              <input id="input_amount" type="text" pattern="\d*" class="form-control amount-control py-3" placeholder="Monto" required>
+              <input id="input_amount" type="text" pattern="\d*" class="form-control amount-control py-3" placeholder="Monto" value="{{old('loan')}}" required>
             </div>
           </div>
         </div>{{-- form row --}}
       </div>{{-- col-12 --}}
     </div>{{-- row --}}
     
-    <br>
     <hr>
-    <br>
     
     <div class="row">
       <div class="col-12 ">
-        <br><h5 class="page-header text-center">2. Defina el porcentaje de interés</h5><br>
+        <br><h5 class="page-header text-center">2. Escoger la tasa de interés</h5><br>
         <div class="form-row justify-content-center">
           <div class="col-9 col-md-6 py-3">
             <div id="interest_slider"></div>
@@ -34,13 +36,11 @@
       </div>{{-- col-12 --}}
     </div>{{-- row --}}
     
-    <br>
     <hr>
-    <br>
     
     <div class="row">
       <div class="col-12 ">
-        <br><h5 class="page-header text-center">3. Configure el plan de pago</h5><br>
+        <br><h5 class="page-header text-center">3. Configurar el plan de pago</h5><br>
         
         <div class="form-row justify-content-center">
           <div class="col-9 col-md-6 py-3">
@@ -50,96 +50,39 @@
         </div>{{-- form row --}}
         
         <div class="form-row justify-content-center">
-          <div class="col-9 col-md-5 py-3">
+          <div class="col-9 col-md-6 py-3">
             <div class="card text-center">
               <div class="card-header">Cuotas</div>
               <div class="card-body">
                 <h4 class="card-title">₡<span id="dues_amount" >0</span></h4>
                 <p class="card-text">Minimo: ₡<span id="dues_minimum">0</span> </p>
               </div>{{-- body --}}
+              <div class="card-footer text-center pt-4">
+                <div class="form-check form-check-inline">
+                  <label class="custom-control custom-radio">
+                    <input class="custom-control-input" type="radio" name="type" onchange="onPayPlanChange('we')" value="we" checked>
+                    <span class="custom-control-indicator"></span>
+                    <span class="custom-control-description">Semanal</span>
+                  </label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <label class="custom-control custom-radio">
+                    <input class="custom-control-input" type="radio" name="type" onchange="onPayPlanChange('bw')" value="bw">
+                    <span class="custom-control-indicator"></span>
+                    <span class="custom-control-description">Quincenal</span>
+                  </label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <label class="custom-control custom-radio">
+                    <input class="custom-control-input" type="radio" name="type" onchange="onPayPlanChange('mo')" value="mo">
+                    <span class="custom-control-indicator"></span>
+                    <span class="custom-control-description">Mensual</span>
+                  </label>
+                </div>
+              </div>
             </div> {{-- card --}}
           </div>{{-- col-3 --}}
         </div>{{-- form row --}}
-        
-        <hr>
-        
-        <div class="card-deck">
-          
-          <div class="card text-center mb-5">
-            <div id="payplan-we" class="card-header active">Semanal</div>
-            <div class="card-body">
-              <div class="form-group">
-                <p class="card-text mb-3"><small><span id="wk_label_duration">12</span> cuotas <b>semanales</b>.</small></p>
-                <div class="row justify-content-center">
-                  <label for="ppayday" class="pt-1"><small>Dia de cobro:</small></label>
-                  <div class="col-xs-12 col-lg-8">
-                    <select class="form-control" id="wk_payday" name="ppayday" onchange="updatePayPlanDetails('wk')">
-                      <option value="1">Lunes</option>
-                      <option value="2">Martes</option>
-                      <option value="3"> Miercoles</option>
-                      <option value="4">Jueves</option>
-                      <option value="5">Viernes</option>
-                      <option value="6">Sabado</option>
-                      <option value="7">Domingo</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-            </div>{{-- body --}}
-            <div class="card-footer">
-              <button type="button" onclick="onPayPlanChange('we')" class="btn btn-outline-danger">Seleccionar</button>
-            </div>
-          </div>{{-- card --}}
-          
-          <div class="card text-center mb-5">
-            <div id="payplan-bw" class="card-header">Quincenal</div>
-            <div class="card-body">
-              <div class="form-group">
-                <p class="card-text mb-3"><small><span id="bw_label_duration">12</span> cuotas <b>quincenales</b>.</small></p>
-                <div class="row justify-content-center">
-                  <label for="ppayday" class="pt-1"><small>Dia de cobro:</small></label>
-                  <div class="col-xs-12 col-lg-8">
-                    <select class="form-control" id="bw_payday" name="ppayday" onchange="updatePayPlanDetails('bw')">
-                      <option value="1">Lunes</option>
-                      <option value="2">Martes</option>
-                      <option value="3"> Miercoles</option>
-                      <option value="4">Jueves</option>
-                      <option value="5">Viernes</option>
-                      <option value="6">Sabado</option>
-                      <option value="7">Domingo</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="card-footer">
-              <button type="button" onclick="onPayPlanChange('bw')" class="btn btn-outline-danger">Seleccionar</button>
-            </div>
-          </div>{{-- card --}}
-          
-          <div class="card text-center mb-5">
-            <div id="payplan-mo" class="card-header">Mensual</div>
-            <div class="card-body">
-              <div class="form-group">
-                <p class="card-text mb-3"><small><span id="mo_label_duration">12</span> cuotas <b>mensuales</b>.</small></p>
-                
-                <div class="row justify-content-center">
-                  <label for="ppayday"><small>Dia de cobro:</small></label>
-                  <div class="col-xs-12 col-lg-8">
-                    <select class="form-control" id="mo_payday" name="ppayday" onchange="updatePayPlanDetails('mo')">
-                      @for ($i = 1; $i < 31; $i++)
-                        <option value="{{ $i}}">{{ $i}}</option>
-                      @endfor
-                    </select>
-                  </div>
-                </div>
-              </div>
-            </div>{{-- body --}}
-            <div class="card-footer">
-              <button type="button" onclick="onPayPlanChange('mo')" class="btn btn-outline-danger">Seleccionar</button>
-            </div>
-          </div>{{-- card --}}
-        </div>{{-- cardeck --}}
         
       </div>{{-- col-12 --}}
     </div>{{-- row --}}
@@ -201,8 +144,8 @@
   var interest_slider = document.getElementById('interest_slider');
   var duration_slider = document.getElementById('duration_slider');
   
-  noUiSlider.create(interest_slider, {start: 20, step: 5, range: { 'min': 0, 'max': 40 } });
-  noUiSlider.create(duration_slider, {start: 6, step: 2, range: { 'min': 2, 'max': 24 } });
+  noUiSlider.create(interest_slider, {start: 20, step: 10, range: { 'min': 0, 'max': 50 } });
+  noUiSlider.create(duration_slider, {start: 6, step: 1, range: { 'min': 1, 'max': 12 } });
   
   // Event binding
   interest_slider.noUiSlider.on('update', onInterestSliderUpdate);
@@ -211,6 +154,7 @@
   $('#input_amount').on('input', onAmountValueChange);
   
   
+  get('input_amount').value = nicecify( valueOf('input_amount') );
   
   
   /* ------------------------------ Function Definitions ------------------------------ */
@@ -227,9 +171,9 @@
   {
     var duration = parseInt( values[0] );
     get('label_duration').innerHTML =  duration;
-    get('wk_label_duration').innerHTML =  duration;
-    get('bw_label_duration').innerHTML =  duration;
-    get('mo_label_duration').innerHTML =  duration;
+    // get('wk_label_duration').innerHTML =  duration;
+    // get('bw_label_duration').innerHTML =  duration;
+    // get('mo_label_duration').innerHTML =  duration;
     get('duration').value = duration;
     
     onPayPlanChange( get('payplan').value );
@@ -269,16 +213,16 @@
   
   function onPayPlanChange( plan )
   {
-    get('payplan-we').classList.remove('active');
-    get('payplan-bw').classList.remove('active');
-    get('payplan-mo').classList.remove('active');
+    // get('payplan-we').classList.remove('active');
+    // get('payplan-bw').classList.remove('active');
+    // get('payplan-mo').classList.remove('active');
     
-    var active = get( 'payplan-' + plan ).classList.add( 'active' );
-    var duration = get('duration').value;
+    // var active = get( 'payplan-' + plan ).classList.add( 'active' );
+    // var duration = get('duration').value;
     switch ( plan)
     {
       case 'we': get('label_plan').innerHTML = 'Semanas'; break;
-      case 'bw': get('label_plan').innerHTML = 'Quincenas ( ' + duration*2 + ' Semanas )'; break;
+      case 'bw': get('label_plan').innerHTML = 'Quincenas'; break;
       case 'mo': get('label_plan').innerHTML = 'Meses'; break;
     }
     // Set the value to the input
@@ -321,9 +265,6 @@
   
   function onFormSubmit()
   {
-    
-    
-    
     if ( get('loan').value > 0 )
     {
       get('newLoanForm').submit();

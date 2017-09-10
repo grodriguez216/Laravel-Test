@@ -85,7 +85,6 @@ class LoansController extends Controller
     
     $loan->duration = $request->input('duration');
     $loan->payplan = $request->input('payplan');
-    $loan->details = $request->input('details');
     
     $due_date = time();
     $next_due = time();
@@ -150,9 +149,30 @@ class LoansController extends Controller
   */
   public function show($id)
   {
-    $loan = Loan::find( $id );
+    $loanlist = Loan::where('client_id', $id)->get();
     
-    return view('loans.pay', [ 'info' => $loan ]);
+    foreach ($loanlist as $loan)
+    {
+      switch ( $loan->payplan )
+      {
+        case 'we':
+        $loan->duration .= ' Sem';
+        break;
+        case 'bw':
+        $loan->duration .= ' Qnas';
+        break;
+        case 'mo':
+        $loan->duration .= ' Meses';
+        break;
+      }
+      
+      $loan->next_due_display = date('d/M/Y', strtotime( $loan->next_due ));
+      $loan->date = date('d-M-Y', strtotime( $loan->created_at ));
+      
+    }
+    
+    
+    return $loanlist;
   }
   
   /**
@@ -173,9 +193,51 @@ class LoansController extends Controller
   * @param  int  $id
   * @return \Illuminate\Http\Response
   */
-  public function update(Request $request, $id)
+  public function update(Request $request)
   {
-    //
+    $loan = Loan::findOrFail( $request->input('id') );
+    
+    // TODO: Manage Exception //
+    
+    if ( $request->path() == 'prestamos/pagar')
+    {
+      
+      $payment = $request->input('amount');
+      
+      /* Update the balance */
+      $loan->balance = $loan->balance - $payment;
+      
+      /* Close the loan if balance is zero */
+      if ( $loan->balance <= 0)
+      $loan->balance = $loan->status = 0;
+      
+      /* Next Due Timestamp */
+      $ndt = strtotime( $loan->next_due );
+      
+      switch ($loan->payplan)
+      {
+        case 'we':
+        
+        
+        $loan->next_due = date('Y-m-d', strtotime( '+1 week', $ndt ));
+        
+        break;
+        case 'bw':
+        # code...
+        break;
+        case 'mo':
+        # code...
+        break;
+      }
+      
+    }
+    else if ( $request->path() == 'prestamos/extender')
+    {
+      $loan->next_due =  $request->input('next_due');
+      $loans->extentions = $loans->extentions +1;
+      $loan->update();
+      
+    }
   }
   
   /**

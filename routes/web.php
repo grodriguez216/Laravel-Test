@@ -25,6 +25,7 @@ Route::prefix('prestamos')->group(function ()
   /* Posts */
   Route::post('agregar', 'LoansController@store' )->name('loans.store');
   Route::post('pagar', 'LoansController@pay' )->name('loans.pay');
+  Route::post('extender', 'LoansController@update' )->name('loans.update');
 });
 
 
@@ -32,8 +33,8 @@ Route::prefix('clientes')->group(function ()
 {
   /* Gets */
   Route::get('/', 'ClientsController@index' )->name('clients.list');
-  //Route::get('agregar', 'ClientsController@create' )->name('clients.create');
   Route::get('perfil/{id}', 'ClientsController@show' )->name('clients.profile');
+  //Route::get('agregar', 'ClientsController@create' )->name('clients.create');
   //Route::get('editar/{id}', 'ClientsController@edit' )->name('clients.edit');
   
   /* Posts */

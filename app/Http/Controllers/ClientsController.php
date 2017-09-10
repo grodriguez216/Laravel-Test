@@ -64,7 +64,20 @@ class ClientsController extends Controller
   */
   public function show($id)
   {
-    //
+    
+    $client = Client::findOrFail( $id );
+    
+    $LoansController = new LoansController;
+    $loans = $LoansController->show( $id );
+    
+    $data = array(
+      'client' => $client,
+      'loans' => $loans
+    );
+    
+    /* Handle Exception */
+    
+    return view('clients/profile', $data);
   }
   
   /**

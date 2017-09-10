@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
+use App\Models\Client;
+
 class AppController extends Controller
 {
   /**
@@ -23,6 +25,21 @@ class AppController extends Controller
   */
   public function index()
   {
-    return view('home');
+    
+    $clients = Client::all();
+    
+    $nice_list = array();
+    
+    foreach ($clients as $cli)
+    {
+      $item = array();
+      $item['value'] = $cli->id;
+      $item['label'] = $cli->first_name . ' ' . $cli->last_name . " ( {$cli->phone} )";
+      $nice_list[] = $item;
+    }
+    
+    $json_list = json_encode( $nice_list );
+    
+    return view('home')->with( 'client_list', $json_list );
   }
 }

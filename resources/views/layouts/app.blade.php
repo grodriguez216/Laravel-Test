@@ -8,7 +8,8 @@
   <link rel="stylesheet" type="text/css" href="{{ asset('css/font-awesome.min.css') }}">
   <link rel="stylesheet" type="text/css" href="{{ asset('css/awesomplete.base.css') }}">
   <link rel="stylesheet" type="text/css" href="{{ asset('css/awesomplete.theme.css') }}">
-  <link rel="stylesheet" type="text/css" href="{{ asset('css/nouislider.css') }}">
+  
+  @yield('styles')
   
   <link rel="stylesheet" type="text/css" href="{{ asset('css/app.css') }}">
   <link href="https://fonts.googleapis.com/css?family=Roboto:200,300,500" rel="stylesheet">
@@ -33,7 +34,6 @@
   </nav>
   
   
-  
   <div id="loader" class="loader">
     <img src="{{ asset('img/gears-loader-red.gif') }}">
   </div>
@@ -43,7 +43,7 @@
   @yield('content')
   
   <footer>
-    <script src="{{ asset('js/jquery-3.2.1.slim.min.js') }}"></script>
+    <script src="{{ asset('js/jquery-3.2.1.min.js') }}"></script>
     <script src="{{ asset('js/popper.min.js') }}"></script>
     <script src="{{ asset('js/bootstrap.min.js') }}"></script>
     <script src="{{ asset('js/awesomplete.js') }}"></script>

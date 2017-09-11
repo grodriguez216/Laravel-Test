@@ -36,7 +36,7 @@
     
     <div class="card-deck card-menu mb-4">
       <div class="card border-danger mb-3">
-        <a class="card-link" href="/reportes/">
+        <a class="card-link" href="{{ route('app.reports') }}">
           <div class="card-body text-danger">
             <h4 class="card-title"><i class="fa fa-list-alt"></i>&nbsp;Reportes</h4>
             <p class="card-text">Total de los prestamos activos.</p>
@@ -45,7 +45,7 @@
       </div>
       
       <div class="card border-dark mb-3">
-        <a class="card-link" href="/configuracion">
+        <a class="card-link" href="{{ route('app.settings') }}">
           <div class="card-body text-dark">
             <h4 class="card-title"><i class="fa fa-cog"></i>&nbsp;Configuracion</h4>
             <p class="card-text">Modalidades de prestamo y mas</p>

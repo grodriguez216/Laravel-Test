@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-use App\Model\Payment;
+use App\Models\Payment;
 
 class PaymentsController extends Controller
 {
@@ -44,11 +44,12 @@ class PaymentsController extends Controller
   * @param  StdClass  $request
   * @return \Illuminate\Http\Response
   */
-  public function store( $loan, $type)
+  public function store( $loan, $due, $type)
   {
     $payment = new Payment;
     
     $payment->loan_id = $loan;
+    $payment->due_date = $due;
     $payment->type = $type;
     $payment->save();
     
@@ -63,7 +64,20 @@ class PaymentsController extends Controller
   */
   public function show($id)
   {
-    //
+    $payments_list = Payment::where('loan_id', $id)->get();
+    
+    foreach ($payments_list as $payment)
+    {
+      switch ( $payment->type )
+      {
+        case 'F': $payment->type = ' Completo'; break;
+        case 'M': $payment->type = ' Minimo'; break;
+      }
+      
+      $payment->date = date('d-M-Y', strtotime( $payment->created_at ));
+    }
+    
+    return $payments_list;
   }
   
   /**

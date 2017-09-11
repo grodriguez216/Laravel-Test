@@ -70,6 +70,9 @@ class ClientsController extends Controller
     $LoansController = new LoansController;
     $loans = $LoansController->show( $id );
     
+    //$PaymentsController = new PaymentsController;
+    //$payments = $PaymentsController->show( $id );
+    
     $data = array(
       'client' => $client,
       'loans' => $loans

@@ -5,6 +5,18 @@ body
 	font-weight: 300;
 }
 
+a
+{
+	color: #000000;
+	font-weight: 400;
+}
+
+a:hover, a:focus
+{
+	color: #dc3545;
+	text-decoration: none;
+}
+
 .page-header
 {
 	font-weight: 400 !important;

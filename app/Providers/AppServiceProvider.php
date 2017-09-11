@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+date_default_timezone_set('America/Costa_Rica');
+
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;

@@ -11,7 +11,12 @@ class Loan extends Model
   
   public function client()
   {
-    return $this->belongsTo('App\Client');
+    return $this->belongsTo('App\Models\Client');
+  }
+  
+  public function payments()
+  {
+    return $this->hasMany('App\Models\Payment');
   }
   
 }

@@ -94,7 +94,10 @@
     <div class="row">
       
       <div class="col-md-12">
-        <br><h5 class="page-header text-center">4. Agregar el Cliente</h5><br>
+        @if ( !isset( $_GET['auto'] ) )
+          <br><h5 class="page-header text-center">4. Agregar el Cliente</h5><br>
+        @endif
+        
         <form id="newLoanForm" method="post" action="{{ route('loans.store') }}">
           {{ csrf_field() }}
           <input id="loan" type="hidden" name="loan" value="0">
@@ -106,24 +109,33 @@
           <input id="dues" type="hidden" name="dues" value="0">
           <input id="partial" type="hidden" name="partial" value="0">
           
-          <div class="form-row">
-            <div class="col-6 col-md-4 form-group">
-              <input type="text"  name="first_name" class="form-control py-3 {{ $errors->has('first_name') ? 'is-invalid' : '' }}" value="{{ old('first_name') }}" placeholder="Nombre" required>
-              <div class="invalid-feedback {{ $errors->has('first_name') ? 'd-block' : 'd-none' }}">{{ $errors->first('first_name') }}</div>
+          
+          @if ( isset( $_GET['auto'] ) )
+            <input type="hidden" name="first_name" value="0">
+            <input type="hidden" name="last_name" value="0">
+            <input type="hidden" name="phone" value="{{ $_GET['key'] }}">
+          @else
+            <div class="form-row">
+              <div class="col-6 col-md-4 form-group">
+                <input type="text"  name="first_name" class="form-control py-3 {{ $errors->has('first_name') ? 'is-invalid' : '' }}" value="{{ old('first_name') }}" placeholder="Nombre" required>
+                <div class="invalid-feedback {{ $errors->has('first_name') ? 'd-block' : 'd-none' }}">{{ $errors->first('first_name') }}</div>
+              </div>
+              
+              <div class="col-6 col-md-4 form-group}">
+                <input type="text" name="last_name" class="form-control py-3 {{ $errors->has('last_name') ? 'is-invalid' : '' }}" value="{{ old('last_name') }}" placeholder="Apellido" required>
+                <div class="invalid-feedback {{ $errors->has('last_name') ? 'd-block' : 'd-none' }}">{{ $errors->first('last_name') }}</div>
+              </div>
+              <div class="col-12 col-md-4 form-group">
+                <input type="number" name="phone" class="form-control py-3 {{ $errors->has('phone') ? 'is-invalid' : '' }}" value="{{ old('first_name') }}" placeholder="Telefono" required>
+                <div class="invalid-feedback {{ $errors->has('phone') ? 'd-block' : 'd-none' }}">{{ $errors->first('phone') }}</div>
+              </div>
+              <div class="col-12 form-group mt-3 {{ $errors->has('address') ? 'has-danger' : '' }}">
+                <textarea class="form-control" name="address" rows="2" placeholder="Direccion"></textarea>
+              </div>
             </div>
-            
-            <div class="col-6 col-md-4 form-group}">
-              <input type="text" name="last_name" class="form-control py-3 {{ $errors->has('last_name') ? 'is-invalid' : '' }}" value="{{ old('last_name') }}" placeholder="Apellido" required>
-              <div class="invalid-feedback {{ $errors->has('last_name') ? 'd-block' : 'd-none' }}">{{ $errors->first('last_name') }}</div>
-            </div>
-            <div class="col-12 col-md-4 form-group">
-              <input type="number" name="phone" class="form-control py-3 {{ $errors->has('phone') ? 'is-invalid' : '' }}" value="{{ old('first_name') }}" placeholder="Telefono" required>
-              <div class="invalid-feedback {{ $errors->has('phone') ? 'd-block' : 'd-none' }}">{{ $errors->first('phone') }}</div>
-            </div>
-            <div class="col-12 form-group mt-3 {{ $errors->has('address') ? 'has-danger' : '' }}">
-              <textarea class="form-control" name="address" rows="2" placeholder="Direccion"></textarea>
-            </div>
-          </div>
+          @endif
+          
+          
           
         </div>
         

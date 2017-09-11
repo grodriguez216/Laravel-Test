@@ -6,6 +6,7 @@ use Validator;
 use Illuminate\Http\Request;
 
 use App\Models\Loan;
+use App\Models\Payments;
 
 class LoansController extends Controller
 {
@@ -108,10 +109,10 @@ class LoansController extends Controller
         $next_due = date('Y-m-d', strtotime( '+1 month', $next_ft ) );
       }
       else if ( date('d') < 15)
-      $next_due = date('Y-m-15');
+      $next_due = strtotime( date('Y-m-15') );
       
       else // between the 15 and the EOM
-      $next_due = date('Y-m-30');
+      $next_due = strtotime( date('Y-m-30') );
       break;
       
       case 'mo':
@@ -203,12 +204,20 @@ class LoansController extends Controller
       $type = $request->input('type');
       
       /* Update the balance */
-      $amount = ( $type == 'F' ) ? $loan->dues : $loan->interest;
+      $amount = ( $type == 'PC' ) ? $loan->dues : $loan->interest;
       $loan->balance = $loan->balance - $amount;
+      
+      /* Increase the counter for minimal payments */
+      if ( $type == 'PM')
+      $loan->extentions = $loan->extentions +1;
       
       /* Close the loan if balance is zero */
       if ( $loan->balance <= 0)
       $loan->balance = $loan->status = 0;
+      
+      /* Register the Payment */
+      $PaymentsController = new PaymentsController;
+      $payment = $PaymentsController->store( $loan->id, $loan->next_due, $type );
       
       /* Next Due Timestamp */
       $ndt = strtotime( $loan->next_due );
@@ -241,15 +250,12 @@ class LoansController extends Controller
         break;
       }
       
-      /* Register the Payment */
-      $PaymentsController = new PaymentsController;
-      $payment = $PaymentsController->store( $loan->id, $loan->type );
+      
       
     } /* Extentions */
     else if ( $request->path() == 'prestamos/extender')
     {
       $loan->next_due =  $request->input('next_due');
-      $loans->extentions = $loans->extentions +1;
     }
     
     /* Commit the changes */

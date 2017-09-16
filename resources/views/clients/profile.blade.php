@@ -14,55 +14,60 @@ use App\Helper;
   <div class="container-fluid">
     
     <div class="row">
+      
       <div class="col-12 col-md-4">
+        
         <div class="card">
+          <h4 class="card-header" style="background:#fff">Perfil del Cliente</h4>
           <div class="card-body">
-            <h4 class="card-title">Perfil del Cliente</h4>
-            <table class="table table-sm">
-              <tr>
-                <td>Nombre:</td>
-                <td>{{ $client->first_name }}&nbsp;{{ $client->last_name }}</td>
-              </tr>
-              <tr>
-                <td>Telefono:</td>
-                <td><a href="tel:{{ $client->phone }}">{{ $client->phone }}</a></td>
-              </tr>
-              <tr>
-                <td>Direccion:</td>
-                <td>{{ $client->address }}</td>
-              </tr>
-            </table>
+            <div class="row mb-4">
+              <div class="col-12 mb-1"><small class="bold">Nombre:</small></div>
+              <div class="col-12">{{ $client->first_name }}&nbsp;{{ $client->last_name }}</div>
+            </div>
+            <hr>
+            <div class="row mb-4">
+              <div class="col-12 mb-1"><small class="bold">Direccion:</small></div>
+              <div class="col-12">{{ $client->address }}</div>
+            </div>
+            <hr>
+            <div class="row">
+              <div class="col">Telefono:</div>
+              <div class="col"><a href="tel:{{ $client->phone }}">{{ $client->phone }}</a></div>
+            </div>
           </div>
-        </div>
-        
-        <div class="text-center">
-          <a class="btn btn-outline-danger w-100 my-3" href="/prestamos/agregar?auto=1&amp;key={{ $client->phone }}">Agregar Prestamo</a>
-        </div>
-        
-        
-        
-      </div>
-      <div class="col-md-8 scroll">
+          <div class="card-footer text-center" style="background:#fff">
+            <a class="btn btn-outline-danger w-100 my-3" href="/prestamos/agregar?auto=1&amp;key={{ $client->phone }}">Agregar Prestamo</a>
+          </div>
+        </div> {{-- card --}}
+      </div> {{-- col-12/4 Left InfoPanel --}}
+      
+      
+      <div class="col-12 col-md-8 scroll">
         @foreach ($loans->sortByDesc('created_at') as $loan)
-          <div class="card mb-5">
+          
+          
+          <div class="card loan mb-4">
             <div class="card-body">
+              
               <h4 class="card-title">
-                
                 <div class="row">
-                  <div class="col mr-auto">Detalle de Prestamo</div>
+                  <div class="col text-left">Detalle de Prestamo</div>
                   <div class="col text-right"><small class="text-muted">{{ $loan->date}}</small></div>
                 </div>
               </h4>
               
+              <hr>
+              
               <div class="row">
-                <div class="col-md-6">
-                  <table class="table table- mb-0">
+                
+                <div class="col-12 col-lg-5">
+                  <table class="table mb-0">
                     <tr>
-                      <td>Monto Inicial:</td>
+                      <td>Prestado:</td>
                       <td class="text-right">₡<span class="money">{{ $loan->loaned }}</span> </td>
                     </tr>
                     <tr>
-                      <td>Total a pagar:</td>
+                      <td>Total (+ {{ $loan->rate }}%):</td>
                       <td class="text-right">₡<span class="money">{{ $loan->payable }}</span></td>
                     </tr>
                     <tr>
@@ -70,111 +75,161 @@ use App\Helper;
                       <td class="text-right">₡<span class="money"><strong>{{ $loan->balance }}</strong></span> </td>
                     </tr>
                     <tr>
-                      <td>Modalidad:</td>
-                      <td class="text-right">{{ $loan->duration }} / {{ $loan->rate }}%</td>
+                      <td>Duración:</td>
+                      <td class="text-right">{{ $loan->duration }} +{{ $loan->extentions }}</td>
                     </tr>
                   </table>
+                </div> {{-- col-5 --}}
+                
+                <div class="col-12 my-3 d-lg-none">
+                  <hr>
                 </div>
                 
-                <div class="col-md-6">
-                  
+                
+                <div class="col-12 col-lg-7">
                   @if ( $loan->status )
                     <form action="{{ route('loans.pay') }}" method="post">
-                      <div class="row">
-                        <div class="col-12 text-center">
-                          <h2 class="w-100 mb-4">₡
-                            <span id="dues_label" class="money">{{ $loan->dues }}</span>
-                            <span id="interest_label" class="money d-none">{{ $loan->interest }}</span>
+                      
+                      <div class="row mb-0">
+                        <div class="col text-right">
+                          <h2>
+                            <small>₡</small>
+                            <span id="dues_label-{{ $loan->id }}" class="money">{{ $loan->nice_due }}</span>
+                            <span id="interest_label-{{ $loan->id }}" class="money d-none">{{ $loan->nice_int }}</span>
                           </h2>
                         </div>
-                        <div class="col-12 text-center">
+                        <div class="col pl-0 text-left">
+                          <div class="input-group minimal">
+                            <span class="input-group-addon">+</span>
+                            <input id="input_amount" type="text" name="extra" pattern="\d*" class="form-control" placeholder="Extra">
+                          </div>
+                        </div>
+                      </div>{{--row --}}
+                      
+                      <div class="row mb-3">
+                        <div class="col-6 text-right">
+                          <span style="color:#999" id="round-d-{{$loan->id}}" class="">{{ $loan->diff_due }}</span>
+                          <span style="color:#999" id="round-i-{{$loan->id}}" class="d-none">{{ $loan->diff_int }}</span>
+                        </div>
+                      </div>{{--row --}}
+                      
+                      <div class="row mb-4">
+                        <div class="col text-center">
                           <div class="form-check form-check-inline">
                             <label class="custom-control custom-radio">
-                              <input class="custom-control-input" type="radio" name="type" onchange="onTypeChange('PC')" value="PC" checked>
+                              <input class="custom-control-input" type="radio" name="type" onchange="onTypeChange('PC','{{ $loan->id }}')" value="PC" checked>
                               <span class="custom-control-indicator"></span>
                               <span class="custom-control-description">Completo</span>
                             </label>
                           </div>
                           <div class="form-check form-check-inline">
                             <label class="custom-control custom-radio">
-                              <input class="custom-control-input" type="radio" name="type" onchange="onTypeChange('PM')" value="PM">
+                              <input class="custom-control-input" type="radio" name="type" onchange="onTypeChange('PM','{{ $loan->id }}')" value="PM">
                               <span class="custom-control-indicator"></span>
                               <span class="custom-control-description">Minimo</span>
                             </label>
                           </div>
                         </div>
-                        
-                        <div class="col-12 text-center">
+                      </div> {{-- row --}}
+                      
+                      <div class="row">
+                        <div class="col text-center">
                           {{ csrf_field() }}
                           <input type="hidden" name="id" value="{{ $loan->id }}">
-                          <button type="submit" class="btn btn-outline-danger mt-2 w-50 ">Pagar</button>
+                          <input type="hidden" name="due" value="{{ $loan->nice_due }}">
+                          <input type="hidden" name="int" value="{{ $loan->nice_int }}">
+                          <button type="submit" class="btn btn-outline-danger btn-sm w-50 ">Pagar</button>
                         </div>
-                      </div>{{-- row --}}
+                      </div> {{-- row --}}
+                      
                     </form>
+                  @else
+                    <div class="col text-center mt-3">
+                      <a data-toggle="collapse" href="#paylist-{{ $loan->id }}">Historial&nbsp;
+                        <i class="fa fa-chevron-down"></i>
+                      </a>
+                    </div>
                   @endif
-                  <div class="col-12 text-center mt-3">
-                    <a data-toggle="collapse" href="#paylist-{{ $loan->id }}">Ver Historial de Pagos</a>
-                  </div>
-                </div>
-              </div>
+                </div>{{-- row col-7 --}}
+                
+              </div> {{-- row --}}
               
-              <div class="collapse" id="paylist-{{ $loan->id }}">
+              
+              <div class="collapse p-2 mt-2" id="paylist-{{ $loan->id }}" style="">
                 <hr>
-                <div class="card card-body">
-                  <table class="table table-sm">
-                    <thead>
-                      <tr>
-                        <th>Fecha de Pago</th>
-                        <th>Fecha Acordada</th>
-                        <th>Tipo de Pago</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      @foreach ($loan->payments->sortByDesc('created_at') as $payment)
+                <div class="row">
+                  <div class="col py-3">
+                    <table class="table table-sm table-hover">
+                      <thead class="thead-inverse">
                         <tr>
-                          <td>{{ Helper::date( $payment->created_at, 'd-M-Y | h:i A' ) }}</td>
-                          <td>{{ Helper::date( $payment->due_date ) }}</td>
-                          <td>{{ $payment->type }}</td>
+                          <th><small class="bold">Fecha</small></th>
+                          <th><small class="bold">Vencimiento</small></th>
+                          <th><small class="bold">Tipo</small></th>
+                          <th><small class="bold">Monto</small></th>
                         </tr>
-                      @endforeach
-                    </tbody>
-                  </table>
-                  <div class="row">
-                    <div class="col-4 mr-auto text-left">
-                      <a class="btn btn-outline-danger btn-sm" href="prestamos/reembolso/{{$loan->id}}">Deshacer último pago</a>
-                    </div>
-                    
-                    <div class="col ml-auto text-right">
-                      <small class="text-muted"><b>PC</b>: Pago Completo   <b>PM</b>: Pago Minimo   <b>RM</b>: Reembolso</small>
-                    </div>
+                      </thead>
+                      <tbody>
+                        @foreach ($loan->payments->sortBy('created_at') as $payment)
+                          <tr>
+                            <td>{{ Helper::date( $payment->created_at, 'd-M-Y' ) }}</td>
+                            <td>{{ Helper::date( $payment->due_date ) }}</td>
+                            @php
+                            switch ( $payment->type )
+                            {
+                              case 'PC': $payment->type = 'Completo'; break;
+                              case 'PM': $payment->type = 'Minimo'; break;
+                              case 'AB': $payment->type = 'Abono'; break;
+                              case 'RB': $payment->type = 'Reembolso'; break;
+                            }
+                            @endphp
+                            <td>{{ $payment->type }}</td>
+                            <td>₡<span class="money">{{ $payment->amount }}</span></td>
+                          </tr>
+                        @endforeach
+                      </tbody>
+                      {{ $loan->payments->sum('amount') }}
+                    </table>
+                  </div> {{-- col --}}
+                </div> {{-- row --}}
+                
+                
+                <div class="row d-none">
+                  <div class="col-4 mr-auto text-left">
+                    <a class="btn btn-outline-danger btn-sm" href="prestamos/reembolso/{{$loan->id}}">Reembolsar último abono</a>
                   </div>
                 </div>
-              </div>
-            </div>
+                
+              </div> {{-- collpse --}}
+              
+            </div> {{-- Card Body --}}
+            
             @if ( $loan->status)
               <div class="card-footer">
-                <table class="table table-sm mb-0">
-                  <tr>
-                    <td><strong>Proximo Pago:</strong></td>
-                    <td><a href="#" onclick="onNextDueClick('lf-{{$loan->id}}')">{{ $loan->next_due_display }}</a></td>
-                    <td><strong>Extenciones:</strong></td>
-                    <td>{{ $loan->extentions }}</td>
-                  </tr>
-                </table>
-                <form id="lf-{{$loan->id}}" action="{{ route('loans.update') }}" method="post">
+                <div class="row">
+                  <div class="col">Proximo Pago</div>
+                  <div class="col"><a href="#" onclick="onNextDueClick('lf-{{$loan->id}}')">{{ $loan->next_due_display }}</a></div>
+                  <div class="col">
+                    <a data-toggle="collapse" href="#paylist-{{ $loan->id }}">Historial&nbsp;
+                      <i class="fa fa-chevron-down"></i>
+                    </a>
+                  </div>
+                </div>
+                <form id="lf-{{$loan->id}}" class="d-none" action="{{ route('loans.update') }}" method="post">
                   {{ csrf_field() }}
                   <input type="hidden" name="id" value="{{ $loan->id }}">
                   <input class="datepicker d-none" type="date" id="next_due" name="next_due" data-value="{{ $loan->next_due }}">
                 </form>
               </div>
-            </div>
-          @endif
+            @endif
+            
+          </div> {{-- Loan Card --}}
         @endforeach
-      </div>
+        
+      </div> {{-- col-12 scroll --}}
       
-    </div>
+    </div> {{-- row --}}
     
-  </div>
+  </div> {{-- container --}}
   
   
   
@@ -213,11 +268,16 @@ use App\Helper;
     get( $active_form ).submit();
   }
   
-  function onTypeChange(val)
+  function onTypeChange(type, target)
   {
-    var is_full = ( val == 'PC' );
-    toggle('dues_label', is_full);
-    toggle('interest_label', !is_full);
+    
+    var is_full = ( type == 'PC' );
+    toggle('dues_label-' + target, is_full);
+    toggle('interest_label-' + target, !is_full);
+    
+    toggle('round-d-' + target, is_full);
+    toggle('round-i-' + target, !is_full);
+    
   }
   
   function datepicker_init()
@@ -239,11 +299,9 @@ use App\Helper;
   function nicecify_money()
   {
     var items = document.getElementsByClassName('money');
-    
     for (var i = 0; i < items.length; i++) {
       items[i].innerHTML = nicecify( items[i].innerHTML );
     }
-    
   }
   
   </script>

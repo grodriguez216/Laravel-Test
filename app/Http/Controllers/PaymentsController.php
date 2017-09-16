@@ -44,13 +44,14 @@ class PaymentsController extends Controller
   * @param  StdClass  $request
   * @return \Illuminate\Http\Response
   */
-  public function store( $loan, $due, $type)
+  public function store(  $type, $loan, $amount, $due_date )
   {
     $payment = new Payment;
     
-    $payment->loan_id = $loan;
-    $payment->due_date = $due;
     $payment->type = $type;
+    $payment->loan_id = $loan;
+    $payment->amount = $amount;
+    $payment->due_date = $due_date;
     $payment->save();
     
     return $payment;
@@ -72,6 +73,7 @@ class PaymentsController extends Controller
       {
         case 'F': $payment->type = ' Completo'; break;
         case 'M': $payment->type = ' Minimo'; break;
+        case 'E': $payment->type = ' Abono'; break;
       }
       
       $payment->date = date('d-M-Y', strtotime( $payment->created_at ));

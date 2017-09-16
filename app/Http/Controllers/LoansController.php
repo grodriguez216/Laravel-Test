@@ -158,13 +158,26 @@ class LoansController extends Controller
         $loan->duration .= ' Sem';
         break;
         case 'bw':
-        $loan->duration .= ' Qnas';
+        $loan->duration .= ' Qns';
         break;
         case 'mo':
         $loan->duration .= ' Meses';
         break;
       }
       
+      /* Round to the closest 1000 */
+      $loan->nice_due = round( $loan->dues / 1000, 0, PHP_ROUND_HALF_UP) * 1000;
+      $loan->nice_int = round( $loan->interest / 1000, 0, PHP_ROUND_HALF_UP) * 1000;
+      
+      /* Save the amount rounded */
+      $loan->diff_due = $loan->nice_due - $loan->dues;
+      $loan->diff_int = $loan->nice_int - $loan->interest;
+      
+      /* Put '+' on positive numbers */
+      $loan->diff_due = $loan->diff_due >= 0 ? "+$loan->diff_due" : "$loan->diff_due";
+      $loan->diff_int = $loan->diff_int >= 0 ? "+$loan->diff_int" : "$loan->diff_int";
+      
+      /* Format the dates nicely */
       $loan->next_due_display = date('d/M/Y', strtotime( $loan->next_due ));
       $loan->date = date('d-M-Y', strtotime( $loan->created_at ));
       
@@ -203,56 +216,67 @@ class LoansController extends Controller
       /* Payment Type | Full or Minimun */
       $type = $request->input('type');
       
+      /* Amount to Pay */
+      $amount = ( $type == 'PC' ) ? $request->input('due') : $request->input('int');
+      
+      /* Extra Deposit */
+      $extra = $request->input('extra', 0);
+      
+      /* Calculate amount to substract from the balace */
+      $reduction = ( $type == 'PC') ? $amount + $extra : $extra ;
+      
       /* Update the balance */
-      $amount = ( $type == 'PC' ) ? $loan->dues : $loan->interest;
-      $loan->balance = $loan->balance - $amount;
+      if ( $type == 'PC') $loan->balance =  $loan->balance - $reduction;
       
       /* Increase the counter for minimal payments */
-      if ( $type == 'PM')
-      $loan->extentions = $loan->extentions +1;
+      if ( $type == 'PM') $loan->extentions = $loan->extentions +1;
       
       /* Close the loan if balance is zero */
-      if ( $loan->balance <= 0)
-      $loan->balance = $loan->status = 0;
+      if ( $loan->balance <= 0) $loan->balance = $loan->status = 0;
       
-      /* Register the Payment */
+      
       $PaymentsController = new PaymentsController;
-      $payment = $PaymentsController->store( $loan->id, $loan->next_due, $type );
+      
+      /* Register the Due Payment */
+      if ($amount) $PaymentsController->store( $type, $loan->id, $amount, $loan->next_due);
+      
+      /* Register the Optional extra deposit */
+      if ( $extra ) $PaymentsController->store( 'AB', $loan->id, $extra, $loan->next_due);
       
       /* Next Due Timestamp */
       $ndt = strtotime( $loan->next_due );
+      
       /* Created at Timestamp */
       $cat = strtotime( $loan->created_at );
       
       switch ($loan->payplan)
       {
         case 'we':
+        # ----------------------------------------------------------------------------
         $original_day = date('l', $cat);
         $loan->next_due = date('Y-m-d', strtotime( "next $original_day", $ndt ));
         break;
         
         case 'bw':
+        # ----------------------------------------------------------------------------
         $eom = ( date('m', $ndt) == 2 ) ? 28 : 30;
         if ( date('d', $ndt) >= $eom )
         {
           $next_ft = strtotime( date('Y-m-15', $ndt) );
-          $next_due = date('Y-m-d', strtotime( '+1 month', $next_ft ) );
+          $loan->next_due = date('Y-m-d', strtotime( '+1 month', $next_ft ) );
         }
-        else if ( date('d') < 15)
-        $next_due = date('Y-m-15', $ndt);
-        else // between the 15 and the EOM
-        $next_due = date('Y-m-30', $ndt);
+        else if ( date('d') < 15) $loan->next_due = date('Y-m-15', $ndt);
+        else $loan->next_due = date('Y-m-30', $ndt); // between the 15 and the EOM
         break;
         
         case 'mo':
+        # ----------------------------------------------------------------------------
         $original_date = date('d', $cat);
         $loan->next_due = date("Y-m-$original_date", strtotime( "+1 month", $ndt ));
         break;
       }
-      
-      
-      
-    } /* Extentions */
+    }
+    /* Extentions */
     else if ( $request->path() == 'prestamos/extender')
     {
       $loan->next_due =  $request->input('next_due');

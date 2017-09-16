@@ -11,6 +11,11 @@ a
 	font-weight: 400;
 }
 
+.bold
+{
+	font-weight: 400;
+}
+
 a:hover, a:focus
 {
 	color: #dc3545;
@@ -57,7 +62,7 @@ h4, h2, small
 	box-shadow: none;
 }
 
-.card, .card-header, .card-footer
+.card, .card-header
 {
 	border-color: rgba(0,0,0,0.35);
 }
@@ -109,4 +114,24 @@ h4, h2, small
 .custom-control-input:checked~.custom-control-indicator {
     color: #fff;
     background-color: #dc3545;
+}
+
+
+.input-group.minimal .input-group-addon
+{
+	background:transparent;
+	border: none;
+}
+
+.input-group.minimal input
+{
+	/* border: none; */
+	text-align: center;
+}
+
+.thead-inverse th
+{
+	background: rgb(220, 53, 69);
+	padding-top: 0;
+	padding-bottom: 0;
 }

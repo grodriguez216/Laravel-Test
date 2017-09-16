@@ -43,7 +43,7 @@ use App\Helper;
       
       
       <div class="col-12 col-md-8 scroll">
-        @foreach ($loans->sortByDesc('created_at') as $loan)
+        @foreach ($loans->sortByDesc('created_at')->sortByDesc('status') as $loan)
           
           
           <div class="card loan mb-4">
@@ -163,16 +163,15 @@ use App\Helper;
                       <thead class="thead-inverse">
                         <tr>
                           <th><small class="bold">Fecha</small></th>
-                          <th><small class="bold">Vencimiento</small></th>
                           <th><small class="bold">Tipo</small></th>
                           <th><small class="bold">Monto</small></th>
+                          <th><small class="bold">Balance</small></th>
                         </tr>
                       </thead>
                       <tbody>
-                        @foreach ($loan->payments->sortBy('created_at') as $payment)
+                        @foreach ($loan->payments->sortBy('id') as $payment)
                           <tr>
                             <td>{{ Helper::date( $payment->created_at, 'd-M-Y' ) }}</td>
-                            <td>{{ Helper::date( $payment->due_date ) }}</td>
                             @php
                             switch ( $payment->type )
                             {
@@ -184,10 +183,18 @@ use App\Helper;
                             @endphp
                             <td>{{ $payment->type }}</td>
                             <td>₡<span class="money">{{ $payment->amount }}</span></td>
+                            <td>₡<span class="money">{{ $payment->balance }}</span></td>
                           </tr>
                         @endforeach
                       </tbody>
-                      {{ $loan->payments->sum('amount') }}
+                      <tfoot>
+                        <tr>
+                          <td></td>
+                          <td style="border-top:solid 1px #999">Total Pagado:</td>
+                          <td style="border-top:solid 1px #999">₡<span class="money"><b>{{ $loan->payments->sum('amount') }}</b></span></td>
+                          <td></td>
+                        </tr>
+                      </tfoot>
                     </table>
                   </div> {{-- col --}}
                 </div> {{-- row --}}

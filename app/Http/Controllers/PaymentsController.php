@@ -44,14 +44,14 @@ class PaymentsController extends Controller
   * @param  StdClass  $request
   * @return \Illuminate\Http\Response
   */
-  public function store(  $type, $loan, $amount, $due_date )
+  public function store(  $type, $loan, $amount, $balance )
   {
     $payment = new Payment;
     
     $payment->type = $type;
     $payment->loan_id = $loan;
     $payment->amount = $amount;
-    $payment->due_date = $due_date;
+    $payment->balance = $balance;
     $payment->save();
     
     return $payment;

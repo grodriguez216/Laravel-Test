@@ -54,8 +54,9 @@
             <div class="card text-center">
               <div class="card-header">Cuotas</div>
               <div class="card-body">
-                <h4 class="card-title">₡<span id="dues_amount" >0</span></h4>
-                <p class="card-text">Minimo: ₡<span id="dues_minimum">0</span> </p>
+                <h3 class="card-title">₡<span id="dues_amount" >0</span></h3>
+                <p class="card-text mb-0">Abono: ₡<span id="dues_deposit">0</span> </p>
+                <p class="card-text">Intereses: ₡<span id="dues_minimum">0</span> </p>
               </div>{{-- body --}}
               <div class="card-footer text-center pt-4">
                 <div class="form-check form-check-inline">
@@ -134,8 +135,6 @@
               </div>
             </div>
           @endif
-          
-          
           
         </div>
         
@@ -259,9 +258,10 @@
     var dues_interest = ( dues_amount * interest_rate ) / 100;
     var total_dues = dues_amount + dues_interest;
     
-    
     get('dues_amount').innerHTML = nicecify( parseInt( total_dues ) );
+    get('dues_deposit').innerHTML = nicecify( parseInt( dues_amount ) );
     get('dues_minimum').innerHTML = nicecify( parseInt( dues_interest ) );
+    
     
     get('dues').value = total_dues;
     get('partial').value = dues_interest;

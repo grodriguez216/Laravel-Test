@@ -22,6 +22,18 @@ a:hover, a:focus
 	text-decoration: none;
 }
 
+.bg-danger small a
+{
+	font-weight: 100;
+	color: #fff;
+}
+
+.bg-danger small a:hover,
+.bg-danger small a:focus
+{
+	font-weight: 400;
+}
+
 .page-header
 {
 	font-weight: 400 !important;
@@ -70,6 +82,12 @@ h4, h2, small
 .card-menu .card:hover
 {
 	background:#2c2c2c;
+	
+}
+
+.card-menu .border-danger:hover
+{
+	border-color: #2c2c2c !important;
 }
 
 .card-menu .card:hover .card-title,

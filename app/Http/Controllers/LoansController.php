@@ -308,7 +308,13 @@ class LoansController extends Controller
   
   public function today()
   {
-    # code...
+    $today = date('Y-m-d');
+    $loans = Loan::where('next_due', $today )->where('status', 1)->get();
+    
+    $data = array( 'loans' => $loans );
+    
+    return view('loans.today', $data);
+    
   }
   
   private function nicecify( $amount )

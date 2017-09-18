@@ -14,7 +14,7 @@ Auth::routes();
 
 Route::get('/', 'AppController@index')->name('home');
 Route::get('/ajustes', 'AppController@index')->name('app.settings');
-Route::get('/reportes', 'AppController@index')->name('app.reports');
+Route::get('/reportes', 'AppController@reports')->name('app.reports');
 
 
 Route::prefix('prestamos')->group(function ()

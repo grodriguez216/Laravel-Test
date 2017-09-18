@@ -39,6 +39,11 @@ a:hover, a:focus
 	font-weight: 400 !important;
 }
 
+.page-title
+{
+	font-weight: 100;
+}
+
 h4, h2, small
 {
 	font-weight: 100;
@@ -128,6 +133,17 @@ h4, h2, small
 	border-right: none;
 }
 
+.scroll-2
+{
+	max-height: 45vh;
+	overflow-y: scroll;
+}
+
+td a
+{
+	color: #dc3545;
+}
+
 
 .custom-control-input:checked~.custom-control-indicator {
     color: #fff;
@@ -152,4 +168,9 @@ h4, h2, small
 	background: rgb(220, 53, 69);
 	padding-top: 0;
 	padding-bottom: 0;
+}
+
+a.card-link
+{
+	
 }

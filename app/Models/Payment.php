@@ -11,6 +11,6 @@ class Payment extends Model
   
   public function loan()
   {
-    return $this->belongsTo('App\Loan');
+    return $this->belongsTo('App\Models\Loan');
   }
 }

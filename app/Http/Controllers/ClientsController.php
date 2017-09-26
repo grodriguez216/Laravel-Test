@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Models\Client;
 
@@ -65,7 +66,14 @@ class ClientsController extends Controller
   public function show($id)
   {
     
-    $client = Client::findOrFail( $id );
+    try
+    {
+      $client = Client::findOrFail( $id );
+    }
+    catch(ModelNotFoundException $e)
+    {
+      return redirect('/');
+    }
     
     $LoansController = new LoansController;
     $loans = $LoansController->show( $id );

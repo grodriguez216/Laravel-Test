@@ -125,13 +125,9 @@ class LoansController extends Controller
     
     /* -------------------------- end: Loan calculations -------------------------- */
     
-    /* -------------------------- begin: Debug Only -------------------------- */
-    
-    //echo "<pre>";
-    //print_r( json_decode( $loan ) );
-    //die("Line: ".__LINE__);
-    
-    /* -------------------------- end: Debug Only -------------------------- */
+    /* Send an SMS messge */
+    $notification = new NotificationController();
+    $notification->notify( $client->phone, 'NL', $loan );
     
     $loan->save();
     

@@ -221,7 +221,7 @@ use App\Helper;
                     </a>
                   </div>
                 </div>
-                <form id="lf-{{$loan->id}}" class="d-none" action="{{ route('loans.update') }}" method="post">
+                <form id="lf-{{$loan->id}}" action="{{ route('loans.update') }}" method="post">
                   {{ csrf_field() }}
                   <input type="hidden" name="id" value="{{ $loan->id }}">
                   <input class="datepicker d-none" type="date" id="next_due" name="next_due" data-value="{{ $loan->next_due }}">

@@ -26,8 +26,7 @@ class AppController extends Controller
   * @return \Illuminate\Http\Response
   */
   public function index()
-  {
-    
+  {  
     $clients = Client::all();
     
     $nice_list = array();
@@ -111,7 +110,7 @@ class AppController extends Controller
     
     
     /* All Active Loan Objects */
-    $data['loans'] = $loans;    
+    $data['loans'] = $loans;
     
     return view('loans.reports', $data);
   }

@@ -197,7 +197,8 @@ class LoansController extends Controller
   * @return \Illuminate\Http\Response
   */
   public function update(Request $request)
-  {
+  {    
+    
     $loan = Loan::findOrFail( $request->input('id') );
     
     // TODO: Manage Exception //

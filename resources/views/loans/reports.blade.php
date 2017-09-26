@@ -140,15 +140,6 @@ use App\Helper;
             </div>
           </div>
           
-          
-          
-          
-          
-          
-          
-          
-          
-          
         @else
           <h1 class="text-center pt-5 mt-5">No hay prestamos activos.</h1>
         @endif

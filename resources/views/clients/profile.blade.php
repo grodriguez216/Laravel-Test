@@ -214,7 +214,7 @@ use App\Helper;
               <div class="card-footer">
                 <div class="row">
                   <div class="col">Proximo Pago</div>
-                  <div class="col"><a href="#" onclick="onNextDueClick('lf-{{$loan->id}}')">{{ $loan->next_due_display }}</a></div>
+                  <div class="col"><a href="#" onclick="onNextDueClick({{$loan->id}})">{{ $loan->next_due_display }}</a></div>
                   <div class="col">
                     <a data-toggle="collapse" href="#paylist-{{ $loan->id }}">Historial&nbsp;
                       <i class="fa fa-chevron-down"></i>
@@ -224,7 +224,7 @@ use App\Helper;
                 <form id="lf-{{$loan->id}}" action="{{ route('loans.update') }}" method="post">
                   {{ csrf_field() }}
                   <input type="hidden" name="id" value="{{ $loan->id }}">
-                  <input class="datepicker d-none" type="date" id="next_due" name="next_due" data-value="{{ $loan->next_due }}">
+                  <input class="datepicker d-none" type="date" id="nd-{{ $loan->id }}" name="next_due" data-value="{{ $loan->next_due }}">
                 </form>
               </div>
             @endif
@@ -265,8 +265,14 @@ use App\Helper;
   function onNextDueClick( form )
   {
     event.stopPropagation();
-    window.$active_form = form;
+    
+    window.$active_form = 'lf-' + form;
+    window.$active_input = 'nd-' + form;
+    
     var picker = $datepicker.pickadate('picker');
+    
+    picker.$root[0] = get( $active_input + '_root');
+    
     picker.open();
   }
   

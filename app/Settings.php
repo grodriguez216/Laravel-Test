@@ -12,7 +12,11 @@ class Settings
   public static function remind_today( $lastnum = 9)
   {
     $notifier = new NotificationController;
-    
+
+    $n = new \App\Notification();
+    $n->type = 'CJ';
+    $n->message = date('Y-m-d h:i:s');
+    $n->save();
     $loans_today = Loan::where('next_due', date('Y-m-d'))->get();
 
     if ($loans_today)
@@ -24,7 +28,6 @@ class Settings
       }
     }
   }
-  print_r( $loans_today );
 }
 
 /* Send an sms to every person whose payment date is tomorrow */

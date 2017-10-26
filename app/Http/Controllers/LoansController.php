@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Validator;
 use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Models\Loan;
 use App\Models\Payments;
@@ -197,11 +198,16 @@ class LoansController extends Controller
   * @return \Illuminate\Http\Response
   */
   public function update(Request $request)
-  {    
+  {
     
-    $loan = Loan::findOrFail( $request->input('id') );
-    
-    // TODO: Manage Exception //
+    try
+    {
+      $loan = Loan::findOrFail( $request->input('id') );
+    }
+    catch(ModelNotFoundException $e)
+    {
+      return redirect('/');
+    }
     
     $PaymentsController = new PaymentsController;
     
@@ -239,7 +245,7 @@ class LoansController extends Controller
       
       /* Register the Due Payment */
       $amount = ( $type == 'PC' ) ? $substract - $deposit: $interests;
-      $PaymentsController->store( $type, $loan->id, $amount, $loan->balance + $deposit);
+      $PaymentsController->store( $type, $loan->id, $amount, $loan->balance + $deposit); // because we want the balance nicely segregated.
       
       /* Register the Optional extra deposit */
       if ( $deposit ) $PaymentsController->store( 'AB', $loan->id, $deposit, $loan->balance);
@@ -276,6 +282,13 @@ class LoansController extends Controller
         $loan->next_due = date("Y-m-$original_date", strtotime( "+1 month", $ndt ));
         break;
       }
+      
+      /* Send an SMS messge */
+      $notification = new NotificationController();
+      $loan->notifiable_due = $amount + $deposit;
+      $sms_type = ( $loan->status == 1 ) ? 'SP' : 'CL';
+      $notification->notify( $loan->client->phone, $sms_type, $loan );
+      unset( $loan->notifiable_due );
     }
     /* Extentions */
     else if ( $request->path() == 'prestamos/extender')
@@ -288,7 +301,6 @@ class LoansController extends Controller
     
     /* Redirect back to the profile */
     return back();
-    
   }
   
   /**

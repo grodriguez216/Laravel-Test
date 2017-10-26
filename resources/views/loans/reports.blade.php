@@ -20,7 +20,6 @@ use App\Helper;
           hasta <small><strong>{{ $rep_end }}</strong></small>
         </h3>
         
-        
         <hr>
         
         <div class="card-deck">
@@ -144,6 +143,10 @@ use App\Helper;
           <h1 class="text-center pt-5 mt-5">No hay prestamos activos.</h1>
         @endif
         
+      </div>
+      
+      <div class="col-12 text-center py-3">
+        <a  class="btn btn-outline-danger" href="/files/reporte_completo.csv">Descargar</a>
       </div>
       
     </div> {{-- row --}}

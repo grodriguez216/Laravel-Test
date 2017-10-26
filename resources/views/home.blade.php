@@ -48,7 +48,7 @@
         <a class="card-link" href="{{ route('app.settings') }}">
           <div class="card-body text-dark">
             <h4 class="card-title"><i class="fa fa-cog"></i>&nbsp;Configuracion</h4>
-            <p class="card-text">Modalidades de prestamo y mas</p>
+            <p class="card-text">Mensages de Texto</p>
           </div>
         </a>
       </div>

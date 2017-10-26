@@ -13,7 +13,7 @@
 Auth::routes();
 
 Route::get('/', 'AppController@index')->name('home');
-Route::get('/ajustes', 'AppController@index')->name('app.settings');
+Route::get('/ajustes', 'AppController@settings')->name('app.settings');
 Route::get('/reportes', 'AppController@reports')->name('app.reports');
 
 
@@ -37,11 +37,16 @@ Route::prefix('clientes')->group(function ()
   /* Gets */
   Route::get('/', 'ClientsController@index' )->name('clients.list');
   Route::get('perfil/{id}', 'ClientsController@show' )->name('clients.profile');
-  //Route::get('agregar', 'ClientsController@create' )->name('clients.create');
-  //Route::get('editar/{id}', 'ClientsController@edit' )->name('clients.edit');
   
   /* Posts */
-  //Route::post('agregar', 'ClientsController@store' )->name('clients.store');
-  //Route::post('editar', 'ClientsController@update' )->name('clients.update');
   Route::post('borrar', 'ClientsController@destroy' )->name('clients.delete');
+});
+
+
+Route::prefix('mensajes')->group(function ()
+{
+  
+  Route::post('cambiar', 'AppController@update' )->name('messages.update');
+  
+  
 });

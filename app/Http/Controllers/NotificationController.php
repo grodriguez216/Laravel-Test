@@ -18,20 +18,16 @@ class NotificationController extends Controller
   
   var $url = 'https://bulksms.vsms.net/eapi/submission/send_sms/2/2.0';
   
-  public function notify( $destination, $type, Loan $loan )
+  public function notify( $destination, $type, Loan $loan)
   {
-    
     $message = $this->buildMessagge($type, $loan);
     
     $post_body = $this->enconde_seven_bit_sms( $message, $destination );
     
     $result = $this->send_message( $post_body );
-    
-    var_dump( $result );
-    
   }
   
-  function buildMessagge( $type, Loan $loan )
+  function buildMessagge( $type, Loan $loan)
   {
     
     $notification = Notification::where('type', $type)->first();
@@ -43,24 +39,42 @@ class NotificationController extends Controller
       case 'NL':
       $niceloan = number_format( $loan->loaned, 0 );
       $nicedate = Helper::date( $loan->next_due, 'd/m/Y');
-      $message = str_replace( '{{loan}}', $niceloan , $message);
-      $message = str_replace( '{{next}}', $nicedate, $message);
+      $nicebalance = number_format( $loan->balance, 0 );
+      $message = str_replace( '[Saldo]', $nicebalance, $message);
+      $message = str_replace( '[Monto]', $niceloan , $message);
+      $message = str_replace( '[Fecha]', $nicedate, $message);
       break;
       
       case 'SP':
-      $nicebalance = number_format( $loan->balance, 0 );
       $nicedate = Helper::date( $loan->next_due, 'd/m/Y');
-      $message = str_replace( '{{balance}}', $nicebalance , $message);
-      $message = str_replace( '{{next}}', $nicedate, $message);
+      $nicedue = number_format( $loan->notifiable_due, 0 );
+      $nicebalance = number_format( $loan->balance, 0 );
+      $message = str_replace( '[Cuota]', $nicedue, $message);
+      $message = str_replace( '[Saldo]', $nicebalance , $message);
+      $message = str_replace( '[Fecha]', $nicedate, $message);
       break;
       
       case 'PR':
       $nicedate = Helper::date( $loan->next_due, 'd/m/Y');
-      $message = str_replace( '{{next}}', $nicedate, $message);
+      $nicedue = number_format( $loan->dues, 0 );
+      $nicebalance = number_format( $loan->balance, 0 );
+      $message = str_replace( '[Cuota]', $nicedue, $message);
+      $message = str_replace( '[Saldo]', $nicebalance, $message);
+      $message = str_replace( '[Fecha]', $nicedate, $message);
+      break;
+      
+      case 'CL':
+      $niceloan = number_format( $loan->loaned, 0 );
+      $message = str_replace( '[Monto]', $niceloan , $message);
       break;
     }
     
     return $message;
+  }
+  
+  private function nicecify( $amount )
+  {
+    return round( $amount / 1000, 0, PHP_ROUND_HALF_UP) * 1000;
   }
   
   

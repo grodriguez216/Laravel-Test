@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\Client;
 use App\Models\Loan;
 use App\Models\Payment;
+use App\Notification;
+use App\Helper;
 
 class AppController extends Controller
 {
@@ -26,7 +28,7 @@ class AppController extends Controller
   * @return \Illuminate\Http\Response
   */
   public function index()
-  {  
+  {
     $clients = Client::all();
     
     $nice_list = array();
@@ -69,6 +71,8 @@ class AppController extends Controller
     
     /* All Active Loans */
     $loans = Loan::where('status', 1)->get();
+    
+    $this->create_csv( $loans );
     
     $data['total_loaned'] = $loans->sum('loaned');
     $data['total_pending'] = $loans->sum('balance');
@@ -115,11 +119,69 @@ class AppController extends Controller
     return view('loans.reports', $data);
   }
   
+  /**
+  * Show the Montly Reports Page.
+  *
+  * @return \Illuminate\Http\Response
+  */
+  public function settings()
+  {
+    return view('loans.settings')->with('notifications', Notification::all());
+  }
+  
+  
+  public function update(Request $request)
+  {
+    $id = $request->input('notification');
+    $text = $request->input('message');
+    
+    $notif = Notification::findOrFail( $id );
+    
+    $notif->message = trim( $text );
+    
+    $notif->update();
+    
+    return redirect('/ajustes');
+    
+  }
+  
   
   private function nicecify( $amount )
   {
     return round( $amount / 1000, 0, PHP_ROUND_HALF_UP) * 1000;
   }
   
+  
+  private function create_csv( $loans )
+  {
+    $file  = fopen("files/reporte_completo.csv", 'w');
+    
+    /* Add the header fields */
+    fputcsv($file, ['Prestamo', 'Nombre',  'Fecha', 'Monto', 'Pagable', 'Saldo', 'Interes', 'Monto Cuotas', 'Monto Intereses', 'Extenciones', 'Pagado', 'Progreso']);
+    
+    foreach ($loans as $Loan)
+    {
+      $data = array();
+      
+      $data[] = $Loan->id;
+      $data[] = $Loan->client->first_name . ' ' . $Loan->client->last_name;
+      $data[] = Helper::date( $Loan->created_at, 'd/m/Y');
+      $data[] = number_format($Loan->loaned, 0);
+      $data[] = number_format($Loan->payable, 0);
+      $data[] = number_format($Loan->balance, 0);
+      $data[] = $Loan->rate . ' %';
+      $data[] = number_format($Loan->dues, 0);
+      $data[] = number_format($Loan->interest, 0);
+      $data[] = $Loan->extentions;
+      
+      $payed = $Loan->payable - $Loan->balance;
+      $data[] = number_format( $payed, 0);
+      $data[] =  ( $payed / $Loan->payable ) * 100 . ' %';
+      
+      fputcsv($file, $data);
+    }
+    
+    fclose($file);
+  }
   
 }

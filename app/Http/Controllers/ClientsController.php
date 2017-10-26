@@ -65,7 +65,6 @@ class ClientsController extends Controller
   */
   public function show($id)
   {
-    
     try
     {
       $client = Client::findOrFail( $id );

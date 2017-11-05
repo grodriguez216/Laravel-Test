@@ -22,12 +22,6 @@
         </span>
       @endif
       
-      
-      <div class="checkbox">
-        <label>
-          <input type="checkbox" name="remember" {{ old('remember') ? 'checked' : '' }}> Mantener activa
-        </label>
-      </div>
       <button class="btn btn-lg btn-danger btn-block" type="submit">Ingresar</button>
     </form>
   </div> <!-- /container -->

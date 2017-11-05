@@ -117,21 +117,33 @@
             <input type="hidden" name="phone" value="{{ $_GET['key'] }}">
           @else
             <div class="form-row">
-              <div class="col-6 col-md-4 form-group">
-                <input type="text"  name="first_name" class="form-control py-3 {{ $errors->has('first_name') ? 'is-invalid' : '' }}" value="{{ old('first_name') }}" placeholder="Nombre" required>
+              
+              <div class="col-6 col-md-6 form-group">
+                <input type="text"  name="first_name" class="form-control py-3 {{ $errors->has('first_name') ? 'is-invalid' : '' }}" value="{{ old('first_name') }}" placeholder="Nombre *" required>
                 <div class="invalid-feedback {{ $errors->has('first_name') ? 'd-block' : 'd-none' }}">{{ $errors->first('first_name') }}</div>
               </div>
-              
-              <div class="col-6 col-md-4 form-group}">
-                <input type="text" name="last_name" class="form-control py-3 {{ $errors->has('last_name') ? 'is-invalid' : '' }}" value="{{ old('last_name') }}" placeholder="Apellido" required>
+              <div class="col-6 col-md-6 form-group}">
+                <input type="text" name="last_name" class="form-control py-3 {{ $errors->has('last_name') ? 'is-invalid' : '' }}" value="{{ old('last_name') }}" placeholder="Apellidos *" required>
                 <div class="invalid-feedback {{ $errors->has('last_name') ? 'd-block' : 'd-none' }}">{{ $errors->first('last_name') }}</div>
               </div>
+              
               <div class="col-12 col-md-4 form-group">
-                <input type="number" name="phone" class="form-control py-3 {{ $errors->has('phone') ? 'is-invalid' : '' }}" value="{{ old('first_name') }}" placeholder="Telefono" required>
+                <input type="number" name="phone" class="form-control py-3 {{ $errors->has('phone') ? 'is-invalid' : '' }}" value="{{ old('phone') }}" placeholder="Telefono *" required>
                 <div class="invalid-feedback {{ $errors->has('phone') ? 'd-block' : 'd-none' }}">{{ $errors->first('phone') }}</div>
               </div>
-              <div class="col-12 form-group mt-3 {{ $errors->has('address') ? 'has-danger' : '' }}">
-                <textarea class="form-control" name="address" rows="2" placeholder="Direccion"></textarea>
+              <div class="col-12 col-md-4 form-group">
+                <input type="number" name="phone_home" class="form-control py-3" value="{{ old('phone_home') }}" placeholder="Telefono (casa)">
+              </div>
+              <div class="col-12 col-md-4 form-group">
+                <input type="number" name="phone_work" class="form-control py-3" value="{{ old('phone_work') }}" placeholder="Telefono (trabajo)">
+              </div>
+              
+              
+              <div class="col-md-6 form-group mt-3">
+                <textarea class="form-control" name="address_home" rows="3" placeholder="Direccion (Casa)"></textarea>
+              </div>
+              <div class="col-md-6 form-group mt-3">
+                <textarea class="form-control" name="address_work" rows="3" placeholder="Direccion (Trabajo)"></textarea>
               </div>
             </div>
           @endif
@@ -155,7 +167,7 @@
   var interest_slider = document.getElementById('interest_slider');
   var duration_slider = document.getElementById('duration_slider');
   
-  noUiSlider.create(interest_slider, {start: 20, step: 10, range: { 'min': 0, 'max': 50 } });
+  noUiSlider.create(interest_slider, {start: 20, step: 10, range: { 'min': 0, 'max': 100 } });
   noUiSlider.create(duration_slider, {start: 6, step: 1, range: { 'min': 1, 'max': 12 } });
   
   // Event binding

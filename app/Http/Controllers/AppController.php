@@ -114,7 +114,7 @@ class AppController extends Controller
     
     
     /* All Active Loan Objects */
-    $data['loans'] = $loans;
+    
     
     return view('loans.reports', $data);
   }
@@ -129,6 +129,21 @@ class AppController extends Controller
     return view('loans.settings')->with('notifications', Notification::all());
   }
   
+  /**
+  * Show the Montly Reports Page.
+  *
+  * @return \Illuminate\Http\Response
+  */
+  public function zones()
+  {
+    $zones = \App\Models\Zones::all();
+    
+    //$data['zones'] = json_decode( $zones );
+    
+    $data['zones'] = $zones;
+    
+    return view('loans.zones', $data );
+  }
   
   public function update(Request $request)
   {

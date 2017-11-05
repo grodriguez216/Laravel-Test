@@ -26,13 +26,19 @@ use App\Helper;
             </div>
             <hr>
             <div class="row mb-4">
-              <div class="col-12 mb-1"><small class="bold">Direccion:</small></div>
-              <div class="col-12">{{ $client->address }}</div>
+              <div class="col-12 mb-1"><small class="bold">Direccion (Casa)</small></div>
+              <div class="col-12">{{ $client->address_home }}</div>
+            </div>
+            <div class="row mb-4">
+              <div class="col-12 mb-1"><small class="bold">Direccion (Trabajo)</small></div>
+              <div class="col-12">{{ $client->address_work }}</div>
             </div>
             <hr>
-            <div class="row">
-              <div class="col">Telefono:</div>
-              <div class="col"><a href="tel:{{ $client->phone }}">{{ $client->phone }}</a></div>
+            <div class="row mb-4">
+              <div class="col-12 mb-1"><small class="bold">Telefonos:</small></div>
+              <div class="col-12"><span class="pr-4">Principal</span><a href="tel:{{ $client->phone }}">{{ $client->phone }}</a></div>
+              <div class="col-12"><span class="pr-4">Trabajo</span><a href="tel:{{ $client->phone_work }}">{{ $client->phone_work }}</a></div>
+              <div class="col-12"><span class="pr-4">Casa</span><a href="tel:{{ $client->phone_home }}">{{ $client->phone_home }}</a></div>
             </div>
           </div>
           <div class="card-footer text-center" style="background:#fff">
@@ -44,7 +50,6 @@ use App\Helper;
       
       <div class="col-12 col-md-8 scroll">
         @foreach ($loans->sortByDesc('created_at')->sortByDesc('status') as $loan)
-          
           
           <div class="card loan mb-4">
             <div class="card-body">
@@ -84,7 +89,6 @@ use App\Helper;
                 <div class="col-12 my-3 d-lg-none">
                   <hr>
                 </div>
-                
                 
                 <div class="col-12 col-lg-7">
                   @if ( $loan->status )
@@ -199,7 +203,6 @@ use App\Helper;
                   </div> {{-- col --}}
                 </div> {{-- row --}}
                 
-                
                 <div class="row d-none">
                   <div class="col-4 mr-auto text-left">
                     <a class="btn btn-outline-danger btn-sm" href="prestamos/reembolso/{{$loan->id}}">Reembolsar último abono</a>
@@ -237,8 +240,6 @@ use App\Helper;
     </div> {{-- row --}}
     
   </div> {{-- container --}}
-  
-  
   
 @endsection
 

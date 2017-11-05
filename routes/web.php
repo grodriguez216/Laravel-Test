@@ -42,11 +42,18 @@ Route::prefix('clientes')->group(function ()
   Route::post('borrar', 'ClientsController@destroy' )->name('clients.delete');
 });
 
+Route::prefix('zonas')->group(function ()
+{
+  /* Gets */
+  Route::get('/', 'AppController@zones')->name('app.zones');
+  Route::get('borrar/{id}', 'AppController@delete_zone' )->name('zones.delete');
+  
+  /* Posts */
+  Route::post('agregar', 'AppController@create_zone' )->name('zones.create');
+});
+
 
 Route::prefix('mensajes')->group(function ()
 {
-  
   Route::post('cambiar', 'AppController@update' )->name('messages.update');
-  
-  
 });

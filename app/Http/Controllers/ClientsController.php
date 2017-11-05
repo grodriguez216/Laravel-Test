@@ -20,26 +20,6 @@ class ClientsController extends Controller
   }
   
   /**
-  * Display a listing of the resource.
-  *
-  * @return \Illuminate\Http\Response
-  */
-  public function index()
-  {
-    //
-  }
-  
-  /**
-  * Show the form for creating a new resource.
-  *
-  * @return \Illuminate\Http\Response
-  */
-  public function create()
-  {
-    //
-  }
-  
-  /**
   * Store a newly created resource in storage.
   *
   * @param  \Illuminate\Http\Request  $request
@@ -51,7 +31,10 @@ class ClientsController extends Controller
     $attributes = array(
       'first_name' => $request->input('first_name'),
       'last_name' => $request->input('last_name'),
-      'address' => $request->input('address', 'No especificado')
+      'phone_home' => $request->input('phone_home', 'No especificado'),
+      'phone_work' => $request->input('phone_work', 'No especificado'),
+      'address_home' => $request->input('address_home', 'No especificado'),
+      'address_work' => $request->input('address_work', 'No especificado')
     );
     
     return Client::firstOrCreate( ['phone' => $request->input('phone') ], $attributes );
@@ -77,9 +60,6 @@ class ClientsController extends Controller
     $LoansController = new LoansController;
     $loans = $LoansController->show( $id );
     
-    //$PaymentsController = new PaymentsController;
-    //$payments = $PaymentsController->show( $id );
-    
     $data = array(
       'client' => $client,
       'loans' => $loans
@@ -88,39 +68,5 @@ class ClientsController extends Controller
     /* Handle Exception */
     
     return view('clients/profile', $data);
-  }
-  
-  /**
-  * Show the form for editing the specified resource.
-  *
-  * @param  int  $id
-  * @return \Illuminate\Http\Response
-  */
-  public function edit($id)
-  {
-    //
-  }
-  
-  /**
-  * Update the specified resource in storage.
-  *
-  * @param  \Illuminate\Http\Request  $request
-  * @param  int  $id
-  * @return \Illuminate\Http\Response
-  */
-  public function update(Request $request, $id)
-  {
-    //
-  }
-  
-  /**
-  * Remove the specified resource from storage.
-  *
-  * @param  int  $id
-  * @return \Illuminate\Http\Response
-  */
-  public function destroy($id)
-  {
-    //
   }
 }

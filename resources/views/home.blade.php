@@ -13,7 +13,8 @@
     
     <hr class="my-5">
     
-    <div class="card-deck card-menu mb-4">
+    <div class="card-deck card-menu">
+      
       <div class="card bg-danger mb-3">
         <a class="card-link" href="{{ route('loans.create') }}">
           <div class="card-body text-light">
@@ -22,7 +23,6 @@
           </div>
         </a>
       </div>
-      
       
       <div class="card border-danger mb-3">
         <a class="card-link" href="{{ route('loans.today') }}">
@@ -34,7 +34,31 @@
       </div>
     </div>
     
-    <div class="card-deck card-menu mb-4">
+    <div class="card-deck card-menu">
+      
+      <div class="card border-danger mb-3">
+        <a class="card-link" href="{{ route('app.reports') }}">
+          <div class="card-body text-danger">
+            <h4 class="card-title"><i class="fa fa-users"></i>&nbsp;Usuarios</h4>
+            <p class="card-text">Crear, borrar y editar cobradores</p>
+          </div>
+        </a>
+      </div>
+      
+      <div class="card border-danger mb-3">
+        <a class="card-link" href="{{ route('app.zones') }}">
+          <div class="card-body text-danger">
+            <h4 class="card-title"><i class="fa fa-cog"></i>&nbsp;Zonas</h4>
+            <p class="card-text">Mensages de Texto</p>
+          </div>
+        </a>
+      </div>
+      
+    </div>
+    
+    
+    <div class="card-deck card-menu">
+      
       <div class="card border-danger mb-3">
         <a class="card-link" href="{{ route('app.reports') }}">
           <div class="card-body text-danger">
@@ -47,11 +71,12 @@
       <div class="card border-dark mb-3">
         <a class="card-link" href="{{ route('app.settings') }}">
           <div class="card-body text-dark">
-            <h4 class="card-title"><i class="fa fa-cog"></i>&nbsp;Configuracion</h4>
-            <p class="card-text">Mensages de Texto</p>
+            <h4 class="card-title"><i class="fa fa-envelope"></i>&nbsp;mensajes</h4>
+            <p class="card-text">Cambiar los mensages de texto</p>
           </div>
         </a>
       </div>
+      
     </div>
     
   </div><!-- /.row -->

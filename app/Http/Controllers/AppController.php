@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Client;
 use App\Models\Loan;
 use App\Models\Payment;
+use App\User;
 use App\Notification;
 use App\Helper;
 
@@ -112,10 +113,10 @@ class AppController extends Controller
       }
     }
     
+    $data['loans'] = $loans;
+    
     
     /* All Active Loan Objects */
-    
-    
     return view('loans.reports', $data);
   }
   
@@ -129,21 +130,97 @@ class AppController extends Controller
     return view('loans.settings')->with('notifications', Notification::all());
   }
   
-  /**
-  * Show the Montly Reports Page.
-  *
-  * @return \Illuminate\Http\Response
-  */
+  
+  /* ==================================== Zones ==========================================*/
+  
   public function zones()
   {
-    $zones = \App\Models\Zones::all();
-    
-    //$data['zones'] = json_decode( $zones );
-    
-    $data['zones'] = $zones;
-    
+    $data['zones'] = \App\Models\Zones::all();
     return view('loans.zones', $data );
   }
+  
+  
+  public function create_zone( Request $request )
+  {
+    $zone = new \App\Models\Zones();
+    
+    $zone->name = ucwords( trim( $request->input('name') ) );
+    
+    $zone->save();
+    
+    return redirect('/zonas');
+  }
+  
+  
+  public function delete_zone( $id )
+  {
+    \App\Models\Zones::destroy( $id );
+    return redirect('/zonas');
+  }
+  
+  
+  public function users( )
+  {
+    $users = User::where('id', '>', 1)->get();
+    return view('loans.users', [ 'users' => $users ] );
+  }
+  
+  
+  public function user_profile( $id = 1 )
+  {
+    $data['user'] = User::find( $id );
+    
+    /* zones the user is related to */
+    $uzones = json_decode( $data['user']->zones );
+    
+    /* all the other zones available */
+    $allzones = \App\Models\Zones::all();
+    
+    $data['user_zones'] = [];
+    $data['all_zones'] = [];
+    
+    foreach ($allzones as $zone )
+    {
+      if ( in_array( $zone->id, (array) $uzones->zones ) )
+      {
+        $data['user_zones'][] = $zone;
+      }
+      else
+      {
+        $data['all_zones'][] = $zone;
+      }
+    }
+    return view('loans.user_zones', $data );
+  }
+  
+  public function update_user_zone( $id, $action, $zone )
+  {
+    $user = User::find( $id );
+    $uzones = json_decode( $user->zones );
+    $array_zones = $uzones->zones;
+    
+    if ( $action == 'D')
+    {
+      $key = array_search( $zone, $array_zones );
+      /* remove the zone from the array */
+      if  ( $key !== false ) unset( $array_zones[ $key ] );
+    }
+    else if ( $action = 'A' ) $array_zones[] = $zone;
+    
+    $uzones->zones = $array_zones;
+    $user->zones = json_encode( $uzones );
+    $user->update();
+    
+    return redirect('/usuarios/perfil/' . $user->id );
+  }
+  
+  
+  
+  
+  
+  
+  
+  
   
   public function update(Request $request)
   {

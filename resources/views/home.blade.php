@@ -32,12 +32,13 @@
           </div>
         </a>
       </div>
-    </div>
+      
+    </div>{{-- card-deck --}}
     
     <div class="card-deck card-menu">
       
       <div class="card border-danger mb-3">
-        <a class="card-link" href="{{ route('app.reports') }}">
+        <a class="card-link" href="/usuarios">
           <div class="card-body text-danger">
             <h4 class="card-title"><i class="fa fa-users"></i>&nbsp;Usuarios</h4>
             <p class="card-text">Crear, borrar y editar cobradores</p>
@@ -54,7 +55,7 @@
         </a>
       </div>
       
-    </div>
+    </div>{{-- card-deck --}}
     
     
     <div class="card-deck card-menu">

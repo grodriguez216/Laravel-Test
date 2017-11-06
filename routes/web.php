@@ -37,17 +37,24 @@ Route::prefix('clientes')->group(function ()
   /* Gets */
   Route::get('/', 'ClientsController@index' )->name('clients.list');
   Route::get('perfil/{id}', 'ClientsController@show' )->name('clients.profile');
-  
   /* Posts */
   Route::post('borrar', 'ClientsController@destroy' )->name('clients.delete');
 });
+
+
+Route::prefix('usuarios')->group(function ()
+{
+  Route::get('/', 'AppController@users' );
+  Route::get('perfil/{id}', 'AppController@user_profile');
+  Route::get('update/{id}/{action}/{zone}', 'AppController@update_user_zone' );
+});
+
 
 Route::prefix('zonas')->group(function ()
 {
   /* Gets */
   Route::get('/', 'AppController@zones')->name('app.zones');
   Route::get('borrar/{id}', 'AppController@delete_zone' )->name('zones.delete');
-  
   /* Posts */
   Route::post('agregar', 'AppController@create_zone' )->name('zones.create');
 });

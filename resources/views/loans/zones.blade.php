@@ -20,8 +20,8 @@ use App\Helper;
       </div>
       
       <div class="col-md-6 mb-3">
-        <ul class="list-group w-100">
-          
+        <h3 class="text-center pb-3">Zonas Existentes</h3>
+        <ul class="list-group w-100 px-5">
           @if ($zones->isNotEmpty())
             @foreach ($zones as $zone)
               
@@ -36,6 +36,23 @@ use App\Helper;
           @endif
         </ul>
       </div>
+      
+      <div class="col-md-6 mb-3">
+        <h3 class="text-center pb-3">Nueva Zona</h3>
+        <form method="POST" action="/zonas/agregar">
+          {{ csrf_field() }}
+          <fieldset>
+            <div class="form-row  justify-content-center mb-3">
+              <div class="col-md-8 pb-3">
+                <input type="text" class="form-control" name="name" placeholder="Nombre de la zona" required>
+              </div>
+            </div>
+          </fieldset>
+          <div class="form-row justify-content-center">
+            <button type="submit" class="btn btn-outline-danger px-5">Agregar Zona</button>
+          </div>
+        </form>
+      </div><!-- /.col -->
       
     </div>
   </div>

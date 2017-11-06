@@ -47,6 +47,8 @@ Route::prefix('usuarios')->group(function ()
   Route::get('/', 'AppController@users' );
   Route::get('perfil/{id}', 'AppController@user_profile');
   Route::get('update/{id}/{action}/{zone}', 'AppController@update_user_zone' );
+  
+  Route::post('agregar', 'AppController@create_new_user' );
 });
 
 

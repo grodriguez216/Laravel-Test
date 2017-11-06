@@ -22,7 +22,7 @@ use App\Helper;
           <div class="card-body">
             <div class="row mb-4">
               <div class="col-12 mb-1"><small class="bold">Nombre:</small></div>
-              <div class="col-12">{{ $client->first_name }}&nbsp;{{ $client->last_name }}</div>
+              <div class="col-12">{{ $client->first_name }}&nbsp;{{ $client->last_name }} ({{ $client->ssn }})</div>
             </div>
             <hr>
             <div class="row mb-4">

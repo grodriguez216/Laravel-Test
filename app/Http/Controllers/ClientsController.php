@@ -31,6 +31,7 @@ class ClientsController extends Controller
     $attributes = array(
       'first_name' => $request->input('first_name'),
       'last_name' => $request->input('last_name'),
+      'ssn' => $request->input('ssn'),
       'phone_home' => $request->input('phone_home', 'No especificado'),
       'phone_work' => $request->input('phone_work', 'No especificado'),
       'address_home' => $request->input('address_home', 'No especificado'),

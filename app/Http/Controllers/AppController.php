@@ -215,10 +215,16 @@ class AppController extends Controller
   }
   
   
-  
-  
-  
-  
+  public function create_new_user( Request $request )
+  {
+    $user = new User();
+    $user->name = ucwords( trim( $request->input('name') ) );
+    $user->email = trim( $request->input('phone') );
+    $user->password = password_hash( trim( $request->input('phone') ), PASSWORD_BCRYPT );
+    $user->zones = "{'zones':[]}";
+    $user->save();
+    return redirect('/usuarios/perfil/' . $user->id );
+  }
   
   
   

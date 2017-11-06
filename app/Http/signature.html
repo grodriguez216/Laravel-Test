@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Signature Generator</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<!-- Options: cosmo | paper | cyborg | flaty | sandstone | yeti -->
+	<!-- 	<link rel="stylesheet" type="text/css" href="https://bootswatch.com/flatly/bootstrap.min.css"> -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+	<style type="text/css">
+		a.link{margin:0;padding:0;border:none;text-decoration:none;}
+	</style>
+</head>
+<body>
+	<div class="container-fluid" id="app">
+		<div class="row">
+			<div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
+				<h1 class="page-header">Email Signature Generator</h1>
+				<p class="lead">Replace the text fields with your information.</p>
+				<form class="form-horizontal">
+					<fieldset>
+						<div class="form-group">
+							<label class="col-lg-3 control-label">Name</label>
+							<div class="col-lg-9">
+								<input type="text" v-model="vname" class="form-control" placeholder="Full Name">
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-lg-3 control-label">Email Address</label>
+							<div class="col-lg-9">
+								<div class="input-group">
+									<input type="text" v-model="vmail" class="form-control" placeholder="Email">
+									<span class="input-group-addon">@establishmentlabs.com</span>
+								</div>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="col-lg-3 control-label">Job Title</label>
+							<div class="col-lg-9">
+								<input type="text" v-model="vtitle" class="form-control" placeholder="Job Title">
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-lg-3 control-label">Phone Number</label>
+							<div class="col-lg-9">
+								
+
+								<div class="input-group">
+									<span class="input-group-addon">+506</span>
+									<input type="text" v-model="vphone" class="form-control" placeholder="Telephone Number">
+								</div>
+							</div>
+						</div>
+					</fieldset>
+				</form>
+
+				
+
+
+
+
+				<div class="border" style="border: dashed 1px black; padding: 35px 10px">
+					<table id="sig" width='500' cellspacing='0' cellpadding='0px' border-spacing='0' style="width:500px;margin:0;padding:0;">
+						<tr>
+							<td width="150" style="width:205px;margin:0;padding: 0px 14px 0px 4px;">
+								<a href='http://establishmentlabs.com/' title="Establishment Labs" style="border:none;text-decoration:none;">
+									<img moz-do-not-send="true" src="http://establishmentlabs.com/logo-sign.png" alt="Logo Establishment Labs" style="border:none;width:205px;height:60px;">
+								</a>
+							</td>
+							<td style="margin:0;padding:0;">
+								<table id="sig2" cellspacing='0' cellpadding='0' border-spacing='0' style="padding:0;margin:0;font-family:Helvetica,Arial,sans-serif;font-size:12px;line-height:10px;color:#b0b0b0;border-collapse:collapse;-webkit-text-size-adjust:none;">
+									<tr style="margin:0;padding:0;">
+										<td style="margin:0;padding:0;font-family:Helvetica,Arial,Sans-Serif,sans-serif;white-space:nowrap;">
+											<a v-bind:href="'mailto:' + vmail + '@establishmentlabs.com'" style="border:none;text-decoration:none;color:#333333;"><span style="color:#333333;font-size:15px;line-height:13px;">{{ vname }}</span></a> <span style="color:#b2b2b2">|</span>
+											<a v-bind:href="'mailto:' + vmail + '@establishmentlabs.com'"  style="border:none;text-decoration:none;color:#333333;"><span style="color:#333333">{{vtitle}}</span></a>
+										</td>
+									</tr>
+									<tr><td height='5' style="height:5px;font-size:5px;mso-line-height-rule:exactly;line-height:5px;">&nbsp;</td></tr>
+									<tr style="margin:0;padding:0;">
+										<td style="margin:0;padding:0;font-family:Helvetica,Arial,sans-serif;white-space:nowrap;">
+											<a href="tel:+506-2434-2400" style="border:none;text-decoration:none;color:#333333;">Tel. <span style="color:#888888">+506 2434-2400</span></a>
+											<span style="color:#b2b2b2">|</span>
+											<a v-bind:href="'tel:+506' + vphone" style="border:none;text-decoration:none;color:#333333;">Mobile. <span style="color:#888888">{{'+506 ' + vphone}}</span></a>
+										</td>
+									</tr>
+									<tr><td height='5' style="height:5px;font-size:5px;mso-line-height-rule:exactly;line-height:5px;">&nbsp;</td></tr>
+									<tr style="margin:0;padding:0;">
+										<td style="margin:0;padding:0;font-family:Helvetica,Arial,sans-serif;white-space:nowrap;">
+											<a targe="_blank" href="https://www.google.co.cr/maps/place/Establishment+Labs+S.A/@9.9894385,-84.2834002,18z/data=!4m6!1m3!3m2!1s0x8fa057ccfeaf2991:0x4feae8863961c11c!2sEstablishment+Labs+S.A!3m1!1s0x8fa057ccfeaf2991:0x4feae8863961c11c" style="border:none;text-decoration:none;color:#888888;"><span style="color:#888888">Coyol Free Zone, 4th St, Building B-25, Costa Rica.</span></a>
+										</td>
+									</tr>
+									<tr>
+										<td height='5' style="height:5px;font-size:5px;mso-line-height-rule:exactly;line-height:5px;">
+											&nbsp;
+										</td>
+									</tr>
+									<tr style="margin:0;padding:0;">
+										<td style="margin:0;padding:0;font-family:Helvetica,Arial,sans-serif;white-space:nowrap;">
+											<a href="http://establishmentlabs.com/" style="border:none;text-decoration:none;color:#888888;"><span style="color:#888888">establishmentlabs.com</span></a>
+											<span style="color:#b2b2b2">|</span>
+											<a href="http://motivaimplants.com/" style="border:none;text-decoration:none;color:#888888;"><span style="color:#888888">motivaimplants.com</span></a:hover></a>
+										</td>
+									</tr>
+								</table>
+							</td>
+						</tr>
+					</table>
+				</div>
+				<br>
+				<p>Select the figure above and then copy and paste it in your Mail Client (Outlook, Mail, etc) </p>
+			</div><!-- /.row -->
+		</div><!-- /.container -->
+	</div>
+
+	<footer>
+		<script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+		<script src="https://unpkg.com/vue"></script>
+		<script type="text/javascript">
+			var app = new Vue({
+				el: '#app',
+				data: {
+					vname: 'Anakin Skywalker',
+					vmail: 'askywalker',
+					vtitle: 'Sith Lord',
+					vphone: '12345678',
+				}
+			})
+		</script>
+	</footer>
+</body>
+</html>

@@ -118,13 +118,17 @@
           @else
             <div class="form-row">
               
-              <div class="col-6 col-md-6 form-group">
+              <div class="col-6 col-md-4 form-group">
                 <input type="text"  name="first_name" class="form-control py-3 {{ $errors->has('first_name') ? 'is-invalid' : '' }}" value="{{ old('first_name') }}" placeholder="Nombre *" required>
                 <div class="invalid-feedback {{ $errors->has('first_name') ? 'd-block' : 'd-none' }}">{{ $errors->first('first_name') }}</div>
               </div>
-              <div class="col-6 col-md-6 form-group}">
+              <div class="col-6 col-md-4 form-group}">
                 <input type="text" name="last_name" class="form-control py-3 {{ $errors->has('last_name') ? 'is-invalid' : '' }}" value="{{ old('last_name') }}" placeholder="Apellidos *" required>
                 <div class="invalid-feedback {{ $errors->has('last_name') ? 'd-block' : 'd-none' }}">{{ $errors->first('last_name') }}</div>
+              </div>
+              <div class="col-6 col-md-4 form-group}">
+                <input type="text" name="ssn" class="form-control py-3 {{ $errors->has('ssn') ? 'is-invalid' : '' }}" value="{{ old('ssn') }}" placeholder="Cedula *" required>
+                <div class="invalid-feedback {{ $errors->has('ssn') ? 'd-block' : 'd-none' }}">{{ $errors->first('ssn') }}</div>
               </div>
               
               <div class="col-12 col-md-4 form-group">

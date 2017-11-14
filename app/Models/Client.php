@@ -13,7 +13,12 @@ class Client extends Model
   
   public function loans()
   {
-    return $this->hasMany('App\Loan');
+    return $this->hasMany('App\Models\Loan');
+  }
+
+  public function zone()
+  {
+  	return $this->belongsTo('App\Models\Zones');
   }
   
 }

@@ -35,7 +35,8 @@ class ClientsController extends Controller
       'phone_home' => $request->input('phone_home'),
       'phone_work' => $request->input('phone_work'),
       'address_home' => $request->input('address_home'),
-      'address_work' => $request->input('address_work')
+      'address_work' => $request->input('address_work'),
+      'zone_id' => $request->input('zone_id')
     );
     
     return Client::firstOrCreate( ['phone' => $request->input('phone') ], $attributes );
@@ -51,6 +52,8 @@ class ClientsController extends Controller
     $client->phone_work = $request->input('phone_work');
     $client->address_home = $request->input('address_home');
     $client->address_work = $request->input('address_work');
+
+    $client->zone_id = $request->input('zone_id');
 
     $client->update();
 
@@ -76,10 +79,13 @@ class ClientsController extends Controller
     
     $LoansController = new LoansController;
     $loans = $LoansController->show( $id );
+
+    $zones = \App\Models\Zones::all();
     
     $data = array(
       'client' => $client,
-      'loans' => $loans
+      'loans' => $loans,
+      'zones' => $zones
     );
     
     /* Handle Exception */

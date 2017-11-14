@@ -38,7 +38,10 @@ class LoansController extends Controller
   */
   public function create()
   {
-    return view('loans.create');
+
+    $zones = \App\Models\Zones::all();
+
+    return view('loans.create', [ 'zones' => $zones ] );
   }
   
   /**
@@ -108,7 +111,7 @@ class LoansController extends Controller
         $next_due = date('Y-m-d', strtotime( '+1 month', $next_ft ) );
       }
       else if ( date('d') < 15)
-      $next_due = strtotime( date('Y-m-15') );
+        $next_due = strtotime( date('Y-m-15') );
       
       else // between the 15 and the EOM
       $next_due = strtotime( date('Y-m-30') );
@@ -199,7 +202,7 @@ class LoansController extends Controller
   */
   public function update(Request $request)
   {
-    
+
     try
     {
       $loan = Loan::findOrFail( $request->input('id') );

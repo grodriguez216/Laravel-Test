@@ -44,15 +44,22 @@ use App\Helper;
             <div class="col-md-4">Principal</div>
             <div class="col-md-8"><a href="tel:{{ $client->phone }}">{{ $client->phone }}</a></div>
 
-            <span class="col-md-4">Trabajo</span>
+            <div class="col-md-4">Trabajo</div>
             <div class="col-md-8">
               <a href="tel:{{ $client->phone_work }}">{{ $client->phone_work }}</a>
             </div>
-            <span class="col-md-4">Casa</span>
+
+            <div class="col-md-4">Casa</div>
             <div class="col-md-8">
               <a href="tel:{{ $client->phone_home }}">{{ $client->phone_home }}</a>
             </div>
           </div>
+          <hr>
+          <div class="row">
+            <div class="col-md-4">Zona</div>
+            <div class="col-md-8 font-weight-bold">{{ $client->zone->name }}</div>
+          </div>
+
         </div>
         <div class="card-footer text-center" style="background:#fff">
           <a class="btn btn-outline-danger w-100 my-3" href="/prestamos/agregar?auto=1&amp;key={{ $client->phone }}">Agregar Prestamo</a>
@@ -294,13 +301,24 @@ use App\Helper;
               <input type="number" name="phone_work" class="form-control py-3" value="{{ $client->phone_work }}" placeholder="Telefono (trabajo)">
             </div>
 
-
             <div class="col-md-6 form-group mt-3">
               <textarea class="form-control" name="address_home" rows="3" placeholder="Direccion (Casa)">{{ $client->address_home }}</textarea>
             </div>
             <div class="col-md-6 form-group mt-3">
               <textarea class="form-control" name="address_work" rows="3" placeholder="Direccion (Trabajo)">{{ $client->address_work }}</textarea>
             </div>
+
+            <div class="col-md-12 mt-3">
+              <label class="px-2">Zona de Cobro:</label>
+              <select class="custom-select" name="zone_id">
+                @foreach ( $zones as $zone)
+                <option value="{{ $zone->id }}" {{ $zone->id == $client->zone_id ? 'selected' : '' }}>
+                  {{ $zone->name }}
+                </option>
+                @endforeach
+              </select>
+            </div>
+
           </div>
         </div>
 

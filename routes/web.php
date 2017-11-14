@@ -38,6 +38,7 @@ Route::prefix('clientes')->group(function ()
   Route::get('/', 'ClientsController@index' )->name('clients.list');
   Route::get('perfil/{id}', 'ClientsController@show' )->name('clients.profile');
   /* Posts */
+  Route::post('editar', 'ClientsController@update' )->name('clients.update');
   Route::post('borrar', 'ClientsController@destroy' )->name('clients.delete');
 });
 

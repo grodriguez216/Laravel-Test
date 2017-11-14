@@ -27,18 +27,34 @@ class ClientsController extends Controller
   */
   public function store(Request $request)
   {
-    
+
     $attributes = array(
       'first_name' => $request->input('first_name'),
       'last_name' => $request->input('last_name'),
       'ssn' => $request->input('ssn'),
-      'phone_home' => $request->input('phone_home', 'No especificado'),
-      'phone_work' => $request->input('phone_work', 'No especificado'),
-      'address_home' => $request->input('address_home', 'No especificado'),
-      'address_work' => $request->input('address_work', 'No especificado')
+      'phone_home' => $request->input('phone_home'),
+      'phone_work' => $request->input('phone_work'),
+      'address_home' => $request->input('address_home'),
+      'address_work' => $request->input('address_work')
     );
     
     return Client::firstOrCreate( ['phone' => $request->input('phone') ], $attributes );
+  }
+
+  public function update(Request $request)
+  {
+    $client = Client::find( $request->input('id') );
+    $client->ssn = $request->input('ssn');
+    $client->first_name = $request->input('first_name');
+    $client->last_name = $request->input('last_name');
+    $client->phone_home = $request->input('phone_home');
+    $client->phone_work = $request->input('phone_work');
+    $client->address_home = $request->input('address_home');
+    $client->address_work = $request->input('address_work');
+
+    $client->update();
+
+    return back();
   }
   
   /**

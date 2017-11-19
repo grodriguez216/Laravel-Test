@@ -90,7 +90,6 @@ class PaymentsController extends Controller
   */
   public function edit($id)
   {
-    //
   }
   
   /**

@@ -15,13 +15,17 @@
   <link href="https://fonts.googleapis.com/css?family=Roboto:200,300,500" rel="stylesheet">
 </head>
 <body onload="toggle('loader', false );">
-  
+
   <nav class="navbar navbar-expand-md navbar-dark bg-danger">
     <a class="navbar-brand" href="{{ route('home') }}">Presta<strong>Control</strong></a>
     <ul class="navbar-nav ml-auto">
       <li class="nav-item dropdown">
         <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+          @if( session('auth2') )
+          {{ session('name') }}
+          @else
           {{ Auth::user()->name }} <span class="caret"></span>
+          @endif
         </a>
         <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
           <a class="dropdown-item" href="{{ route('logout') }}" onclick="logout()">Cerrar Sesión</a>
@@ -50,7 +54,7 @@
     <script src="{{ asset('js/nouislider.min.js') }}"></script>
     <script src="{{ asset('js/app.js') }}"></script>
     <script type="text/javascript">
-    function logout() { event.preventDefault(); document.getElementById('logout-form').submit(); }
+      function logout() { event.preventDefault(); document.getElementById('logout-form').submit(); }
     </script>
     @yield('scripts')
   </footer>

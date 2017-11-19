@@ -92,7 +92,7 @@ use App\Helper;
                   <td class="text-right">₡<span class="money">{{ $loan->loaned }}</span> </td>
                 </tr>
                 <tr>
-                  <td>Total (+ {{ $loan->rate }}%):</td>
+                  <td>Total (+ {{ $loan->intrate }}%):</td>
                   <td class="text-right">₡<span class="money">{{ $loan->payable }}</span></td>
                 </tr>
                 <tr>

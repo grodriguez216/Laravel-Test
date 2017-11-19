@@ -69,7 +69,6 @@ class LoansController extends Controller
     $validator = Validator::make( $request->all(), $rules, $messages);
     if ($validator->fails()) return redirect('prestamos/agregar#newLoanForm')->withErrors($validator)->withInput();
     
-    
     /* Build the Loan Object */
     $loan = new Loan;
     
@@ -80,12 +79,19 @@ class LoansController extends Controller
     
     /* -------------------------- begin: Loan calculations -------------------------- */
     
-    $loan->loaned = $request->input('loan');
-    $loan->balance = $request->input('total');
-    $loan->payable = $request->input('total');
-    $loan->dues = $request->input('dues');
-    $loan->interest = $request->input('partial');
-    $loan->rate = $request->input('interest');
+    $loan->loaned = $request->input('loaned');
+    $loan->balance = $request->input('balance');
+    $loan->real_balance = $request->input('loaned');
+
+    $loan->regdue = $request->input('regdue');
+    $loan->mindue = $request->input('mindue');
+
+    $loan->intval = $request->input('intval');
+    $loan->intrate = $request->input('intrate');
+
+    /* Due modifier: discounts or extras */
+    $loan->duemod = 0;
+
     $loan->duration = $request->input('duration');
     $loan->payplan = $request->input('payplan');
     
@@ -153,31 +159,41 @@ class LoansController extends Controller
       switch ( $loan->payplan )
       {
         case 'we':
-        $loan->duration .= ' Sem';
+        $loan->duration .= ' S';
         break;
         case 'bw':
-        $loan->duration .= ' Qns';
+        $loan->duration .= ' Q';
         break;
         case 'mo':
-        $loan->duration .= ' Meses';
+        $loan->duration .= ' M';
         break;
       }
       
       /* Calculate the discout from previous partial deposits */
-      $loan->nice_due = $loan->dues - $loan->discount;
-      $loan->diff_due = $loan->dues - $loan->nice_due; // Difference w/ regular due
-      $loan->diff_due = $loan->diff_due >= 0 ? '- ₡'.$loan->diff_due : '+ ₡'.$loan->diff_due*-1;
+      $loan->nice_due = $loan->regdue - $loan->duemod;
+      $loan->diff_due = $loan->regdue - $loan->nice_due; // Difference w/ regular due
       
-      /* Round nterests to the closest 1000 */
-      $loan->nice_int = $this->nicecify($loan->interest);
-      $loan->diff_int = $loan->nice_int - $loan->interest;
+      /* Round interests to the closest 1000 */
+      $loan->nice_int = $this->nicecify( $loan->mindue );
+      
+      /* Check if the mindue is higher than the default */
+
+      /* If is positive, the diff will be substacted from the balance.
+       * Otherwise the diff will be added to the next regular due.
+       */
+      $loan->diff_int = ( $loan->mindue - $loan->nice_int );
+
+      /* Add the diff from the rounding to the diff_int */
+      $loan->diff_int += ( $loan->nice_int - $loan->intval );
+
+      /* Add the signs to the labels */
+      $loan->diff_due = $loan->diff_due >= 0 ? '- ₡'.$loan->diff_due : '+ ₡'.$loan->diff_due*-1;
       $loan->diff_int = $loan->diff_int >= 0 ? '+ ₡'.$loan->diff_int : '- ₡'.$loan->diff_int*-1;
       
       /* Format the dates nicely */
       $loan->next_due_display = date('d/M/Y', strtotime( $loan->next_due ));
       $loan->date = date('d-M-Y', strtotime( $loan->created_at ));
     }
-    
     
     return $loanlist;
   }
@@ -202,7 +218,6 @@ class LoansController extends Controller
   */
   public function update(Request $request)
   {
-
     try
     {
       $loan = Loan::findOrFail( $request->input('id') );
@@ -218,40 +233,55 @@ class LoansController extends Controller
     {
       /* Payment Type | Full or Minimun */
       $type = $request->input('type');
+
+      /* Amount to substract from the balance */
+      $substract = $extra = $request->input('extra', 0);
+
+      if ( $type == 'PC')
+      {
+        /* Amount to substract (+) the mods */
+        $substract += ( $loan->regdue + $loan->duemod );
+
+        /* Reset the discount after a PC payment */
+        $loan->duemod = 0;
+      }
+      else
+      {
+        /* Check if is paying different than the minimum */
+        $diff = ( $this->nicecify( $loan->intval ) - ( $loan->mindue + $extra) );
+
+        /* Add the diff to the duemod as-is */
+        if ( $diff != 0 ) $loan->duemod += $diff;
+
+        /* Increase the counter for minimal payments */
+        $loan->extentions++;
+      }
+
+      /* Substract the extra from the next PC payment  */
+      $loan->duemod += $extra;
       
-      /* Amount of Interests */
-      $interests = $this->nicecify( $loan->interest );
-      
-      /* Extra Deposit */
-      $deposit = $request->input('extra', 0);
-      
-      /* Amount to substract */
-      $substract = ( $type == 'PC') ? ( $loan->dues - $loan->discount ) + $deposit : $deposit;
-      
-      /* Reset the discount after a PC payment */
-      if ( $type == 'PC') $loan->discount = 0;
-      
-      /* Substract the deposit from the next PC payment  */
-      if ( $deposit ) $loan->discount += $deposit;
-      
-      /* IF the discount is greater that the actual PC payment */
-      if ( $loan->discount >= $loan->dues ) $loan->discount = 0;
-      
-      /* Increase the counter for minimal payments */
-      if ( $type == 'PM') $loan->extentions++;
+      /* Check if the discount is greater than a regdue, to avoid zero-payments */
+      if ( $loan->duemod >= $loan->regdue )
+      {
+        $loan->duemod -= $loan->regdue;
+      }
       
       /* Update the balance */
       $loan->balance -= $substract;
+      // $loan->real_balance -= $substract - $intval;
       
       /* Close the loan if balance is zero */
       if ( $loan->balance <= 0) $loan->balance = $loan->status = 0;
-      
-      /* Register the Due Payment */
-      $amount = ( $type == 'PC' ) ? $substract - $deposit: $interests;
-      $PaymentsController->store( $type, $loan->id, $amount, $loan->balance + $deposit); // because we want the balance nicely segregated.
-      
+
+      /* Register the Payments */
+      /* BECAUSE we want the balance nicely segregated. */
+      $PaymentsController->store( $type, $loan->id, $substract, $loan->balance + $extra);
+
       /* Register the Optional extra deposit */
-      if ( $deposit ) $PaymentsController->store( 'AB', $loan->id, $deposit, $loan->balance);
+      if ( $extra )
+      {
+        $PaymentsController->store( 'AB', $loan->id, $extra, $loan->balance);
+      }
       
       /* Next Due Timestamp */
       $ndt = strtotime( $loan->next_due );

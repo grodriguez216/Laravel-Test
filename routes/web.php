@@ -15,7 +15,8 @@ Auth::routes();
 Route::get('/', 'AppController@index')->name('home');
 Route::get('/ajustes', 'AppController@settings')->name('app.settings');
 Route::get('/reportes', 'AppController@reports')->name('app.reports');
-
+Route::get('/cobrar', 'PublicController@collect')->name('collect');
+Route::post('/cobrar', 'PublicController@login2')->name('login2');
 
 Route::prefix('prestamos')->group(function ()
 {

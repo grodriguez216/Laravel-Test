@@ -125,11 +125,8 @@ h4, h2, small
 
 .scroll
 {
-	background: #efefef;
-	padding: 1rem;
 	max-height: 85vh;
 	overflow-y: scroll;
-	border: solid 1px #999;
 	border-right: none;
 }
 

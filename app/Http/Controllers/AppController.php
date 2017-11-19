@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
+use DB;
 use App\Models\Client;
 use App\Models\Loan;
 use App\Models\Payment;
@@ -46,7 +47,9 @@ class AppController extends Controller
     
     return view('home')->with( 'client_list', $json_list );
   }
-  
+
+
+
   
   /**
   * Show the Montly Reports Page.

@@ -44,7 +44,7 @@ label
   <div class="row">
     <div class="col-md-6 text-center">
       <h4 class="m-0 pt-2">
-        <span id="label_interests" class="font-weight-bold">25</span>% de interés
+        <span id="label_interests" class="font-weight-bold">0</span>% de interés
       </h4>
     </div><!-- /.col-md-6 -->
 
@@ -83,7 +83,6 @@ label
   <hr>
 
   <div class="row pt-5">
-
     <div class="col-md-6">
       <label class="page-header text-center">Monto de las Cuotas</label>
       <div class="form-row justify-content-center">
@@ -112,7 +111,7 @@ label
 
   <hr>
 
-  <div class="row pt-3">
+  <div class="row mt-4 pb-3">
     <div class="col-md-12">
       @if ( !isset( $_GET['auto'] ) )
       <label class="page-header pb-4">Agregar el Cliente</label>
@@ -127,6 +126,7 @@ label
         <input id="payplan" type="hidden" name="payplan" value="we">
         <input id="regdue" type="hidden" name="regdue" value="0">
         <input id="mindue" type="hidden" name="mindue" value="0">
+        <input id="duemod" type="hidden" name="duemod" value="0">
         @if ( isset( $_GET['auto'] ) )
         <input type="hidden" name="first_name" value="0">
         <input type="hidden" name="last_name" value="0">
@@ -168,7 +168,7 @@ label
             <label class="px-2">Zona de Cobro:</label>
             <div class="row justify-content-center">
               <div class="col-8 col-md-4">
-                <select class="form-control custom-select" name="zone_id">
+                <select class="form-control custom-select" name="zone_id" required>
                   @foreach ( $zones as $zone)
                   <option value="{{ $zone->id }}">
                     {{ $zone->name }}
@@ -180,15 +180,15 @@ label
           </div><!-- /col-6 -->
         </div>
         @endif
-      </div>
-
-      <div class="col-12 text-center py-5">
-        <button type="submit" onclick="onFormSubmit()"  class="btn btn-lg btn-outline-danger">Finalizar</button>
-      </div>
-
-    </form>
+      </form>
+    </div>
   </div>{{-- row --}}
 
+  <hr>
+
+  <div class="row justify-content-center py-5">
+    <button type="submit" onclick="onFormSubmit()" class="btn btn-lg btn-outline-danger">Finalizar</button>
+  </div>
 </div><!-- /.container -->
 @endsection
 
@@ -246,14 +246,19 @@ function onMinimunDueChange()
 
   /* Update the Form */
   get('mindue').value = mindue;
+  get('duemod').value = mindue - intval;
   
-
   /* Update the excedent label */
   get('label_extmin').innerHTML = ( mindue - intval );
   get('label_extmin').style.color = ((mindue - intval) < 0) ? 'red' : 'black';
+}
 
-
-
+function onPayPlanChange( plan )
+{
+  /* Update the Form */
+  get('payplan').value = plan;
+  /* Update the options */
+  window.update();
 }
 
 function update()
@@ -292,82 +297,17 @@ function update()
   /* Update the dues ammount inputs */
   get('input_regdue_amount').value = nicecify( regdue );
   get('input_mindue_amount').value = nicecify( mindue );
+
+  /* Update the excedent minimun due */
+  get('label_extmin').innerHTML = 0;
+  get('label_extmin').style.color = 'black';
+
 }
 
-
-function onDurationSliderUpdate(values)
+function onFormSubmit()
 {
-  var duration = parseInt( values[0] );
-  get('label_duration').innerHTML =  duration;
-  get('duration').value = duration;
-  onPayPlanChange( get('payplan').value );
+  if ( get('loaned').value > 0 ) get('newLoanForm').submit();
+  else alert('Monto debe ser Mayor a 0');
 }
-
-function onPayPlanChange( plan )
-{
-    // get('payplan-we').classList.remove('active');
-    // get('payplan-bw').classList.remove('active');
-    // get('payplan-mo').classList.remove('active');
-    
-    // var active = get( 'payplan-' + plan ).classList.add( 'active' );
-    // var duration = get('duration').value;
-    switch ( plan)
-    {
-      case 'we': get('label_plan').innerHTML = 'Semanas'; break;
-      case 'bw': get('label_plan').innerHTML = 'Quincenas'; break;
-      case 'mo': get('label_plan').innerHTML = 'Meses'; break;
-    }
-    // Set the value to the input
-    get('payplan').value = plan;
-    
-    /* Update the options */
-    // window.updatePayPlanOptions()
-  }
-  
-  function updatePayPlanOptions()
-  {
-    // Amount to finance:
-    var loan_amount = get('loan').value;
-    var total_amount = get('total').value;
-    var interest_rate= get('interest').value;
-    
-    // Can be either weeks, fortnights or months
-    var duration = get('duration').value;
-    
-    // Number of payments to do:
-    var dues_amount = loan_amount / duration;
-    var dues_interest = ( dues_amount * interest_rate ) / 100;
-    var total_dues = dues_amount + dues_interest;
-    
-    get('dues_amount').innerHTML = nicecify( parseInt( total_dues ) );
-    get('dues_deposit').innerHTML = nicecify( parseInt( dues_amount ) );
-    get('dues_minimum').innerHTML = nicecify( parseInt( dues_interest ) );
-    
-    
-    get('dues').value = total_dues;
-    get('partial').value = dues_interest;
-  }
-  
-  function updatePayPlanDetails( plan )
-  {
-    var payday = get( plan + '_payday').value;
-    get('details').value = payday;
-  }
-  
-  function onFormSubmit()
-  {
-    if ( get('loan').value > 0 )
-    {
-      get('newLoanForm').submit();
-    }
-    else
-    {
-      alert('Monto debe ser Mayor a 0');
-    }
-  }
-  
-  
-  
-  
 </script>
 @endsection

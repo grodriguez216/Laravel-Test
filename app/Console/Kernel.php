@@ -37,22 +37,26 @@ class Kernel extends ConsoleKernel
       if (!$loans_today) return true;
       
       foreach ($loans_today as $loan)
-      $notifier->notify( $loan->client->phone, 'PR', $loan );
-      
-    })->dailyAt('09:00');
+      {
+        $notifier->notify( $loan->client->phone, 'PR', $loan );  
+        $loan->delays++;
+        $loan->save();
+      }
+    })->dailyAt('08:00');
     
     
     $schedule->call(function ()
     {
       $notifier = new NotificationController;
       
-      $loans_today = Loan::where('next_due', date('Y-m-d', strtotime('+1 day')))->get();
+      $loans_tomorrow = Loan::where('next_due', date('Y-m-d', strtotime('+1 day')))->get();
       
-      if (!$loans_today) return true;
+      if (!$loans_tomorrow) return true;
       
-      foreach ($loans_today as $loan)
-      $notifier->notify( $loan->client->phone, 'PR', $loan );
-      
+      foreach ($loans_tomorrow as $loan)
+      {
+        $notifier->notify( $loan->client->phone, 'PR', $loan );
+      }
     })->dailyAt('13:00');
     
   }

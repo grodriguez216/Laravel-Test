@@ -1,0 +1,883 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"stat",
+				"status"
+			],
+			[
+				"bala",
+				"balance_amount"
+			],
+			[
+				"old",
+				"olddue"
+			],
+			[
+				"background-c",
+				"background-color"
+			],
+			[
+				"if",
+				"if\tif"
+			],
+			[
+				"show",
+				"showSlideById"
+			],
+			[
+				"scr",
+				"screening"
+			],
+			[
+				"sub",
+				"substract"
+			],
+			[
+				"input",
+				"input_duration"
+			],
+			[
+				"diff",
+				"diff_int"
+			],
+			[
+				"jso",
+				"json_decode"
+			],
+			[
+				"zone",
+				"zone_id"
+			],
+			[
+				"next",
+				"next_due"
+			],
+			[
+				"col-md-",
+				"col-md-8"
+			],
+			[
+				"t",
+				"t\tPHP $this reference."
+			],
+			[
+				"__",
+				"__LINE__"
+			],
+			[
+				"pri",
+				"prin\tVardump PHP Object"
+			],
+			[
+				"html",
+				"html\tbootstrap"
+			],
+			[
+				"tmp",
+				"tmp_name"
+			],
+			[
+				"print",
+				"print_r"
+			],
+			[
+				"api",
+				"api_url"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "app/Settings.php",
+			"settings":
+			{
+				"buffer_size": 841,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "app/Http/Controllers/AppController.php",
+			"settings":
+			{
+				"buffer_size": 7743,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "app/Console/Kernel.php",
+			"settings":
+			{
+				"buffer_size": 1582,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "app/Http/Controllers/LoansController.php",
+			"settings":
+			{
+				"buffer_size": 10587,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		}
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 125.0,
+		"last_filter": "snippet: blade-fo",
+		"selected_items":
+		[
+			[
+				"snippet: blade-fo",
+				"Snippet: blade-for"
+			],
+			[
+				"folder",
+				"Project: Add Folder"
+			],
+			[
+				"pyt",
+				"Set Syntax: Python"
+			],
+			[
+				"blade",
+				"Set Syntax: Laravel Blade"
+			],
+			[
+				"insta",
+				"Package Control: Install Package"
+			],
+			[
+				"js",
+				"Set Syntax: JavaScript"
+			],
+			[
+				"c",
+				"Set Syntax: C++"
+			],
+			[
+				"c++",
+				"Set Syntax: C++"
+			],
+			[
+				"theme",
+				"UI: Select Theme"
+			],
+			[
+				"color",
+				"UI: Select Color Scheme"
+			],
+			[
+				"syntax c",
+				"Set Syntax: C"
+			],
+			[
+				"yaml",
+				"Set Syntax: YAML"
+			],
+			[
+				"php",
+				"Set Syntax: PHP"
+			],
+			[
+				"pack",
+				"Preferences: Browse Packages"
+			],
+			[
+				"t",
+				"UI: Select Theme"
+			],
+			[
+				"theem",
+				"UI: Select Theme"
+			],
+			[
+				"boo",
+				"Bookmarks: Toggle"
+			],
+			[
+				"mini",
+				"View: Toggle Minimap"
+			],
+			[
+				"html",
+				"Set Syntax: HTML"
+			]
+		],
+		"width": 468.0
+	},
+	"console":
+	{
+		"height": 165.0,
+		"history":
+		[
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/Users/gerson/Code/presta-control",
+		"/Users/gerson/Code/presta-control/app",
+		"/Users/gerson/Code/presta-control/app/Console",
+		"/Users/gerson/Code/presta-control/app/Http"
+	],
+	"file_history":
+	[
+		"/Users/gerson/Code/presta-control/resources/views/loans/create.blade.php",
+		"/Users/gerson/Code/presta-control/resources/views/clients/profile.blade.php",
+		"/Users/gerson/Code/presta-control/resources/views/loans/today.blade.php",
+		"/Users/gerson/Code/presta-control/app/Http/Controllers/AppController.php",
+		"/Users/gerson/Code/presta-control/app/Notification.php",
+		"/Users/gerson/Code/presta-control/app/User.php",
+		"/Users/gerson/Code/presta-control/app/Http/Controllers/PublicController.php",
+		"/Users/gerson/Code/presta-control/resources/views/loans/users.blade.php",
+		"/Users/gerson/Code/presta-control/app/Http/Controllers/LoansController.php",
+		"/Users/gerson/Code/presta-control/app/Http/Controllers/PaymentsController.php",
+		"/Users/gerson/Code/presta-control/app/Http/Controllers/NotificationController.php",
+		"/Users/gerson/Code/presta-control/app/Http/Controllers/Controller.php",
+		"/Users/gerson/Code/presta-control/app/Providers/RouteServiceProvider.php",
+		"/Users/gerson/Code/presta-control/app/Http/Controllers/ClientsController.php",
+		"/Users/gerson/Code/presta-control/public/js/app.js",
+		"/Users/gerson/Code/presta-control/.env",
+		"/Users/gerson/Code/presta-control/public/css/app.css",
+		"/Users/gerson/Code/presta-control/resources/views/loans/reports.blade.php",
+		"/Users/gerson/Code/presta-control/resources/views/loans/extras.blade",
+		"/Users/gerson/Code/presta-control/resources/views/loans/collect.blade.php",
+		"/Users/gerson/Code/presta-control/resources/views/auth/login.blade.php",
+		"/Users/gerson/Code/presta-control/app/Http/Controllers/Auth/LoginController.php",
+		"/Users/gerson/Code/presta-control/resources/views/layouts/cobrar.blade.php",
+		"/Users/gerson/Code/presta-control/routes/web.php",
+		"/Users/gerson/GitHub/zendesk-api/public/doc/page-faq-breast-implants.php",
+		"/Users/gerson/GitHub/zendesk-api/public/dist/page-faq-breast-implants.php",
+		"/Users/gerson/GitHub/zendesk-api/public/dist/page-faq-tulip.php",
+		"/Users/gerson/GitHub/zendesk-api/public/dist/page-support.php",
+		"/Users/gerson/GitHub/zendesk-api/public/dist/page-faq-samples.php",
+		"/Users/gerson/GitHub/zendesk-api/public/dist/page-faq-q-reader.php",
+		"/Users/gerson/GitHub/zendesk-api/public/dist/page-faq-sizers.php",
+		"/Users/gerson/GitHub/zendesk-api/public/dist/page-faq-template.php",
+		"/Users/gerson/GitHub/zendesk-api/public/dist/page-faq-puregraft.php",
+		"/Users/gerson/GitHub/zendesk-api/public/dist/page-faq-led-retractor.php",
+		"/Users/gerson/GitHub/zendesk-api/public/dist/page-faq-insertion-sleeve.php",
+		"/Users/gerson/GitHub/zendesk-api/public/dist/page-faq-gluteal-implants.php",
+		"/Users/gerson/GitHub/zendesk-api/public/dist/page-faq-external-sizer.php",
+		"/Users/gerson/GitHub/zendesk-api/public/dist/page-faq-divina.php",
+		"/Users/gerson/GitHub/zendesk-api/public/dist/custom-css/styles.css",
+		"/Users/gerson/GitHub/zendesk-api/public/dist/page-faq-crisalix.php",
+		"/Users/gerson/GitHub/zendesk-api/public/doc/page-faq-q-reader.php",
+		"/Users/gerson/GitHub/zendesk-api/public/doc/page-faq-puregraft.php",
+		"/Users/gerson/GitHub/zendesk-api/public/doc/page-faq-led-retractor.php",
+		"/Users/gerson/GitHub/zendesk-api/public/doc/page-faq-insertion-sleeve.php",
+		"/Users/gerson/GitHub/zendesk-api/public/doc/page-faq-gluteal-implants.php",
+		"/Users/gerson/GitHub/zendesk-api/public/doc/page-faq-external-sizer.php",
+		"/Users/gerson/GitHub/zendesk-api/public/doc/page-faq-divina.php",
+		"/Users/gerson/GitHub/zendesk-api/public/doc/page-faq-crisalix.php",
+		"/Users/gerson/GitHub/zendesk-api/public/doc/page-faq-samples.php",
+		"/Users/gerson/GitHub/zendesk-api/public/doc/page-faq-sizers.php",
+		"/Users/gerson/GitHub/zendesk-api/public/doc/page-faq-template.php",
+		"/Users/gerson/GitHub/zendesk-api/public/doc/page-faq-tulip.php",
+		"/Users/gerson/GitHub/zendesk-api/public/pat/page-patients-faq-breast.php",
+		"/Users/gerson/GitHub/zendesk-api/public/pat/page-patients-faq-gluteal.php",
+		"/Users/gerson/GitHub/zendesk-api/public/pat/page-patients.php",
+		"/Users/gerson/GitHub/dsdlib/src/TriangleMesh.h",
+		"/Users/gerson/GitHub/dsdlib/src/TriangleMesh.cpp",
+		"/Users/gerson/GitHub/zendesk-api/src/api.php",
+		"/Users/gerson/GitHub/zendesk-api/public/pat/page-patients-faq-mic.php",
+		"/Users/gerson/GitHub/zendesk-api/src/data/forms.json",
+		"/Users/gerson/GitHub/zendesk-api/src/form.php",
+		"/Users/gerson/GitHub/zendesk-api/public/doc/page-doctors.php",
+		"/Users/gerson/GitHub/zendesk-api/public/pat/custom-js/script.js",
+		"/Users/gerson/GitHub/zendesk-api/public/pat/custom-css/styles.css",
+		"/Users/gerson/GitHub/divina3qt/docs/structures.yaml",
+		"/Users/gerson/GitHub/dsdlib/integration-test/DSDviewer.rc",
+		"/Users/gerson/GitHub/dsdlib/integration-test/resource.h",
+		"/Users/gerson/GitHub/dsdlib/integration-test/DlgNewModel.cpp",
+		"/Users/gerson/GitHub/dsdlib/integration-test/MainFrm.cpp",
+		"/Users/gerson/GitHub/dsdlib/integration-test/TetModel.h",
+		"/Users/gerson/GitHub/dsdlib/integration-test/TetModel.cpp",
+		"/Users/gerson/GitHub/dsdlib/integration-test/DlgOpenDMap.cpp",
+		"/Users/gerson/GitHub/dsdlib/integration-test/DlgOpenDMap.h",
+		"/Users/gerson/GitHub/dsdlib/integration-test/DSDviewer.h",
+		"/Users/gerson/GitHub/dsdlib/integration-test/DSDviewer.cpp",
+		"/Users/gerson/Code/presta-control/vendor/laravel/framework/src/Illuminate/Auth/Access/Response.php",
+		"/Users/gerson/Code/presta-control/resources/views/layouts/app.blade.php",
+		"/Users/gerson/Code/presta-control/vendor/monolog/monolog/src/Monolog/Handler/ZendMonitorHandler.php",
+		"/Users/gerson/Code/presta-control/app/Http/Controllers/Auth/RegisterController.php",
+		"/Users/gerson/Code/presta-control/app/Http/Controllers/Auth/ResetPasswordController.php",
+		"/Users/gerson/Code/presta-control/vendor/laravel/framework/src/Illuminate/Foundation/Auth/AuthenticatesUsers.php",
+		"/Users/gerson/Code/presta-control/vendor/laravel/framework/src/Illuminate/Auth/SessionGuard.php",
+		"/Users/gerson/GitHub/divina3qt/src/ui3d/bk/Model3D.h",
+		"/Users/gerson/GitHub/divina3qt/src/ui3d/bk/Model3D.cpp",
+		"/Users/gerson/GitHub/zendesk-api/public/forms/default.html",
+		"/Users/gerson/GitHub/divina3qt/src/divina3qt.pro",
+		"/Users/gerson/GitHub/divina3qt/3dobjparser.cpp",
+		"/Users/gerson/.OneDrive/Establishment Labs/SH Development - Documents/1. Projects/1. Divina/Models ( Real Scans )/Mirian/MirianProcesada/3DScan.mtl",
+		"/Users/gerson/.OneDrive/Establishment Labs/SH Development - Documents/1. Projects/1. Divina/Models ( Real Scans )/Mirian/MirianProcesada/Mirian.ax3",
+		"/Users/gerson/.OneDrive/Establishment Labs/SH Development - Documents/1. Projects/1. Divina/Models ( Real Scans )/Mirian/MirianProcesada/3DScan.obj",
+		"/Users/gerson/GitHub/divina3qt/opengl_fbo/src/libs/fbo/dsd3dmodel.h",
+		"/Users/gerson/GitHub/divina3qt/opengl_fbo/src/libs/fbo/dsd3dmodel.cpp",
+		"/Users/gerson/Downloads/o9trrctt91q8-CoffeeCup3DModel/normals.obj",
+		"/Users/gerson/GitHub/divina3qt/opengl_fbo/src/qml.qrc",
+		"/Users/gerson/GitHub/divina3qt/opengl_fbo/src/assets/shaders/fragment.glsl",
+		"/Users/gerson/GitHub/divina3qt/opengl_fbo/src/assets/shaders/vertex.glsl",
+		"/Users/gerson/Downloads/o9trrctt91q8-CoffeeCup3DModel/vertex.obj",
+		"/Users/gerson/Downloads/o9trrctt91q8-CoffeeCup3DModel/Coffe cupobj.obj",
+		"/Users/gerson/GitHub/dsdlib/integration-test/DSDviewerDoc.cpp",
+		"/Users/gerson/GitHub/dsdlib/integration-test/MainFrm.h",
+		"/Users/gerson/GitHub/dsdlib/integration-test/DSDviewerDoc.h",
+		"/Users/gerson/GitHub/ustrial-ws/settings/bless.env",
+		"/Users/gerson/GitHub/ustrial-ws/settings/bless.yaml",
+		"/Users/gerson/GitHub/ustrial-ws/settings/local.env",
+		"/Users/gerson/GitHub/ustrial-ws/dev/deploy-digilab.bat",
+		"/Users/gerson/GitHub/ustrial-ws/dev/local.bat",
+		"/Users/gerson/GitHub/ustrial-ws/dev/deploy-digilab.sh",
+		"/Users/gerson/GitHub/ustrial-ws/dev/local.sh",
+		"/Users/gerson/GitHub/ustrial-ws/dev/deploy-bless.bat",
+		"/Users/gerson/GitHub/ustrial-ws/dev/deploy-bless.sh",
+		"/Users/gerson/GitHub/ustrial-ws/app.yaml\r",
+		"/Users/gerson/GitHub/ustrial-ws/app.yaml",
+		"/Users/gerson/GitHub/ustrial-ws/app.yaml.digilab",
+		"/Users/gerson/GitHub/ustrial-ws/app.yaml.bless",
+		"/Users/gerson/GitHub/zendesk-api/public/doc/custom-css/styles.css",
+		"/Users/gerson/GitHub/zendesk-api/public/forms/divina.html",
+		"/Volumes/ftp.control-parcero.co/app/resources/views/layouts/login.blade.php",
+		"/Users/gerson/Desktop/test.html",
+		"/private/var/folders/mh/7z_jqczn0555mt8r_nk3ky400000gn/T/fz3temp-2/response.php",
+		"/Users/gerson/GitHub/register-web/wordpress/wp-config.php",
+		"/Library/WebServer/Documents/test.php",
+		"/Library/WebServer/Documents/index.html",
+		"/Users/gerson/GitHub/zendesk-api/php/test.php",
+		"/Users/gerson/Library/Group Containers/G69SCX94XU.duck/Library/Application Support/duck/Volumes/35.189.254.30 – SFTP/bitnami/index.php",
+		"/Users/gerson/.ssh/bitnami.pub",
+		"/Users/gerson/.ssh/bitnami.key",
+		"/Users/gerson/.ssh/1line.priv",
+		"/Users/gerson/.ssh/private"
+	],
+	"find":
+	{
+		"height": 45.0
+	},
+	"find_in_files":
+	{
+		"height": 117.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"parse",
+			"label_regduereal",
+			"regdue",
+			"input_regdue_amount",
+			"mindue_a",
+			"label_extmin",
+			"label_inte",
+			"onPayPlanChange",
+			"email",
+			"unique",
+			"create_new_user",
+			"user",
+			"delete",
+			"store",
+			"extra",
+			"update",
+			"phone",
+			"phone_w",
+			"modal",
+			"input"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 3,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "app/Settings.php",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 841,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								303,
+								303
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/PHP/PHP.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 124.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "app/Http/Controllers/AppController.php",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 7743,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								3782,
+								3832
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/PHP/PHP.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 3135.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "app/Console/Kernel.php",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1582,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								968,
+								968
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/PHP/PHP.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "app/Http/Controllers/LoansController.php",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 10587,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								10356,
+								10356
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/PHP/PHP.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 5781.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 45.0
+	},
+	"input":
+	{
+		"height": 45.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "",
+	"project": "control.sublime-project",
+	"replace":
+	{
+		"height": 58.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"appco",
+				"app/Http/Controllers/AppController.php"
+			],
+			[
+				"loans",
+				"app/Http/Controllers/LoansController.php"
+			],
+			[
+				"toda",
+				"resources/views/loans/today.blade.php"
+			],
+			[
+				"payme",
+				"app/Http/Controllers/PaymentsController.php"
+			],
+			[
+				"routes",
+				"app/Providers/RouteServiceProvider.php"
+			],
+			[
+				"clientco",
+				"app/Http/Controllers/ClientsController.php"
+			],
+			[
+				"profi",
+				"resources/views/clients/profile.blade.php"
+			],
+			[
+				"loancon",
+				"app/Http/Controllers/LoansController.php"
+			],
+			[
+				".js",
+				"public/js/app.js"
+			],
+			[
+				"create",
+				"resources/views/loans/create.blade.php"
+			],
+			[
+				"profile",
+				"resources/views/clients/profile.blade.php"
+			],
+			[
+				".css",
+				"public/css/app.css"
+			],
+			[
+				"appc",
+				"app/Http/Controllers/AppController.php"
+			],
+			[
+				"report",
+				"resources/views/loans/reports.blade.php"
+			],
+			[
+				"loanc",
+				"app/Http/Controllers/LoansController.php"
+			],
+			[
+				"logincon",
+				"app/Http/Controllers/Auth/LoginController.php"
+			],
+			[
+				"clientsc",
+				"app/Http/Controllers/ClientsController.php"
+			],
+			[
+				"users",
+				"resources/views/loans/users.blade.php"
+			],
+			[
+				"appcon",
+				"app/Http/Controllers/AppController.php"
+			],
+			[
+				"doc/samples",
+				"public/doc/page-faq-samples.php"
+			],
+			[
+				"doc/page-bre",
+				"public/doc/page-faq-breast-implants.php"
+			],
+			[
+				"pat/",
+				"public/pat/page-patients-faq-breast.php"
+			],
+			[
+				"tuli",
+				"public/doc/page-faq-tulip.php"
+			],
+			[
+				"pat/b",
+				"pat/page-patients-faq-breast.php"
+			],
+			[
+				"dist/",
+				"dist/page-faq-breast-implants.php"
+			],
+			[
+				"doc/",
+				"doc/page-faq-breast-implants.php"
+			],
+			[
+				"doc/breas",
+				"doc/page-faq-breast-implants.php"
+			],
+			[
+				"mic",
+				"pat/page-patients-faq-mic.php"
+			],
+			[
+				"",
+				"public/dist/page-faq-breast-implants.php"
+			],
+			[
+				"dist/impl",
+				"public/dist/page-faq-breast-implants.php"
+			],
+			[
+				"dist/i",
+				"public/dist/page-faq-insertion-sleeve.php"
+			],
+			[
+				"gluteal",
+				"pat/page-patients-faq-gluteal.php"
+			],
+			[
+				"page-faq-gl",
+				"doc/page-faq-gluteal-implants.php"
+			],
+			[
+				"page-brea",
+				"dist/page-faq-breast-implants.php"
+			],
+			[
+				"doc/page-fa",
+				"doc/page-faq-external-sizer.php"
+			],
+			[
+				"crisali",
+				"doc/page-faq-crisalix.php"
+			],
+			[
+				"doc/page-faq-di",
+				"doc/page-faq-divina.php"
+			],
+			[
+				"doc/page-faq-g",
+				"doc/page-faq-gluteal-implants.php"
+			],
+			[
+				"doc/page-faq-sampl",
+				"doc/page-faq-samples.php"
+			],
+			[
+				"page-faq-impln",
+				"doc/page-faq-breast-implants.php"
+			],
+			[
+				"tetra",
+				"TetraMesh.h"
+			],
+			[
+				"loanco",
+				"app/Http/Controllers/LoansController.php"
+			],
+			[
+				"ozne",
+				"vendor/monolog/monolog/src/Monolog/Handler/ZendMonitorHandler.php"
+			],
+			[
+				"route/we",
+				"routes/web.php"
+			],
+			[
+				"routes/we",
+				"routes/web.php"
+			],
+			[
+				"controller",
+				"app/Http/Controllers/AppController.php"
+			],
+			[
+				"clientes",
+				"app/Http/Controllers/ClientsController.php"
+			],
+			[
+				"web.",
+				"routes/web.php"
+			],
+			[
+				"create.",
+				"resources/views/loans/create.blade.php"
+			],
+			[
+				"divina",
+				"public/doc/page-faq-divina.php"
+			],
+			[
+				"sleeve",
+				"public/doc/page-faq-insertion-sleeve.php"
+			],
+			[
+				"template",
+				"public/doc/page-faq-template.php"
+			],
+			[
+				"fo",
+				"src/form.php"
+			],
+			[
+				"page-faq-d",
+				"public/doc/page-faq-divina.php"
+			],
+			[
+				"divin",
+				"public/forms/divina.html"
+			],
+			[
+				"doctor",
+				"public/doc/page-doctors.php"
+			],
+			[
+				"tulip",
+				"public/doc/page-faq-tulip.php"
+			],
+			[
+				"form.",
+				"src/form.php"
+			],
+			[
+				"layou",
+				"vendor/phpoffice/phpexcel/Classes/PHPExcel/Chart/Layout.php"
+			],
+			[
+				"login",
+				"resources/views/auth/login.blade.php"
+			],
+			[
+				"crea",
+				"resources/views/loans/create.blade.php"
+			]
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"",
+				"~/GitHub/divina3qt/src/divina3qt.sublime-project"
+			]
+		],
+		"width": 380.0
+	},
+	"select_symbol":
+	{
+		"height": 392.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 804.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": false,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 265.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use DB;
+use Validator;
 use App\Models\Client;
 use App\Models\Loan;
 use App\Models\Payment;
@@ -31,6 +32,10 @@ class AppController extends Controller
   */
   public function index()
   {
+
+    if ( session('auth2') )
+      return redirect('/cobrar');
+
     $clients = Client::all();
     
     $nice_list = array();
@@ -39,7 +44,16 @@ class AppController extends Controller
     {
       $item = array();
       $item['value'] = $cli->id;
-      $item['label'] = $cli->first_name . ' ' . $cli->last_name . " ( {$cli->phone} )";
+      $fullname = $cli->first_name . ' ' . $cli->last_name . " ( {$cli->phone} )";
+
+      $fullname = str_replace('á', 'a', $fullname);
+      $fullname = str_replace('é', '2', $fullname);
+      $fullname = str_replace('í', 'i', $fullname);
+      $fullname = str_replace('ó', 'o', $fullname);
+      $fullname = str_replace('ú', 'u', $fullname);
+      
+      $item['label'] = $fullname;
+
       $nice_list[] = $item;
     }
     
@@ -74,50 +88,51 @@ class AppController extends Controller
     $data['rep_end'] =  date('d/m/Y', strtotime($rep_end));
     
     /* All Active Loans */
-    $loans = Loan::where('status', 1)->get();
+    // $loans = Loan::where('status', '>=',1 )->get();
+
+    $loans = Loan::all();
     
     $this->create_csv( $loans );
     
-    $data['total_loaned'] = $loans->sum('loaned');
-    $data['total_pending'] = $loans->sum('balance');
-    $data['active_loans'] = $loans->count();
+    // $data['total_loaned'] = $loans->sum('loaned');
+    // $data['total_pending'] = $loans->sum('balance');
+    // $data['active_loans'] = $loans->count();
     
-    /* Payments Received this month */
-    $payments = Payment::orderBy('id')
-    ->where('created_at', '>', $fallback_s)
-    ->where('created_at', '<', $fallback_e)
-    ->get();
+    // /* Payments Received this month */
+    // $payments = Payment::orderBy('id')
+    // ->where('created_at', '>', $fallback_s)
+    // ->where('created_at', '<', $fallback_e)
+    // ->get();
     
-    $byType = $payments->groupBy('type');
+    // $byType = $payments->groupBy('type');
     
-    /* Total from payments */
-    $data['total_received_pc'] = $byType->get('PC') ? $byType->get('PC')->sum('amount') : 0;
-    $data['total_received_pm'] = $byType->get('PM') ? $byType->get('PM')->sum('amount') : 0;
-    $data['total_received_ab'] = $byType->get('AB') ? $byType->get('AB')->sum('amount') : 0;
-    $data['total_received'] = $payments->sum('amount');
+    // /* Total from payments */
+    // $data['total_received_pc'] = $byType->get('PC') ? $byType->get('PC')->sum('amount') : 0;
+    // $data['total_received_pm'] = $byType->get('PM') ? $byType->get('PM')->sum('amount') : 0;
+    // $data['total_received_ab'] = $byType->get('AB') ? $byType->get('AB')->sum('amount') : 0;
+    // $data['total_received'] = $payments->sum('amount');
     
-    /* Earnigns from Payments */
-    $data['total_earnings'] = 0;
-    $data['total_earnings_pc'] = 0;
-    $data['total_earnings_pm'] = 0;
+    // /* Earnigns from Payments */
+    // $data['total_earnings'] = 0;
+    // $data['total_earnings_pc'] = 0;
+    // $data['total_earnings_pm'] = 0;
     
-    foreach ($payments as $payment)
-    {
-      switch ($payment->type) {
-        case 'PC':
-        $data['total_earnings'] += $payment->loan->interest;
-        $data['total_earnings_pc'] += $payment->loan->interest;
-        break;
+    // foreach ($payments as $payment)
+    // {
+    //   switch ($payment->type) {
+    //     case 'PC':
+    //     $data['total_earnings'] += $payment->loan->interest;
+    //     $data['total_earnings_pc'] += $payment->loan->interest;
+    //     break;
         
-        case 'PM':
-        $data['total_earnings'] += $payment->amount;
-        $data['total_earnings_pm'] += $payment->amount;
-        break;
-      }
-    }
+    //     case 'PM':
+    //     $data['total_earnings'] += $payment->amount;
+    //     $data['total_earnings_pm'] += $payment->amount;
+    //     break;
+    //   }
+    // }
     
     $data['loans'] = $loans;
-    
     
     /* All Active Loan Objects */
     return view('loans.reports', $data);
@@ -164,7 +179,7 @@ class AppController extends Controller
   
   public function users( )
   {
-    $users = User::where('id', '>', 1)->get();
+    $users = User::where('id', '>=', 1)->get();
     return view('loans.users', [ 'users' => $users ] );
   }
   
@@ -220,16 +235,32 @@ class AppController extends Controller
   
   public function create_new_user( Request $request )
   {
+
+    $rules =
+    [
+      'name' => 'required',
+      'email' => 'required|unique:users',
+    ];
+
+    $validator = Validator::make( $request->all(), $rules);
+
+    if ( $validator->fails() )
+      return redirect('/usuarios?ref=error');
+
     $user = new User();
     $user->name = ucwords( trim( $request->input('name') ) );
-    $user->email = trim( $request->input('phone') );
-    $user->password = password_hash( trim( $request->input('phone') ), PASSWORD_BCRYPT );
-    $user->zones = "{'zones':[]}";
+    $user->email = trim( $request->input('email') );
+    $user->password = password_hash( trim( $request->input('email') ), PASSWORD_BCRYPT );
+    $user->zones = '{"zones":[]}';
     $user->save();
     return redirect('/usuarios/perfil/' . $user->id );
   }
-  
-  
+
+  public function delete_user( $id )
+  {
+    User::destroy( $id );
+    return redirect('/usuarios');
+  }
   
   public function update(Request $request)
   {
@@ -270,9 +301,9 @@ class AppController extends Controller
       $data[] = number_format($Loan->loaned, 0);
       $data[] = number_format($Loan->payable, 0);
       $data[] = number_format($Loan->balance, 0);
-      $data[] = $Loan->rate . ' %';
-      $data[] = number_format($Loan->dues, 0);
-      $data[] = number_format($Loan->interest, 0);
+      $data[] = $Loan->intrate . ' %';
+      $data[] = number_format($Loan->regdue, 0);
+      $data[] = number_format($Loan->mindue, 0);
       $data[] = $Loan->extentions;
       
       $payed = $Loan->payable - $Loan->balance;

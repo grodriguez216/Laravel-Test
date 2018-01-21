@@ -48,6 +48,7 @@ class ClientsController extends Controller
     $client->ssn = $request->input('ssn');
     $client->first_name = $request->input('first_name');
     $client->last_name = $request->input('last_name');
+    $client->phone = $request->input('phone');
     $client->phone_home = $request->input('phone_home');
     $client->phone_work = $request->input('phone_work');
     $client->address_home = $request->input('address_home');

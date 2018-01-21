@@ -26,12 +26,19 @@ use App\Helper;
         <div class="card-body">
           <div class="row mb-4">
             <div class="col-12 mb-1"><small class="bold">Nombre:</small></div>
-            <div class="col-12">{{ $client->first_name }}&nbsp;{{ $client->last_name }} ({{ $client->ssn }})</div>
+            <div class="col-12 font-weight-bold">{{ $client->first_name }}&nbsp;{{ $client->last_name }}</div>
+            <div class="col-12"># {{ $client->ssn }}</div>
           </div>
           <hr>
           <div class="row mb-4">
             <div class="col-12 mb-1"><small class="bold">Direccion (Casa)</small></div>
-            <div class="col-12">{{ $client->address_home }}</div>
+            <div class="col-12">
+              @if ( strpos($client->address_home, 'maps') )
+              <a target="_blank" href="{{ $client->address_home }}">Ver Mapa</a>
+              @else
+              {{ $client->address_home }}
+              @endif
+            </div>
           </div>
           <div class="row mb-4">
             <div class="col-12 mb-1"><small class="bold">Direccion (Trabajo)</small></div>
@@ -61,14 +68,17 @@ use App\Helper;
           </div>
 
         </div>
+
+        @if ( session('auth2') == false )
         <div class="card-footer text-center" style="background:#fff">
           <a class="btn btn-outline-danger w-100 my-3" href="/prestamos/agregar?auto=1&amp;key={{ $client->phone }}">Agregar Prestamo</a>
         </div>
+        @endif
       </div> {{-- card --}}
     </div> {{-- col-12/4 Left InfoPanel --}}
 
 
-    <div class="col-12 col-md-8 scroll">
+    <div class="col-12 col-md-8 mt-4 mt-sm-0">
       @foreach ($loans->sortByDesc('created_at')->sortByDesc('status') as $loan)
 
       <div class="card loan mb-4">
@@ -76,15 +86,14 @@ use App\Helper;
 
           <h4 class="card-title">
             <div class="row">
-              <div class="col text-left">Detalle de Prestamo</div>
-              <div class="col text-right"><small class="text-muted">{{ $loan->date}}</small></div>
+              <div class="col-7 text-left">Prestamo # {{ $loan->id }}</div>
+              <div class="col-5 text-right"><small class="text-muted">{{ $loan->date}}</small></div>
             </div>
           </h4>
 
           <hr>
 
           <div class="row">
-
             <div class="col-12 col-lg-5">
               <table class="table mb-0">
                 <tr>
@@ -103,41 +112,62 @@ use App\Helper;
                   <td>Duración:</td>
                   <td class="text-right">{{ $loan->duration }} +{{ $loan->extentions }}</td>
                 </tr>
+                <tr>
+                  <td>Pendientes:</td>
+                  <td class="text-right">{{ $loan->delays }}</td>
+                </tr>
               </table>
             </div> {{-- col-5 --}}
 
-            <div class="col-12 my-3 d-lg-none">
+            <div class="col-12 my-2 d-lg-none">
               <hr>
             </div>
 
             <div class="col-12 col-lg-7">
               @if ( $loan->status )
-              <form action="{{ route('loans.pay') }}" method="post">
+              <form id="pf-{{ $loan->id }}" action="{{ route('loans.pay') }}" method="post">
 
-                <div class="row mb-0">
-                  <div class="col text-right">
+                <div class="row">
+
+                  <div id="regdue_box-{{ $loan->id }}" class="col-12 text-center">
                     <h2>
                       <small>₡</small>
                       <span id="dues_label-{{ $loan->id }}" class="money">{{ $loan->nice_due }}</span>
                       <span id="interest_label-{{ $loan->id }}" class="money d-none">{{ $loan->nice_int }}</span>
+                      <small>
+                        <span style="color:#999" id="round-d-{{$loan->id}}" class="">{{ $loan->diff_due }}</span>
+                        <span style="color:#999" id="round-i-{{$loan->id}}" class="d-none">{{ $loan->diff_int }}</span>
+                      </small>
                     </h2>
                   </div>
-                  <div class="col pl-0 text-left">
+
+                  <div class="col-11 my-3">
                     <div class="input-group minimal">
                       <span class="input-group-addon">+</span>
-                      <input id="input_amount" type="text" name="extra" pattern="\d*" class="form-control" placeholder="Extra">
+                      <input id="input_amount-{{ $loan->id }}" type="text" name="extra" pattern="\d*" class="form-control" placeholder="Extra">
                     </div>
                   </div>
-                </div>{{--row --}}
 
-                <div class="row mb-3">
-                  <div class="col-6 text-right">
-                    <span style="color:#999" id="round-d-{{$loan->id}}" class="">{{ $loan->diff_due }}</span>
-                    <span style="color:#999" id="round-i-{{$loan->id}}" class="d-none">{{ $loan->diff_int }}</span>
+                  <div class="col-12 text-center">
+                    <div  id="customcheckbox-{{$loan->id}}" class="form-check form-check-inline">
+                      <label class="custom-control custom-radio">
+                        <input id="customcheck-{{$loan->id}}" class="custom-control-input" type="checkbox" name="custompay" onchange="onCustomAmountCheck({{ $loan->id }}, this)">
+                        <span class="custom-control-indicator"></span>
+                        <span class="custom-control-description">Monto Personalizado</span>
+                      </label>
+                    </div>
+                    <hr>
                   </div>
                 </div>{{--row --}}
 
-                <div class="row mb-4">
+
+
+                <div class="row mb-3">
+
+                </div>{{--row --}}
+
+                <span id="payType-{{ $loan->id }}" class="d-none">PC</span>
+                <div class="row mb-2">
                   <div class="col text-center">
                     <div class="form-check form-check-inline">
                       <label class="custom-control custom-radio">
@@ -156,17 +186,54 @@ use App\Helper;
                   </div>
                 </div> {{-- row --}}
 
+
+                <div class="row justify-content-center pb-4">
+                  <div class="col-7">
+                    <div class="input-group minimal">
+                      <span class="input-group-addon">Cuotas x</span>
+                      <input id="input_duemulti-{{ $loan->id }}" type="text" name="duemulti" pattern="\d*" class="form-control" value="1">
+                    </div>
+                  </div>
+                </div>
+
                 <div class="row">
                   <div class="col text-center">
                     {{ csrf_field() }}
                     <input type="hidden" name="id" value="{{ $loan->id }}">
                     <input type="hidden" name="due" value="{{ $loan->nice_due }}">
                     <input type="hidden" name="int" value="{{ $loan->nice_int }}">
-                    <button type="submit" class="btn btn-outline-danger btn-sm w-50 ">Pagar</button>
+                    <button type="button" onclick="showConfirModal( {{ $loan->id }} )" class="btn btn-outline-danger btn-sm w-50 ">Pagar</button>
                   </div>
                 </div> {{-- row --}}
 
+
+                <div id="confirModal-{{ $loan->id }}" class="modal" tabindex="-1" role="dialog">
+                  <div class="modal-dialog modal-sm" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title text-center">Confirmar Pago</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body text-center">
+                        <p>Seguro que desea realizar este pago <span id="ctype-{{$loan->id}}" class="font-weight-bold"></span>?</p>
+                        <h3>
+                          ₡<span id="camount-{{$loan->id}}"></span> x <span id="cduemulti-{{$loan->id}}"></span>
+                        </h3>
+
+                      </div>
+                      <div class="modal-footer">
+                        <button type="submit" class="btn btn-outline-danger px-4">Si, Pagar</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
               </form>
+
+
               @else
               <div class="col text-center mt-3">
                 <a data-toggle="collapse" href="#paylist-{{ $loan->id }}">Historial&nbsp;
@@ -177,17 +244,15 @@ use App\Helper;
             </div>{{-- row col-7 --}}
 
           </div> {{-- row --}}
-
-
           <div class="collapse p-2 mt-2" id="paylist-{{ $loan->id }}" style="">
             <hr>
             <div class="row">
-              <div class="col py-3">
+              <div class="col-12 py-3">
                 <table class="table table-sm table-hover">
                   <thead class="thead-inverse">
                     <tr>
                       <th><small class="bold">Fecha</small></th>
-                      <th><small class="bold">Tipo</small></th>
+                      <th class="text-center"><small class="bold">Tipo</small></th>
                       <th><small class="bold">Monto</small></th>
                       <th><small class="bold">Balance</small></th>
                     </tr>
@@ -195,27 +260,27 @@ use App\Helper;
                   <tbody>
                     @foreach ($loan->payments->sortBy('id') as $payment)
                     <tr>
-                      <td>{{ Helper::date( $payment->created_at, 'd-M-Y' ) }}</td>
+                      <td>{{ Helper::date( $payment->created_at, 'd-m-Y' ) }}</td>
                       @php
                       switch ( $payment->type )
                       {
-                        case 'PC': $payment->type = 'Completo'; break;
-                        case 'PM': $payment->type = 'Minimo'; break;
-                        case 'AB': $payment->type = 'Abono'; break;
-                        case 'RB': $payment->type = 'Reembolso'; break;
+                        case 'PC': $payment->type = 'C'; break;
+                        case 'PM': $payment->type = 'M'; break;
+                        case 'AB': $payment->type = 'A'; break;
+                        case 'RB': $payment->type = 'R'; break;
                       }
                       @endphp
-                      <td>{{ $payment->type }}</td>
-                      <td>₡<span class="money">{{ $payment->amount }}</span></td>
-                      <td>₡<span class="money">{{ $payment->balance }}</span></td>
+                      <td class="text-center">{{ $payment->type }}</td>
+                      <td><span class="money">{{ $payment->amount }}</span></td>
+                      <td><span class="money">{{ $payment->balance }}</span></td>
                     </tr>
                     @endforeach
                   </tbody>
                   <tfoot>
                     <tr>
                       <td></td>
-                      <td style="border-top:solid 1px #999">Total Pagado:</td>
-                      <td style="border-top:solid 1px #999">₡<span class="money"><b>{{ $loan->payments->sum('amount') }}</b></span></td>
+                      <td style="border-top:solid 1px #eee">Pagado:</td>
+                      <td style="border-top:solid 1px #eee">₡<span class="money"><b>{{ $loan->payments->sum('amount') }}</b></span></td>
                       <td></td>
                     </tr>
                   </tfoot>
@@ -228,18 +293,16 @@ use App\Helper;
                 <a class="btn btn-outline-danger btn-sm" href="prestamos/reembolso/{{$loan->id}}">Reembolsar último abono</a>
               </div>
             </div>
-
           </div> {{-- collpse --}}
-
         </div> {{-- Card Body --}}
 
         @if ( $loan->status)
         <div class="card-footer">
           <div class="row">
-            <div class="col">Proximo Pago</div>
+            <div class="col">Sig. Pago</div>
             <div class="col"><a href="#" onclick="onNextDueClick({{$loan->id}})">{{ $loan->next_due_display }}</a></div>
             <div class="col">
-              <a data-toggle="collapse" href="#paylist-{{ $loan->id }}">Historial&nbsp;
+              <a data-toggle="collapse" href="#paylist-{{ $loan->id }}">Pagos&nbsp;
                 <i class="fa fa-chevron-down"></i>
               </a>
             </div>
@@ -271,90 +334,82 @@ use App\Helper;
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-
       <form id="cliUpdateForm" method="post" action="{{ route('clients.update') }}">
         {{ csrf_field() }}
         <input type="hidden" name="id" value="{{ $client->id }}">
-
         <div class="modal-body">
           <div class="form-row">
-
             <div class="col-6 col-md-4 form-group">
               <input type="text"  name="first_name" class="form-control py-3" value="{{ $client->first_name }}" placeholder="Nombre *" required>
             </div>
-
             <div class="col-6 col-md-4 form-group}">
               <input type="text" name="last_name" class="form-control py-3" value="{{ $client->last_name }}" placeholder="Apellidos *" required>
             </div>
-
             <div class="col-6 col-md-4 form-group}">
               <input type="number" name="ssn" class="form-control py-3" value="{{ $client->ssn }}" placeholder="Cedula *" required>
             </div>
-
             <div class="col-12 col-md-4 form-group">
-              <input type="number" name="phone" class="form-control py-3" value="{{ $client->phone }}" placeholder="Telefono *" required>
+              <input type="number" name="phone" class="form-control py-3" value="{{ $client->phone }}" placeholder="Telefono *" max="99999999" required>
             </div>
             <div class="col-12 col-md-4 form-group">
-              <input type="number" name="phone_home" class="form-control py-3" value="{{ $client->phone_home }}" placeholder="Telefono (casa)">
+              <input type="number" name="phone_home" class="form-control py-3" value="{{ $client->phone_home }}" placeholder="Telefono (casa)" max="99999999">
             </div>
             <div class="col-12 col-md-4 form-group">
-              <input type="number" name="phone_work" class="form-control py-3" value="{{ $client->phone_work }}" placeholder="Telefono (trabajo)">
-            </div>
-
-            <div class="col-md-6 form-group mt-3">
-              <textarea class="form-control" name="address_home" rows="3" placeholder="Direccion (Casa)">{{ $client->address_home }}</textarea>
+              <input type="number" name="phone_work" class="form-control py-3" value="{{ $client->phone_work }}" placeholder="Telefono (trabajo)" max="99999999">
             </div>
             <div class="col-md-6 form-group mt-3">
-              <textarea class="form-control" name="address_work" rows="3" placeholder="Direccion (Trabajo)">{{ $client->address_work }}</textarea>
-            </div>
+              <textarea class="form-control" name="address_home" rows="3" placeholder="Direccion (Casa)">
+                {{ $client->address_home }}</textarea>
+              </div>
+              <div class="col-md-6 form-group mt-3">
+                <textarea class="form-control" name="address_work" rows="3" placeholder="Direccion (Trabajo)">{{ $client->address_work }}</textarea>
+              </div>
 
-            <div class="col-md-12 mt-3">
-              <label class="px-2">Zona de Cobro:</label>
-              <select class="custom-select" name="zone_id">
-                @foreach ( $zones as $zone)
-                <option value="{{ $zone->id }}" {{ $zone->id == $client->zone_id ? 'selected' : '' }}>
-                  {{ $zone->name }}
-                </option>
-                @endforeach
-              </select>
-            </div>
+              <div class="col-md-12 mt-3">
+                <label class="px-2">Zona de Cobro:</label>
+                <select class="custom-select" name="zone_id">
+                  @foreach ( $zones as $zone)
+                  <option value="{{ $zone->id }}" {{ $zone->id == $client->zone_id ? 'selected' : '' }}>
+                    {{ $zone->name }}
+                  </option>
+                  @endforeach
+                </select>
+              </div>
 
+            </div>
           </div>
-        </div>
 
-        <div class="modal-footer">
-          <button type="submit" class="btn btn-outline-danger">Guardar Cambios</button>
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-        </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-outline-danger">Guardar Cambios</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+          </div>
 
-      </form>
+        </form>
+      </div>
     </div>
   </div>
-</div>
 
 
-@endsection
+  @endsection
 
-@section('scripts')
-<script src="{{ asset('js/picker.js') }}"></script>
-<script src="{{ asset('js/picker.date.js') }}"></script>
-<script src="{{ asset('js/picker.es_ES.js') }}"></script>
-<script type="text/javascript">
+  @section('scripts')
+  <script src="{{ asset('js/picker.js') }}"></script>
+  <script src="{{ asset('js/picker.date.js') }}"></script>
+  <script src="{{ asset('js/picker.es_ES.js') }}"></script>
+  <script type="text/javascript">
 
-  // Global Scope
-  var $datepicker = null;
-  var $active_form = null;
-  
-  window.onload = function()
-  {
-    window.datepicker_init();
-    window.nicecify_money();
-    toggle('loader', false );
-  };
-  
-  
+    var $datepicker = null;
+    var $active_form = null;
+
+    window.onload = function()
+    {
+      window.datepicker_init();
+      window.nicecify_money();
+      toggle('loader', false );
+    };
+
+
   // FUNCTION DEFINITION BEGINS //
-  
   function onNextDueClick( form )
   {
     event.stopPropagation();
@@ -377,13 +432,19 @@ use App\Helper;
   function onTypeChange(type, target)
   {
 
+    get('payType-'+target).innerHTML = type;
+
     var is_full = ( type == 'PC' );
     toggle('dues_label-' + target, is_full);
     toggle('interest_label-' + target, !is_full);
     
     toggle('round-d-' + target, is_full);
     toggle('round-i-' + target, !is_full);
-    
+
+    get('customcheck-'+ target).checked = false;
+    toggle_v('customcheckbox-'+ target, is_full);
+
+    toggle_v('regdue_box-'+ target, true );
   }
   
   function datepicker_init()
@@ -408,6 +469,40 @@ use App\Helper;
     for (var i = 0; i < items.length; i++) {
       items[i].innerHTML = nicecify( items[i].innerHTML );
     }
+  }
+
+  function showConfirModal( id )
+  {
+    var type = get('payType-' + id ).innerHTML;
+    var pc =   get('dues_label-'+ id).innerHTML;
+    var pm = get('interest_label-'+ id).innerHTML;
+    var ex = get('input_amount-'+ id).value;
+    var dm = get( 'input_duemulti-' + id ).value;
+
+    /* Parse ints */
+    pc = parseInt(pc.replaceAll(',', ''));
+    pm = parseInt(pm.replaceAll(',', ''));
+    ex = ex ? parseInt( ex ) : 0;
+
+    get('ctype-' + id).innerHTML = ( type === 'PC' ) ? 'Completo' : 'Minimo';
+
+    if ( get('customcheck-'+ id).checked ) type = 'EX';
+
+    switch( type )
+    {
+        case 'PC':get('camount-' + id).innerHTML = nicecify(pc + ex); break;
+        case 'PM':get('camount-' + id).innerHTML = nicecify(pm + ex); break;
+        case 'EX':get('camount-' + id).innerHTML = nicecify(ex);
+    }
+
+    get('cduemulti-'+id).innerHTML = dm;
+
+    $('#confirModal-' + id ).modal('show');
+  }
+
+  function onCustomAmountCheck( id, element )
+  {
+    toggle_v( 'regdue_box-' +id , !element.checked );
   }
   
 </script>

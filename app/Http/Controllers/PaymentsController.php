@@ -44,7 +44,7 @@ class PaymentsController extends Controller
   * @param  StdClass  $request
   * @return \Illuminate\Http\Response
   */
-  public function store(  $type, $loan, $amount, $balance )
+  public function store( $type, $loan, $amount, $balance )
   {
     $payment = new Payment;
     

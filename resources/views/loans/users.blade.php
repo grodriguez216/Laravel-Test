@@ -43,8 +43,8 @@ use App\Helper;
                   <td>{{ $user->name }}</td>
                   <td>{{ $user->email }}</td>
                   <td class="text-center">
-                    <a class="btn btn-outline-danger mx-1" href="/usuarios/perfil/{{ $user->id}}">Editar Zonas</a>
-                    <a class="btn btn-danger mx-1" href="/usuarios/borrar/"{{ $user->id}}>Eliminar</a>
+                    <a class="btn btn-outline-danger mx-1" href="/usuarios/perfil/{{ $user->id }}">Editar Zonas</a>
+                    <a class="btn btn-danger mx-1" href="/usuarios/borrar/{{ $user->id }}">Eliminar</a>
                   </td>
                 </tr>
                 
@@ -52,11 +52,8 @@ use App\Helper;
             </tbody>
           </table>
         @else
-          <h1 class="text-center pt-5 mt-5">No hay cobros para hoy.</h1>
+          <h1 class="text-center pt-5 mt-5">No hay usuarios adicionales</h1>
         @endif
-        
-        
-        
       </div> {{-- col-6 --}}
       
       <div class="col-md-6 mb-3">
@@ -69,7 +66,7 @@ use App\Helper;
                 <input type="text" class="form-control" name="name" placeholder="Nombre" required>
               </div>
               <div class="col-md-8 pb-3">
-                <input type="text" class="form-control" name="phone" placeholder="Telefono (contraseña)" required>
+                <input type="number" class="form-control" name="email" placeholder="Telefono (contraseña)" max="99999999" required>
               </div>
             </div>
           </fieldset>
@@ -90,6 +87,9 @@ use App\Helper;
   {
     window.nicecify_money();
     toggle('loader', false );
+
+    if( getUrlParameter('ref') == 'error' )
+      alert('Teléfono ya está registrado');
   };
   
   function nicecify_money()

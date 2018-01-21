@@ -16,90 +16,11 @@ use App\Helper;
       
       <div class="col-12 text-center">
         <h3 class="page-title">
-          Reporte desde <small><strong>{{ $rep_start }}</strong></small>
-          hasta <small><strong>{{ $rep_end }}</strong></small>
+          {{-- Reporte desde <small><strong>{{ $rep_start }}</strong></small> --}}
+          {{-- hasta <small><strong>{{ $rep_end }}</strong></small> --}}
+          Reporte Total
         </h3>
-        
-        <hr>
-        
-        <div class="card-deck">
-          <div class="card text-center mb-1">
-            <div class="card-header text-white bg-danger py-1">
-              Total General
-            </div> {{-- header --}}
-            <div class="card-body py-1">
-              <table class="table table-sm mb-0 text-left">
-                <tr>
-                  <th>Prestado</th>
-                  <td>₡&nbsp;<span class="money">{{ $total_loaned }}</span></td>
-                </tr>
-                <tr>
-                  <th>Pendiente</th>
-                  <td>₡&nbsp;<span class="money">{{ $total_pending }}</span></td>
-                </tr>
-                <tr>
-                  <th>Prestamos</th>
-                  <td><span class="money">{{ $active_loans }}</span></td>
-                </tr>
-              </table>
-            </div> {{-- body --}}
-            <div class="card-footer py-1">
-              <strong>₡&nbsp;<span class="money">{{ $total_loaned }}</span></strong>
-            </div> {{-- footer --}}
-          </div> {{-- card --}}
-          
-          
-          <div class="card text-center mb-1">
-            <div class="card-header text-white bg-danger py-1">
-              Total Recibido
-            </div> {{-- header --}}
-            <div class="card-body py-1">
-              <table class="table table-sm mb-0 text-left">
-                <tr>
-                  <th>Cuotas</th>
-                  <td>₡&nbsp;<span class="money">{{ $total_received_pc }}</span></td>
-                </tr>
-                <tr>
-                  <th>Intereses</th>
-                  <td>₡&nbsp;<span class="money">{{ $total_received_pm }}</span></td>
-                </tr>
-                <tr>
-                  <th>Abonos</th>
-                  <td>₡&nbsp;<span class="money">{{ $total_received_ab }}</span></td>
-                </tr>
-              </table>
-            </div> {{-- body --}}
-            <div class="card-footer py-1">
-              <strong>₡&nbsp;<span class="money">{{ $total_received }}</span></strong>
-            </div> {{-- footer --}}
-          </div> {{-- card --}}
-          
-          
-          <div class="card text-center mb-1">
-            <div class="card-header text-white bg-danger py-1">
-              Ganancia Total
-            </div> {{-- header --}}
-            <div class="card-body py-1">
-              <table class="table table-sm mb-0 text-left">
-                <tr>
-                  <th>Intereses</th>
-                  <td>₡&nbsp;<span class="money">{{ $total_earnings_pc }}</span></td>
-                </tr>
-                <tr>
-                  <th>Extenciones</th>
-                  <td>₡&nbsp;<span class="money">{{ $total_earnings_pm }}</span></td>
-                </tr>
-              </table>
-            </div> {{-- body --}}
-            <div class="card-footer py-1">
-              <strong>₡&nbsp;<span class="money">{{ $total_earnings }}</span></strong>
-            </div> {{-- footer --}}
-          </div> {{-- card --}}
-          
-        </div> {{-- deck --}}
-        
-        <hr>
-        
+        <hr>        
       </div> {{-- col-12 --}}
       
       <div class="col-12">
@@ -127,7 +48,7 @@ use App\Helper;
                       <td>{{ Helper::date($loan->created_at) }}</td>
                       <td>₡&nbsp;<span class="money">{{ $loan->balance }}</span></td>
                       <td>
-                        ₡&nbsp;<span class="money">{{ $loan->dues }}</span>
+                        ₡&nbsp;<span class="money">{{ $loan->regdue }}</span>
                       </td>
                       <td>{{ Helper::date($loan->next_due) }}</td>
                     </tr>

@@ -27,6 +27,7 @@ class PublicController extends Controller
     ->join('clients', 'clients.id', '=', 'loans.client_id')
     ->whereIn("clients.zone_id", $uzones)
     ->where('loans.next_due', date('Y-m-d'))
+    ->where('loans.status', 1)
     ->get();
 
     return view('loans.collect', [ 'loans' => json_decode($loans) ]);

@@ -2,9 +2,25 @@
 function toggle( element, visibility )
 {
   if ( visibility )
-  document.getElementById( element ).classList.remove( 'd-none' );
+    document.getElementById( element ).classList.remove( 'd-none' );
   else
-  document.getElementById( element ).classList.add( 'd-none' );
+    document.getElementById( element ).classList.add( 'd-none' );
+}
+
+function toggle_v( element, visibility )
+{
+if ( visibility )
+{
+  document.getElementById( element ).classList.remove( 'invisible' );
+  
+}
+else
+{
+  // document.getElementById( element ).classList.remove( 'visible' );
+  // document.getElementById( element ).classList.add( 'visible' );
+  document.getElementById( element ).classList.add( 'invisible' );
+}
+
 }
 
 function redirect( url ) { window.location.href=url }
@@ -46,3 +62,18 @@ function nicecify( value )
 {
   return value.toString().replace(/,/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
+
+
+var getUrlParameter = function getUrlParameter(sParam) {
+  var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+  sURLVariables = sPageURL.split('&'),
+  sParameterName,
+  i;
+  for (i = 0; i < sURLVariables.length; i++) {
+    sParameterName = sURLVariables[i].split('=');
+
+    if (sParameterName[0] === sParam) {
+      return sParameterName[1] === undefined ? true : sParameterName[1];
+    }
+  }
+};

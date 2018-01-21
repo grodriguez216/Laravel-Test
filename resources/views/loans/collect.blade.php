@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.cobrar')
 
 @php
 use App\Helper;
@@ -14,14 +14,14 @@ use App\Helper;
 
   <div class="row justify-content-center">
     <div class="col-12 text-center mb-3">
-      <h1 class="page-title">Cobros para hoy <small><strong>{{ date('d-m-Y') }}</strong></small></h1>
+      <h1 class="page-title">Cobros <small><strong>{{ date('d-m-Y') }}</strong></small></h1>
       <hr>
     </div>
-
+    
     @if ( count($loans) > 0 )
-    @foreach ($loans as $loan)
     <div class="card-deck col-12">
-      <div class="col-6 col-xl-4">
+      @foreach ($loans as $loan)
+      <div class="col-md-6">
         <div style="cursor:pointer" class="card mb-3" onclick="redir({{ $loan->id }})">
           <div class="card-header text-white bg-danger">
             <h4 class="card-title mb-0">
@@ -38,22 +38,21 @@ use App\Helper;
           </div> {{-- header --}}
           <div class="card-body">
             {{ $loan->address_home }}
+            @if ( $loan->address_work )
             <hr>
             {{ $loan->address_work }}
+            @endif
           </div> {{-- body --}}
-
           <div class="card-footer">
             <div class="row text-center">
               <div class="col">
                 <small><strong>Cuota:&nbsp;</strong></small>
-                <small>₡<span class="money">{{ $loan->dues }}</span></small>
+                <small>₡<span class="money">{{ $loan->regdue }}</span></small>
               </div>
-
               <div class="col">
                 <small><strong>Minimo:&nbsp;</strong></small>
-                <small>₡<span class="money">{{ $loan->interest }}</span></small>
+                <small>₡<span class="money">{{ $loan->intval }}</span></small>
               </div>
-
               <div class="col">
                 <small><strong>Saldo:&nbsp;</strong></small>
                 <small>₡<span class="money">{{ $loan->balance }}</span></small>
@@ -62,9 +61,8 @@ use App\Helper;
           </div> {{-- footer --}}
         </div> {{-- card --}}
       </div>
+      @endforeach
     </div> {{-- deck --}}
-
-    @endforeach
     @else
     <h1 class="text-center pt-5 mt-5">No hay cobros para hoy.</h1>
     @endif

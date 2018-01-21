@@ -56,7 +56,9 @@ class NotificationController extends Controller
       
       case 'PR':
       $nicedate = Helper::date( $loan->next_due, 'd/m/Y');
-      $nicedue = number_format( $loan->dues, 0 );
+      $due = ( $loan->firdue ) ? $loan->firdue : $loan->regdue;
+      $nicedue = number_format( $due, 0 );
+
       $nicebalance = number_format( $loan->balance, 0 );
       $message = str_replace( '[Cuota]', $nicedue, $message);
       $message = str_replace( '[Saldo]', $nicebalance, $message);

@@ -13,6 +13,7 @@
 Auth::routes();
 
 Route::get('/', 'AppController@index')->name('home');
+Route::get('/home', 'AppController@index')->name('home');
 Route::get('/ajustes', 'AppController@settings')->name('app.settings');
 Route::get('/reportes', 'AppController@reports')->name('app.reports');
 Route::get('/cobrar', 'PublicController@collect')->name('collect');
@@ -49,7 +50,7 @@ Route::prefix('usuarios')->group(function ()
   Route::get('/', 'AppController@users' );
   Route::get('perfil/{id}', 'AppController@user_profile');
   Route::get('update/{id}/{action}/{zone}', 'AppController@update_user_zone' );
-  
+  Route::get('borrar/{id}', 'AppController@delete_user' );
   Route::post('agregar', 'AppController@create_new_user' );
 });
 

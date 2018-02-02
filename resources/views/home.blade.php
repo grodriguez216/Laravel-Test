@@ -4,14 +4,15 @@
   
   <div class="container">
     
-    <div class="row">
-      <div class="col-md-12">
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-8">
         <input type="text" class="form-control form-control-lg my-2 mr-sm-2 mb-sm-0 w-100" id="client_name" name="name" placeholder="Buscar clientes por nombre o numero de telefono" required>
         <input type="hidden" id="client_id" name="id" value="0">
       </div>
     </div>
     
-    <hr class="my-5">
+    <br>
+    <br>
     
     <div class="card-deck card-menu">
       
@@ -72,7 +73,7 @@
       <div class="card border-dark mb-3">
         <a class="card-link" href="{{ route('app.settings') }}">
           <div class="card-body text-dark">
-            <h4 class="card-title"><i class="fa fa-envelope"></i>&nbsp;mensajes</h4>
+            <h4 class="card-title"><i class="fa fa-envelope"></i>&nbsp;Mensajes</h4>
             <p class="card-text">Cambiar los mensages de texto</p>
           </div>
         </a>

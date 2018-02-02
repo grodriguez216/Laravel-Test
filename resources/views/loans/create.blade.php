@@ -207,7 +207,7 @@ label
             <div class="row justify-content-center mt-2">
               <div class="col-8 col-md-6">
                 <select class="form-control custom-select" name="paytime" required>
-                  {{ $curh = date('h') }}
+                  {{ $curh = date('H') }}
                   @for ($i = 1; $i <= 24; $i++)
                   <option value="{{ $i }}" @if ( $i == $curh ) selected @endif>
                     @if ($i <= 12)

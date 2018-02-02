@@ -4,6 +4,34 @@
 		"selected_items":
 		[
 			[
+				"tex",
+				"text-center"
+			],
+			[
+				"zone",
+				"zone_id"
+			],
+			[
+				"unse",
+				"unset"
+			],
+			[
+				"is",
+				"is_uzone"
+			],
+			[
+				"fore",
+				"foreach\tforeach …"
+			],
+			[
+				"che",
+				"checked"
+			],
+			[
+				"show",
+				"showConfirModal"
+			],
+			[
 				"stat",
 				"status"
 			],
@@ -24,10 +52,6 @@
 				"if\tif"
 			],
 			[
-				"show",
-				"showSlideById"
-			],
-			[
 				"scr",
 				"screening"
 			],
@@ -46,10 +70,6 @@
 			[
 				"jso",
 				"json_decode"
-			],
-			[
-				"zone",
-				"zone_id"
 			],
 			[
 				"next",
@@ -91,41 +111,6 @@
 	},
 	"buffers":
 	[
-		{
-			"file": "app/Settings.php",
-			"settings":
-			{
-				"buffer_size": 841,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "app/Http/Controllers/AppController.php",
-			"settings":
-			{
-				"buffer_size": 7743,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "app/Console/Kernel.php",
-			"settings":
-			{
-				"buffer_size": 1582,
-				"encoding": "UTF-8",
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "app/Http/Controllers/LoansController.php",
-			"settings":
-			{
-				"buffer_size": 10587,
-				"encoding": "UTF-8",
-				"line_ending": "Windows"
-			}
-		}
 	],
 	"build_system": "",
 	"build_system_choices":
@@ -236,36 +221,48 @@
 	"expanded_folders":
 	[
 		"/Users/gerson/Code/presta-control",
-		"/Users/gerson/Code/presta-control/app",
-		"/Users/gerson/Code/presta-control/app/Console",
-		"/Users/gerson/Code/presta-control/app/Http"
+		"/Users/gerson/Code/presta-control/app"
 	],
 	"file_history":
 	[
-		"/Users/gerson/Code/presta-control/resources/views/loans/create.blade.php",
-		"/Users/gerson/Code/presta-control/resources/views/clients/profile.blade.php",
-		"/Users/gerson/Code/presta-control/resources/views/loans/today.blade.php",
 		"/Users/gerson/Code/presta-control/app/Http/Controllers/AppController.php",
+		"/Users/gerson/Code/presta-control/resources/views/clients/profile.blade.php",
+		"/Users/gerson/Code/presta-control/routes/web.php",
+		"/Users/gerson/Code/presta-control/resources/views/users.blade.php",
+		"/Users/gerson/Desktop/Models/PreOP-C/3DModel copy.obj",
+		"/Users/gerson/Code/presta-control/resources/views/loans/today.blade.php",
+		"/Users/gerson/Code/presta-control/app/Http/Controllers/LoansController.php",
+		"/Users/gerson/Code/presta-control/.env",
+		"/Users/gerson/Code/presta-control/app/Http/Controllers/Auth/RegisterController.php",
+		"/Users/gerson/Code/presta-control/app/Http/Middleware/RedirectIfAuthenticated.php",
+		"/Users/gerson/Code/presta-control/vendor/nesbot/carbon/src/Carbon/Carbon.php",
+		"/Users/gerson/Code/presta-control/app/Http/Controllers/Auth/LoginController.php",
+		"/Users/gerson/Code/presta-control/vendor/laravel/framework/src/Illuminate/Auth/AuthManager.php",
+		"/Users/gerson/Code/presta-control/vendor/laravel/framework/src/Illuminate/Auth/AuthenticationException.php",
+		"/Users/gerson/Code/presta-control/vendor/laravel/framework/src/Illuminate/Auth/Authenticatable.php",
+		"/Users/gerson/Code/presta-control/app/Http/Controllers/Controller.php",
+		"/Users/gerson/Code/presta-control/resources/views/loans/create.blade.php",
+		"/Users/gerson/Code/presta-control/app/Http/Controllers/ClientsController.php",
+		"/Users/gerson/Code/presta-control/resources/views/home.blade.php",
+		"/Users/gerson/Code/presta-control/resources/views/auth/login.blade.php",
+		"/Users/gerson/Code/presta-control/app/Models/Assignments.php",
+		"/Users/gerson/Code/presta-control/resources/views/loans/users.blade.php",
+		"/Users/gerson/Code/presta-control/resources/views/loans/reports.blade.php",
+		"/Users/gerson/Code/presta-control/vendor/mockery/mockery/library/Mockery/Expectation.php",
+		"/Users/gerson/Code/presta-control/public/js/app.js",
+		"/Users/gerson/Code/presta-control/app/Console/Kernel.php",
+		"/Users/gerson/Code/presta-control/app/Helper.php",
+		"/Users/gerson/Code/presta-control/app/Settings.php",
 		"/Users/gerson/Code/presta-control/app/Notification.php",
 		"/Users/gerson/Code/presta-control/app/User.php",
 		"/Users/gerson/Code/presta-control/app/Http/Controllers/PublicController.php",
-		"/Users/gerson/Code/presta-control/resources/views/loans/users.blade.php",
-		"/Users/gerson/Code/presta-control/app/Http/Controllers/LoansController.php",
 		"/Users/gerson/Code/presta-control/app/Http/Controllers/PaymentsController.php",
 		"/Users/gerson/Code/presta-control/app/Http/Controllers/NotificationController.php",
-		"/Users/gerson/Code/presta-control/app/Http/Controllers/Controller.php",
 		"/Users/gerson/Code/presta-control/app/Providers/RouteServiceProvider.php",
-		"/Users/gerson/Code/presta-control/app/Http/Controllers/ClientsController.php",
-		"/Users/gerson/Code/presta-control/public/js/app.js",
-		"/Users/gerson/Code/presta-control/.env",
 		"/Users/gerson/Code/presta-control/public/css/app.css",
-		"/Users/gerson/Code/presta-control/resources/views/loans/reports.blade.php",
 		"/Users/gerson/Code/presta-control/resources/views/loans/extras.blade",
 		"/Users/gerson/Code/presta-control/resources/views/loans/collect.blade.php",
-		"/Users/gerson/Code/presta-control/resources/views/auth/login.blade.php",
-		"/Users/gerson/Code/presta-control/app/Http/Controllers/Auth/LoginController.php",
 		"/Users/gerson/Code/presta-control/resources/views/layouts/cobrar.blade.php",
-		"/Users/gerson/Code/presta-control/routes/web.php",
 		"/Users/gerson/GitHub/zendesk-api/public/doc/page-faq-breast-implants.php",
 		"/Users/gerson/GitHub/zendesk-api/public/dist/page-faq-breast-implants.php",
 		"/Users/gerson/GitHub/zendesk-api/public/dist/page-faq-tulip.php",
@@ -320,7 +317,6 @@
 		"/Users/gerson/Code/presta-control/vendor/laravel/framework/src/Illuminate/Auth/Access/Response.php",
 		"/Users/gerson/Code/presta-control/resources/views/layouts/app.blade.php",
 		"/Users/gerson/Code/presta-control/vendor/monolog/monolog/src/Monolog/Handler/ZendMonitorHandler.php",
-		"/Users/gerson/Code/presta-control/app/Http/Controllers/Auth/RegisterController.php",
 		"/Users/gerson/Code/presta-control/app/Http/Controllers/Auth/ResetPasswordController.php",
 		"/Users/gerson/Code/presta-control/vendor/laravel/framework/src/Illuminate/Foundation/Auth/AuthenticatesUsers.php",
 		"/Users/gerson/Code/presta-control/vendor/laravel/framework/src/Illuminate/Auth/SessionGuard.php",
@@ -356,24 +352,11 @@
 		"/Users/gerson/GitHub/ustrial-ws/app.yaml",
 		"/Users/gerson/GitHub/ustrial-ws/app.yaml.digilab",
 		"/Users/gerson/GitHub/ustrial-ws/app.yaml.bless",
-		"/Users/gerson/GitHub/zendesk-api/public/doc/custom-css/styles.css",
-		"/Users/gerson/GitHub/zendesk-api/public/forms/divina.html",
-		"/Volumes/ftp.control-parcero.co/app/resources/views/layouts/login.blade.php",
-		"/Users/gerson/Desktop/test.html",
-		"/private/var/folders/mh/7z_jqczn0555mt8r_nk3ky400000gn/T/fz3temp-2/response.php",
-		"/Users/gerson/GitHub/register-web/wordpress/wp-config.php",
-		"/Library/WebServer/Documents/test.php",
-		"/Library/WebServer/Documents/index.html",
-		"/Users/gerson/GitHub/zendesk-api/php/test.php",
-		"/Users/gerson/Library/Group Containers/G69SCX94XU.duck/Library/Application Support/duck/Volumes/35.189.254.30 – SFTP/bitnami/index.php",
-		"/Users/gerson/.ssh/bitnami.pub",
-		"/Users/gerson/.ssh/bitnami.key",
-		"/Users/gerson/.ssh/1line.priv",
-		"/Users/gerson/.ssh/private"
+		"/Users/gerson/GitHub/zendesk-api/public/doc/custom-css/styles.css"
 	],
 	"find":
 	{
-		"height": 45.0
+		"height": 28.0
 	},
 	"find_in_files":
 	{
@@ -387,6 +370,55 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"v",
+			"modal",
+			"auth",
+			"today",
+			"toda",
+			"auth",
+			"user",
+			"asg",
+			"asignar a",
+			"direcc",
+			"zona",
+			"modal",
+			"id",
+			"Auth",
+			"0",
+			"mensa",
+			"today",
+			"custom",
+			"parse",
+			"parsefl",
+			"persona",
+			"customcheck",
+			"persona",
+			"durac",
+			"retras",
+			"extra",
+			"cduemulti",
+			"pagar",
+			"agregar pr",
+			"histor",
+			"SM",
+			"show",
+			"extra",
+			"pagar",
+			"cliUpdateModal",
+			"editar",
+			"pagar",
+			"payTipe",
+			"pagar",
+			"modal",
+			"d-none",
+			"loader",
+			"loade",
+			"onlo",
+			"datep",
+			"date",
+			"datep",
+			"DATE",
+			"date",
 			"parse",
 			"label_regduereal",
 			"regdue",
@@ -424,135 +456,14 @@
 	"groups":
 	[
 		{
-			"selected": 3,
 			"sheets":
 			[
-				{
-					"buffer": 0,
-					"file": "app/Settings.php",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 841,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								303,
-								303
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/PHP/PHP.sublime-syntax",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 124.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 2,
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "app/Http/Controllers/AppController.php",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 7743,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								3782,
-								3832
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/PHP/PHP.sublime-syntax",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 3135.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 1,
-					"type": "text"
-				},
-				{
-					"buffer": 2,
-					"file": "app/Console/Kernel.php",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 1582,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								968,
-								968
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/PHP/PHP.sublime-syntax",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 3,
-					"type": "text"
-				},
-				{
-					"buffer": 3,
-					"file": "app/Http/Controllers/LoansController.php",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 10587,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								10356,
-								10356
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/PHP/PHP.sublime-syntax",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 5781.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 0,
-					"type": "text"
-				}
 			]
 		}
 	],
 	"incremental_find":
 	{
-		"height": 45.0
+		"height": 28.0
 	},
 	"input":
 	{
@@ -589,7 +500,7 @@
 	"project": "control.sublime-project",
 	"replace":
 	{
-		"height": 58.0
+		"height": 52.0
 	},
 	"save_all_on_build": true,
 	"select_file":
@@ -599,16 +510,76 @@
 		"selected_items":
 		[
 			[
+				"appcon",
+				"app/Http/Controllers/AppController.php"
+			],
+			[
+				"web",
+				"routes/web.php"
+			],
+			[
+				"profi",
+				"resources/views/clients/profile.blade.php"
+			],
+			[
+				"user",
+				"resources/views/users.blade.php"
+			],
+			[
+				"loanc",
+				"app/Http/Controllers/LoansController.php"
+			],
+			[
 				"appco",
 				"app/Http/Controllers/AppController.php"
 			],
 			[
-				"loans",
+				"loan",
 				"app/Http/Controllers/LoansController.php"
+			],
+			[
+				"appc",
+				"app/Http/Controllers/AppController.php"
 			],
 			[
 				"toda",
 				"resources/views/loans/today.blade.php"
+			],
+			[
+				"client",
+				"app/Http/Controllers/ClientsController.php"
+			],
+			[
+				"home",
+				"resources/views/home.blade.php"
+			],
+			[
+				"create",
+				"resources/views/loans/create.blade.php"
+			],
+			[
+				"profile",
+				"resources/views/clients/profile.blade.php"
+			],
+			[
+				"repor",
+				"resources/views/loans/reports.blade.php"
+			],
+			[
+				"app.js",
+				"public/js/app.js"
+			],
+			[
+				"loancon",
+				"app/Http/Controllers/LoansController.php"
+			],
+			[
+				"help",
+				"app/Helper.php"
+			],
+			[
+				"loans",
+				"app/Http/Controllers/LoansController.php"
 			],
 			[
 				"payme",
@@ -623,40 +594,16 @@
 				"app/Http/Controllers/ClientsController.php"
 			],
 			[
-				"profi",
-				"resources/views/clients/profile.blade.php"
-			],
-			[
-				"loancon",
-				"app/Http/Controllers/LoansController.php"
-			],
-			[
 				".js",
 				"public/js/app.js"
-			],
-			[
-				"create",
-				"resources/views/loans/create.blade.php"
-			],
-			[
-				"profile",
-				"resources/views/clients/profile.blade.php"
 			],
 			[
 				".css",
 				"public/css/app.css"
 			],
 			[
-				"appc",
-				"app/Http/Controllers/AppController.php"
-			],
-			[
 				"report",
 				"resources/views/loans/reports.blade.php"
-			],
-			[
-				"loanc",
-				"app/Http/Controllers/LoansController.php"
 			],
 			[
 				"logincon",
@@ -669,10 +616,6 @@
 			[
 				"users",
 				"resources/views/loans/users.blade.php"
-			],
-			[
-				"appcon",
-				"app/Http/Controllers/AppController.php"
 			],
 			[
 				"doc/samples",
@@ -853,7 +796,7 @@
 		[
 			[
 				"",
-				"~/GitHub/divina3qt/src/divina3qt.sublime-project"
+				"~/GitHub/zendesk-api/zendesk.sublime-project"
 			]
 		],
 		"width": 380.0
@@ -874,8 +817,8 @@
 	"show_minimap": false,
 	"show_open_files": false,
 	"show_tabs": true,
-	"side_bar_visible": true,
-	"side_bar_width": 265.0,
+	"side_bar_visible": false,
+	"side_bar_width": 329.0,
 	"status_bar_visible": true,
 	"template_settings":
 	{

@@ -27,11 +27,8 @@ $admin = isset($c) ? false : true;
     @endif
     <button class="btn btn-lg btn-danger btn-block" type="submit">Ingresar</button>
   </form>
-
-
-
   
-  <div class="row">
+{{--   <div class="row">
     <div class="col-12 text-center py-3">
       @if ( $admin )
       <strong>
@@ -41,9 +38,7 @@ $admin = isset($c) ? false : true;
       <a href="/login" class="text-danger">volver</a>  
       @endif
     </div>
-  </div>
-
-
+  </div> --}}
 
 
 </div> <!-- /container -->

@@ -11,12 +11,9 @@ use App\Helper;
 
 @section('content')
 
-<div class="container-fluid">
-
+<div class="container-fluid pb-3">
   <div class="row">
-
     <div class="col-12 col-md-4">
-
       <div class="card">
         <div class="card-header d-flex justify-content-between" style="background:#fff">
           <h5>Perfil del Cliente</h5>
@@ -30,7 +27,7 @@ use App\Helper;
             <div class="col-12"># {{ $client->ssn }}</div>
           </div>
           <hr>
-          <div class="row mb-4">
+          <div class="row mb-3">
             <div class="col-12 mb-1"><small class="bold">Direccion (Casa)</small></div>
             <div class="col-12">
               @if ( strpos($client->address_home, 'maps') )
@@ -40,7 +37,7 @@ use App\Helper;
               @endif
             </div>
           </div>
-          <div class="row mb-4">
+          <div class="row mb-3">
             <div class="col-12 mb-1"><small class="bold">Direccion (Trabajo)</small></div>
             <div class="col-12">{{ $client->address_work }}</div>
           </div>
@@ -69,11 +66,15 @@ use App\Helper;
 
         </div>
 
-        @if ( session('auth2') == false )
         <div class="card-footer text-center" style="background:#fff">
-          <a class="btn btn-outline-danger w-100 my-3" href="/prestamos/agregar?auto=1&amp;key={{ $client->phone }}">Agregar Prestamo</a>
+          <a class="btn btn-outline-danger w-100 my-2" href="/prestamos/agregar?auto=1&amp;key={{ $client->phone }}">Agregar Prestamo</a>
+
+          @if ( !$is_asg )
+          <a class="btn w-100 my-2" href="/clientes/asignar/{{ $client->id }}">Asignar a Wilson</a>
+          @endif
+
         </div>
-        @endif
+
       </div> {{-- card --}}
     </div> {{-- col-12/4 Left InfoPanel --}}
 
@@ -167,8 +168,8 @@ use App\Helper;
                 </div>{{--row --}}
 
                 <span id="payType-{{ $loan->id }}" class="d-none">PC</span>
-                <div class="row mb-2">
-                  <div class="col text-center">
+                <div class="row  justify-content-center mb-2">
+                  
                     <div class="form-check form-check-inline">
                       <label class="custom-control custom-radio">
                         <input class="custom-control-input" type="radio" name="type" onchange="onTypeChange('PC','{{ $loan->id }}')" value="PC" checked>
@@ -183,27 +184,25 @@ use App\Helper;
                         <span class="custom-control-description">Minimo</span>
                       </label>
                     </div>
-                  </div>
+                  
                 </div> {{-- row --}}
 
 
                 <div class="row justify-content-center pb-4">
-                  <div class="col-7">
+                  <div class="col-8 col-md-4">
                     <div class="input-group minimal">
-                      <span class="input-group-addon">Cuotas x</span>
+                      <span class="input-group-addon">Cuotas</span>
                       <input id="input_duemulti-{{ $loan->id }}" type="text" name="duemulti" pattern="\d*" class="form-control" value="1">
                     </div>
                   </div>
                 </div>
 
-                <div class="row">
-                  <div class="col text-center">
+                <div class="row justify-content-center">
                     {{ csrf_field() }}
                     <input type="hidden" name="id" value="{{ $loan->id }}">
                     <input type="hidden" name="due" value="{{ $loan->nice_due }}">
                     <input type="hidden" name="int" value="{{ $loan->nice_int }}">
                     <button type="button" onclick="showConfirModal( {{ $loan->id }} )" class="btn btn-outline-danger btn-sm w-50 ">Pagar</button>
-                  </div>
                 </div> {{-- row --}}
 
 
@@ -358,55 +357,55 @@ use App\Helper;
               <input type="number" name="phone_work" class="form-control py-3" value="{{ $client->phone_work }}" placeholder="Telefono (trabajo)" max="99999999">
             </div>
             <div class="col-md-6 form-group mt-3">
-              <textarea class="form-control" name="address_home" rows="3" placeholder="Direccion (Casa)">
-                {{ $client->address_home }}</textarea>
-              </div>
-              <div class="col-md-6 form-group mt-3">
-                <textarea class="form-control" name="address_work" rows="3" placeholder="Direccion (Trabajo)">{{ $client->address_work }}</textarea>
-              </div>
-
-              <div class="col-md-12 mt-3">
-                <label class="px-2">Zona de Cobro:</label>
-                <select class="custom-select" name="zone_id">
-                  @foreach ( $zones as $zone)
-                  <option value="{{ $zone->id }}" {{ $zone->id == $client->zone_id ? 'selected' : '' }}>
-                    {{ $zone->name }}
-                  </option>
-                  @endforeach
-                </select>
-              </div>
-
+              <textarea class="form-control" name="address_home" rows="3" placeholder="Direccion (Casa)">{{ $client->address_home }}
+              </textarea>
             </div>
-          </div>
+            <div class="col-md-6 form-group mt-3">
+              <textarea class="form-control" name="address_work" rows="3" placeholder="Direccion (Trabajo)">{{ $client->address_work }}</textarea>
+            </div>
 
-          <div class="modal-footer">
-            <button type="submit" class="btn btn-outline-danger">Guardar Cambios</button>
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-          </div>
+            <div class="col-md-12 mt-3">
+              <label class="px-2">Zona de Cobro:</label>
+              <select class="custom-select" name="zone_id">
+                @foreach ( $zones as $zone)
+                <option value="{{ $zone->id }}" {{ $zone->id == $client->zone_id ? 'selected' : '' }}>
+                  {{ $zone->name }}
+                </option>
+                @endforeach
+              </select>
+            </div>
 
-        </form>
-      </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-outline-danger">Guardar Cambios</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+        </div>
+
+      </form>
     </div>
   </div>
+</div>
 
 
-  @endsection
+@endsection
 
-  @section('scripts')
-  <script src="{{ asset('js/picker.js') }}"></script>
-  <script src="{{ asset('js/picker.date.js') }}"></script>
-  <script src="{{ asset('js/picker.es_ES.js') }}"></script>
-  <script type="text/javascript">
+@section('scripts')
+<script src="{{ asset('js/picker.js') }}"></script>
+<script src="{{ asset('js/picker.date.js') }}"></script>
+<script src="{{ asset('js/picker.es_ES.js') }}"></script>
+<script type="text/javascript">
 
-    var $datepicker = null;
-    var $active_form = null;
+  var $datepicker = null;
+  var $active_form = null;
 
-    window.onload = function()
-    {
-      window.datepicker_init();
-      window.nicecify_money();
-      toggle('loader', false );
-    };
+  window.onload = function()
+  {
+    window.datepicker_init();
+    window.nicecify_money();
+    toggle('loader', false );
+  };
 
 
   // FUNCTION DEFINITION BEGINS //
@@ -490,9 +489,9 @@ use App\Helper;
 
     switch( type )
     {
-        case 'PC':get('camount-' + id).innerHTML = nicecify(pc + ex); break;
-        case 'PM':get('camount-' + id).innerHTML = nicecify(pm + ex); break;
-        case 'EX':get('camount-' + id).innerHTML = nicecify(ex);
+      case 'PC':get('camount-' + id).innerHTML = nicecify(pc + ex); break;
+      case 'PM':get('camount-' + id).innerHTML = nicecify(pm + ex); break;
+      case 'EX':get('camount-' + id).innerHTML = nicecify(ex);
     }
 
     get('cduemulti-'+id).innerHTML = dm;

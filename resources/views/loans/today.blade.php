@@ -10,17 +10,20 @@ use App\Helper;
 
 @section('content')
 
-<div class="container-fluid">
+<div class="container">
   <div class="row justify-content-center">
-    <div class="col-12 text-center mb-3">
-      <h2 class="page-title">Cobros <small><strong>{{ date('d-m-Y') }}</strong></small></h2>
+    <div class="col-6 mb-3">
+      <h2 class="page-title">Cobros pendientes al <small><strong>{{ date('d-m-Y') }}</strong></small></h2>
+      <hr>
+    </div>
+    <div class="col-6 text-right mb-3">
+      <h2 class="page-title">Comision de hoy: <small><strong class="money">₡{{ $aggregate }}</strong></small></h2>
       <hr>
     </div>
   </div>
 
   <div class="row">
     @if ($loans->isNotEmpty())
-    @foreach ($loans as $loan)
     @foreach ($loans as $loan)
 
     <div class="col-12 col-md-6">
@@ -33,8 +36,6 @@ use App\Helper;
         <div class="card-body text-center">
 
           <div class="row">
-
-
 
             <div class="col-12 col-md-9">
               @php
@@ -49,8 +50,8 @@ use App\Helper;
             </div>
             <div class="col-12 col-md-3">
               @php
-                $time = $loan->paytime > 12 ? $loan->paytime -12 : $loan->paytime;
-                $aa = $loan->paytime >= 12 ? 'PM' : 'AM'; 
+              $time = $loan->paytime > 12 ? $loan->paytime -12 : $loan->paytime;
+              $aa = $loan->paytime >= 12 ? 'PM' : 'AM'; 
               @endphp
               {{ $time . ':00 ' . $aa }}
             </div>
@@ -87,12 +88,14 @@ use App\Helper;
       </div>
     </div>
     @endforeach
-    @endforeach
     @else
-    <h1 class="text-center pt-5 mt-5">No hay cobros para hoy.</h1>
+    <div class="col-12 text-center">
+      <h1 class="pt-5 mt-5">No hay cobros para hoy.</h1>  
+    </div>
+
     @endif
   </div> {{-- row --}}
-  
+
 </div>
 @endsection
 
@@ -103,20 +106,20 @@ use App\Helper;
     window.nicecify_money();
     toggle('loader', false );
   };
-  
+
   function nicecify_money()
   {
     var items = document.getElementsByClassName('money');
     for (var i = 0; i < items.length; i++)
       items[i].innerHTML = nicecify( items[i].innerHTML );
   }
-  
+
   function redir(id)
   {
     toggle('loader', true );
     window.location = '/clientes/perfil/' + id;
   }
-  
+
 </script>
 
 @endsection

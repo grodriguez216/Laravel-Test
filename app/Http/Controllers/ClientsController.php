@@ -6,25 +6,17 @@ use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Models\Client;
+use App\Models\Models;
+use App\Models\Zones;
+use App\Models\Assignments;
 
 class ClientsController extends Controller
 {
-  /**
-  * Create a new controller instance.
-  *
-  * @return void
-  */
   public function __construct()
   {
     $this->middleware('auth');
   }
   
-  /**
-  * Store a newly created resource in storage.
-  *
-  * @param  \Illuminate\Http\Request  $request
-  * @return \Illuminate\Http\Response
-  */
   public function store(Request $request)
   {
 
@@ -61,12 +53,6 @@ class ClientsController extends Controller
     return back();
   }
   
-  /**
-  * Display the specified resource.
-  *
-  * @param  int  $id
-  * @return \Illuminate\Http\Response
-  */
   public function show($id)
   {
     try
@@ -81,16 +67,33 @@ class ClientsController extends Controller
     $LoansController = new LoansController;
     $loans = $LoansController->show( $id );
 
-    $zones = \App\Models\Zones::all();
+    $zones = Zones::all();
+
+    $has_asg = Assignments::where('target_id', $client->id)->where('type', 'C')->get();
     
     $data = array(
       'client' => $client,
       'loans' => $loans,
-      'zones' => $zones
+      'zones' => $zones,
+      'is_asg' => !$has_asg->isEmpty()
     );
     
     /* Handle Exception */
-    
     return view('clients/profile', $data);
   }
+
+  public function assign($id)
+  {
+    $asg = new Assignments;
+    $asg->type = 'C';
+    $asg->user_id = 2;
+    $asg->target_id = $id;
+    $asg->expiration = date('Y-m-d', strtotime('+1 day') );
+    $asg->save();
+
+    return back();
+  }
 }
+
+
+

@@ -14,22 +14,13 @@ use App\Helper;
     
     <div class="row justify-content-center">
       
-      <div class="col-12 text-center">
-        <h3 class="page-title">
-          {{-- Reporte desde <small><strong>{{ $rep_start }}</strong></small> --}}
-          {{-- hasta <small><strong>{{ $rep_end }}</strong></small> --}}
-          Reporte Total
-        </h3>
-        <hr>        
+      <div class="col-12 text-center pb-3">
+        <h3 class="page-title"> Reporte Total </h3>
       </div> {{-- col-12 --}}
       
       <div class="col-12">
         @if ($loans->count() > 0)
-          <div class="card">
-            <div class="card-header">
-              Prestamos Activos
-            </div>
-            <div class="card-body scroll-2">
+
               <table class="table table-striped table-hover">
                 <thead>
                   <tr>
@@ -57,9 +48,6 @@ use App\Helper;
                 </tbody>
                 
               </table>
-            </div>
-          </div>
-          
         @else
           <h1 class="text-center pt-5 mt-5">No hay prestamos activos.</h1>
         @endif

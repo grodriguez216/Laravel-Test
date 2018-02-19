@@ -18,5 +18,10 @@ class Loan extends Model
   {
     return $this->hasMany('App\Models\Payment');
   }
+
+  public function orders()
+  {
+  	return $this->hasMany('App\Models\PayOrder');
+  }
   
 }

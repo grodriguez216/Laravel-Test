@@ -17,7 +17,7 @@ class ClientsController extends Controller
     $this->middleware('auth');
   }
   
-  public function store(Request $request)
+  public function newClient(Request $request)
   {
 
     $attributes = array(
@@ -65,7 +65,7 @@ class ClientsController extends Controller
     }
     
     $LoansController = new LoansController;
-    $loans = $LoansController->show( $id );
+    $loans = $LoansController->displayLoans( $id );
 
     $zones = Zones::all();
 
@@ -79,7 +79,7 @@ class ClientsController extends Controller
     );
     
     /* Handle Exception */
-    return view('clients/profile', $data);
+    return view('profile', $data);
   }
 
   public function assign($id)

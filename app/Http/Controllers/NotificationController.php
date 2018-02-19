@@ -18,7 +18,7 @@ class NotificationController extends Controller
   
   var $url = 'https://bulksms.vsms.net/eapi/submission/send_sms/2/2.0';
   
-  public function notify( $destination, $type, Loan $loan)
+  public function send( $destination, $type, Loan $loan)
   {
     $message = $this->buildMessagge($type, $loan);
     

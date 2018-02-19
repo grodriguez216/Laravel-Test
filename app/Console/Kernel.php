@@ -7,6 +7,7 @@ use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
 use App\Models\Loan;
 use App\Models\Client;
+use App\Models\PayOrder;
 use App\Http\Controllers\NotificationController;
 
 class Kernel extends ConsoleKernel
@@ -56,7 +57,30 @@ class Kernel extends ConsoleKernel
         $notifier->notify( $loan->client->phone, 'PR', $loan );
       }
     })->dailyAt('13:00');
-       
+
+
+
+    $schedule->call(function ()
+    {      
+      // $loans_today = Loan::where('next_due', date('Y-m-d'))->get();
+      $loans_today = Loan::all();
+      
+      if (!$loans_today) return true;
+      
+      foreach ($loans_today as $loan)
+      {
+        $po = new PayOrder;
+        $po->loan_id = $loan->id;
+        $po->date = $loan->next_due;
+        $po->amount = $loan->firdue ? $loan->firdue : $loan->regdue;
+        $po->balance = $po->amount;
+        $po->save();
+
+        $loan->delays++;
+        $loan->save();
+      }
+    })->everyMinute();
+
     
   }
   

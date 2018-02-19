@@ -133,11 +133,11 @@ use App\Helper;
                   <div id="regdue_box-{{ $loan->id }}" class="col-12 text-center">
                     <h2>
                       <small>₡</small>
-                      <span id="dues_label-{{ $loan->id }}" class="money">{{ $loan->nice_due }}</span>
-                      <span id="interest_label-{{ $loan->id }}" class="money d-none">{{ $loan->nice_int }}</span>
+                      <span id="dues_label-{{ $loan->id }}" class="money">{{ $loan->due }}</span>
+                      <span id="interest_label-{{ $loan->id }}" class="money d-none">{{ $loan->mindue }}</span>
                       <small>
-                        <span style="color:#999" id="round-d-{{$loan->id}}" class="">{{ $loan->diff_due }}</span>
-                        <span style="color:#999" id="round-i-{{$loan->id}}" class="d-none">{{ $loan->diff_int }}</span>
+                        <span style="color:#999" id="round-d-{{$loan->id}}" class="">{{ $loan->mod }}</span>
+                        <span style="color:#999" id="round-i-{{$loan->id}}" class="d-none">{{ $loan->credits }}</span>
                       </small>
                     </h2>
                   </div>
@@ -145,7 +145,7 @@ use App\Helper;
                   <div class="col-11 my-3">
                     <div class="input-group minimal">
                       <span class="input-group-addon">+</span>
-                      <input id="input_amount-{{ $loan->id }}" type="text" name="extra" pattern="\d*" class="form-control" placeholder="Extra">
+                      <input id="input_amount-{{ $loan->id }}" type="text" name="extra" pattern="\d*" class="form-control" placeholder="Abono">
                     </div>
                   </div>
 
@@ -161,48 +161,43 @@ use App\Helper;
                   </div>
                 </div>{{--row --}}
 
-
-
-                <div class="row mb-3">
-
-                </div>{{--row --}}
-
-                <span id="payType-{{ $loan->id }}" class="d-none">PC</span>
+                
                 <div class="row  justify-content-center mb-2">
-                  
-                    <div class="form-check form-check-inline">
-                      <label class="custom-control custom-radio">
-                        <input class="custom-control-input" type="radio" name="type" onchange="onTypeChange('PC','{{ $loan->id }}')" value="PC" checked>
-                        <span class="custom-control-indicator"></span>
-                        <span class="custom-control-description">Completo</span>
-                      </label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                      <label class="custom-control custom-radio">
-                        <input class="custom-control-input" type="radio" name="type" onchange="onTypeChange('PM','{{ $loan->id }}')" value="PM">
-                        <span class="custom-control-indicator"></span>
-                        <span class="custom-control-description">Minimo</span>
-                      </label>
-                    </div>
-                  
+
+                  <span id="payType-{{ $loan->id }}" class="d-none">PC</span>
+
+                  <div class="form-check form-check-inline">
+                    <label class="custom-control custom-radio">
+                      <input class="custom-control-input" type="radio" name="type" onchange="onTypeChange('PC','{{ $loan->id }}')" value="PC" checked>
+                      <span class="custom-control-indicator"></span>
+                      <span class="custom-control-description">Completo</span>
+                    </label>
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <label class="custom-control custom-radio">
+                      <input class="custom-control-input" type="radio" name="type" onchange="onTypeChange('PM','{{ $loan->id }}')" value="PM">
+                      <span class="custom-control-indicator"></span>
+                      <span class="custom-control-description">Minimo</span>
+                    </label>
+                  </div>
                 </div> {{-- row --}}
 
 
                 <div class="row justify-content-center pb-4">
                   <div class="col-8 col-md-4">
                     <div class="input-group minimal">
-                      <span class="input-group-addon">Cuotas</span>
+                      <span class="input-group-addon">Cuotas:</span>
                       <input id="input_duemulti-{{ $loan->id }}" type="text" name="duemulti" pattern="\d*" class="form-control" value="1">
                     </div>
                   </div>
                 </div>
 
                 <div class="row justify-content-center">
-                    {{ csrf_field() }}
-                    <input type="hidden" name="id" value="{{ $loan->id }}">
-                    <input type="hidden" name="due" value="{{ $loan->nice_due }}">
-                    <input type="hidden" name="int" value="{{ $loan->nice_int }}">
-                    <button type="button" onclick="showConfirModal( {{ $loan->id }} )" class="btn btn-outline-danger btn-sm w-50 ">Pagar</button>
+                  {{ csrf_field() }}
+                  <input type="hidden" name="id" value="{{ $loan->id }}">
+                  <input type="hidden" name="due" value="{{ $loan->nice_due }}">
+                  <input type="hidden" name="int" value="{{ $loan->nice_int }}">
+                  <button type="button" onclick="showConfirModal( {{ $loan->id }} )" class="btn btn-outline-danger btn-sm w-50 ">Pagar</button>
                 </div> {{-- row --}}
 
 
@@ -229,10 +224,7 @@ use App\Helper;
                     </div>
                   </div>
                 </div>
-
               </form>
-
-
               @else
               <div class="col text-center mt-3">
                 <a data-toggle="collapse" href="#paylist-{{ $loan->id }}">Historial&nbsp;
@@ -298,7 +290,7 @@ use App\Helper;
         @if ( $loan->status)
         <div class="card-footer">
           <div class="row">
-            <div class="col">Sig. Pago</div>
+            <div class="col">Prox. Pago</div>
             <div class="col"><a href="#" onclick="onNextDueClick({{$loan->id}})">{{ $loan->next_due_display }}</a></div>
             <div class="col">
               <a data-toggle="collapse" href="#paylist-{{ $loan->id }}">Pagos&nbsp;

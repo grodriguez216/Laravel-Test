@@ -17,16 +17,17 @@ label
 @section('content')
 <div class="container-fluid">
 
-  <div class="row bg-dark justify-content-end">    
+  <div class="row bg-dark justify-content-end pt-3 pb-3">    
     <div class="col">
-      <label id="loan-date" class="text-light text-right pt-3 pb-1">Fecha del Prestamo</label>
+      <div class="form-group p-0 m-0">
+        <label id="loan-date" class="text-light text-right pt-2">Fecha del Prestamo</label>
+      </div>
     </div>
-
     <div class="col-3">
-      <input type="date" id="input_date" class="form-control p-1 mt-2 text-center"
-      value="{{ date('Y-m-d') }}" onchange="onDateChanged()">
+      <div class="form-group p-0 m-0">
+        <input type="date" id="input_date" class="form-control text-center" value="{{ date('Y-m-d') }}" onchange="onDateChanged()">
+      </div>
     </div>
-
   </div>
 
 
@@ -42,6 +43,7 @@ label
         </div>
       </div>{{-- form row --}}
     </div>{{-- col-6 --}}
+
     <div class="col-md-6">
       <label class="page-header text-center">Monto a Pagar</label>
       <div class="form-row justify-content-center">
@@ -55,29 +57,36 @@ label
     </div>{{-- col-6 --}}
   </div>{{-- row --}}
 
+
+
   <div class="row bg-dark py-3 my-1">
 
-    <div class="col-xs-12 col-md-3 text-center">
-      <h4 class="m-0 pt-2 text-light">
-        <span id="label_interests" class="font-weight-bold">0</span>% de interés
-      </h4>
-    </div><!-- /.col-md-6 -->
 
-
-    <div class="col-xs-12 col-md-5 my-4 my-sm-0">
+    <div class="col">
       <div class="row justify-content-center">
-        <div class="col-3">
-          <input id="input_duration" type="number" class="form-control text-center m-0" name="duration" value="3" min="1" max="99" required>
-        </div>
-        <span class="text-light pt-2">+</span>
-        <div class="col-3 col-md-3">
-          <input id="input_delays" type="number" class="form-control text-center m-0" name="delays" value="0" min="0" max="99" required>
-        </div>
-      </div>      
+        <h4 class="m-0 pt-2 text-light text-center"> <span id="label_interests" class="font-weight-bold">0</span>% de interés </h4>
+      </div>
     </div>
 
-    <div class="col-md-4">
+    <div class="col">
       <div class="row justify-content-center">
+        <div class="col-3">
+          <input id="input_delays" type="number" class="form-control text-center m-0" name="delays" value="0" min="0" max="99" required>
+        </div>
+        <div class="col-6">
+          <label class="text-left text-light pt-2">Cuotas Pendientes</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xs-12 col-5">
+
+      <div class="row justify-content-center">
+
+        <div class="col-xs-3 col-2">
+          <input id="input_duration" type="number" class="form-control text-center m-0" name="duration" value="3" min="1" max="99" required>
+        </div>
+
         <div class="col-xs-12 pt-2">
           <div class="form-check form-check-inline m-0">
             <label class="custom-control custom-radio">
@@ -101,8 +110,38 @@ label
             </label>
           </div>
         </div>
+
+
       </div>
-    </div><!-- /.col-md-6 -->
+
+
+
+    </div>
+
+
+
+
+
+{{-- 
+    <div class="col-xs-12 col-md-3 text-center">
+      <h4 class="m-0 pt-2 text-light">
+        <span id="label_interests" class="font-weight-bold">0</span>% de interés
+      </h4>
+    </div><!-- /.col-md-6 --> --}}
+
+
+{{--     <div class="col-xs-12 col-md-5 my-4 my-sm-0">
+      <div class="row justify-content-center">
+        <div class="col-3">
+          <input id="input_duration" type="number" class="form-control text-center m-0" name="duration" value="3" min="1" max="99" required>
+        </div>
+        <span class="text-light pt-2">+</span>
+        <div class="col-3 col-md-3">
+          <input id="input_delays" type="number" class="form-control text-center m-0" name="delays" value="0" min="0" max="99" required>
+        </div>
+      </div>      
+    </div> --}}
+
   </div><!-- /.row -->
 
   <div class="row py-4">
@@ -135,7 +174,7 @@ label
     </div>{{-- col-6 --}}
   </div>{{-- row --}}
 
-  
+
   <div class="row py-5 bg-dark justify-content-center">
     <div class="col-md-11">
       @if ( !isset( $_GET['auto'] ) )
@@ -379,7 +418,7 @@ function onRegularDueChange()
   get('firdue').value = regdue;
   
   /* Update the excedent label */
-  get('label_regdue').innerHTML = ('₡ ' + nicecify( parseInt(newdue) ) );
+  get('label_regdue').innerHTML = ( '+ ' + (""+duration-1) + 'x ' +   '₡ ' + nicecify( parseInt(newdue) ));
   get('label_regdue').classList.remove('d-none')
 }
 

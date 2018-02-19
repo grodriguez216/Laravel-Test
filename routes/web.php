@@ -16,19 +16,17 @@ Route::get('/', 'AppController@index')->name('home');
 Route::get('/home', 'AppController@index')->name('home');
 Route::get('/ajustes', 'AppController@settings')->name('app.settings');
 Route::get('/reportes', 'AppController@reports')->name('app.reports');
-Route::get('/cobrar', 'PublicController@collect')->name('collect');
-Route::post('/cobrar', 'PublicController@login2')->name('login2');
 
 Route::prefix('prestamos')->group(function ()
 {
   /* Gets */
   Route::get('/', 'LoansController@index' )->name('loans.list');
-  Route::get('agregar', 'LoansController@create' )->name('loans.create');
+  Route::get('agregar', 'LoansController@showCreateForm' )->name('loans.create');
   Route::get('ver/{id}', 'LoansController@show' )->name('loans.details');
   Route::get('hoy', 'LoansController@today' )->name('loans.today');
   
   /* Posts */
-  Route::post('agregar', 'LoansController@store' )->name('loans.store');
+  Route::post('agregar', 'LoansController@createNewLoan' )->name('loans.store');
   Route::post('pagar', 'LoansController@update' )->name('loans.pay');
   Route::post('extender', 'LoansController@update' )->name('loans.update');
 });

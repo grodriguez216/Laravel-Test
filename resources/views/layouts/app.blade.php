@@ -42,8 +42,6 @@
     <img src="{{ asset('img/gears-loader-red.gif') }}">
   </div>
   
-  <br>
-  
   @yield('content')
   
   <footer>

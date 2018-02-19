@@ -8,48 +8,19 @@ use App\Models\Payment;
 
 class PaymentsController extends Controller
 {
-  /**
-  * Create a new controller instance.
-  *
-  * @return void
-  */
+
   public function __construct()
   {
     $this->middleware('auth');
   }
   
-  /**
-  * Display a listing of the resource.
-  *
-  * @return \Illuminate\Http\Response
-  */
-  public function index()
-  {
-    //
-  }
-  
-  /**
-  * Show the form for creating a new resource.
-  *
-  * @return \Illuminate\Http\Response
-  */
-  public function create()
-  {
-    return view('loans.pay');
-  }
-  
-  /**
-  * Store a newly created resource in storage.
-  *
-  * @param  StdClass  $request
-  * @return \Illuminate\Http\Response
-  */
-  public function store( $type, $loan, $amount, $balance )
+  public function addPayment( $type, $loan, $order, $amount, $balance )
   {
     $payment = new Payment;
     
     $payment->type = $type;
     $payment->loan_id = $loan;
+    $payment->payorder_id = $order;
     $payment->amount = $amount;
     $payment->balance = $balance;
     $payment->save();
@@ -57,61 +28,26 @@ class PaymentsController extends Controller
     return $payment;
   }
   
-  /**
-  * Display the specified resource.
-  *
-  * @param  int  $id
-  * @return \Illuminate\Http\Response
-  */
-  public function show($id)
+  public function getLoanPayments($loan_id)
   {
-    $payments_list = Payment::where('loan_id', $id)->get();
+    $payments_list = Payment::where('loan_id', $loan_id)->get();
     
     foreach ($payments_list as $payment)
     {
       switch ( $payment->type )
       {
-        case 'F': $payment->type = ' Completo'; break;
-        case 'M': $payment->type = ' Minimo'; break;
-        case 'E': $payment->type = ' Abono'; break;
+        case 'F': $payment->details = ' Completo'; break;
+        case 'M': $payment->details = ' Minimo'; break;
+        case 'E': $payment->details = ' Abono'; break;
       }
-      
       $payment->date = date('d-M-Y', strtotime( $payment->created_at ));
     }
-    
     return $payments_list;
   }
-  
-  /**
-  * Show the form for editing the specified resource.
-  *
-  * @param  int  $id
-  * @return \Illuminate\Http\Response
-  */
-  public function edit($id)
+
+  public function addPayOrder( $loan_id, $amount )
   {
+    
   }
   
-  /**
-  * Update the specified resource in storage.
-  *
-  * @param  \Illuminate\Http\Request  $request
-  * @param  int  $id
-  * @return \Illuminate\Http\Response
-  */
-  public function update(Request $request, $id)
-  {
-    //
-  }
-  
-  /**
-  * Remove the specified resource from storage.
-  *
-  * @param  int  $id
-  * @return \Illuminate\Http\Response
-  */
-  public function destroy($id)
-  {
-    //
-  }
 }

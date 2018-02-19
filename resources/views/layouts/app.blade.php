@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-<head>
+<head><meta http-equiv="Content-Type" content="text/html; charset=gb18030">
   <title>Control - Prestamos</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- Options: cosmo | paper | cyborg | flaty | sandstone | yeti -->

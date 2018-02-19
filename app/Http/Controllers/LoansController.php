@@ -66,8 +66,11 @@ class LoansController extends Controller
     $loan->regdue = $request->input('regdue');
     $loan->mindue = $request->input('mindue');
 
-    $loan->intval = $request->input('intval');
     $loan->intrate = $request->input('intrate');
+    $loan->intval = $request->input('intval');
+
+    /* Number of delayed paymets */
+    $loan->delays = $request->input('delays');
 
     /* Due modifier: discounts or extras */
     $loan->duemod = 0;
@@ -79,6 +82,8 @@ class LoansController extends Controller
     $fixdue = $request->input('next_due', 0);
     $fix_date = ( $fixdue ) ? strtotime( $fixdue ) : time();
     $next_due = $due_date = time();
+
+    $loan->created_at = $request->input('date');
 
     switch ( $loan->payplan )
     {
@@ -104,7 +109,7 @@ class LoansController extends Controller
       else
       {
         /* between the 15 and the EOM */
-        $next_due = ( $fix_date ) ? $fix_date : strtotime( date('Y-m-30') );
+        $next_due = ( $fix_date ) ? $fix_date : strtotime( date('Y-m-d', $eom) );
       }
       break;
 
@@ -290,8 +295,6 @@ class LoansController extends Controller
         }
       }
 
-
-
       /* Close the loan if balance is zero */
       if ( $loan->balance <= 0) $loan->balance = $loan->status = 0;
 
@@ -322,7 +325,7 @@ class LoansController extends Controller
         else
         {
           /* Between the 15 and the EOM */
-          $loan->next_due = date('Y-m-30', $ndt);
+          $loan->next_due = date('Y-m-d', $ndt);
         }
         break;
 
@@ -361,14 +364,18 @@ class LoansController extends Controller
     $zones_arr = collect();
 
     foreach ($uzones as $z)
+    {    
       if ($z->type == 'Z') $zones_arr->push( $z->target_id );
-
+     }
+     
     foreach ($uzones as $c)
       if ($c->type == 'C') $cli_arr->push( $c->target_id );
     
     $loans = collect();
 
     $t = Loan::where('delays', '>', 0)->orderBy('paytime')->get();
+    
+    
     foreach ($t as $l)
     {
       if ( in_array( $l->client->zone_id, $zones_arr->toArray() ) )

@@ -16,9 +16,7 @@ class Kernel extends ConsoleKernel
   *
   * @var array
   */
-  protected $commands = [
-    //
-  ];
+  protected $commands = [];
   
   /**
   * Define the application's command schedule.
@@ -39,7 +37,7 @@ class Kernel extends ConsoleKernel
       foreach ($loans_today as $loan)
       {
         $notifier->notify( $loan->client->phone, 'PR', $loan );  
-        $loan->delays++;
+        $loan->delays = $loan->delays +1;
         $loan->save();
       }
     })->dailyAt('08:00');
@@ -58,6 +56,7 @@ class Kernel extends ConsoleKernel
         $notifier->notify( $loan->client->phone, 'PR', $loan );
       }
     })->dailyAt('13:00');
+       
     
   }
   

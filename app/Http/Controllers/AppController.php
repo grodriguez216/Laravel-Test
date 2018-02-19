@@ -246,10 +246,20 @@ class AppController extends Controller
       $data[] = number_format($Loan->regdue, 0);
       $data[] = number_format($Loan->mindue, 0);
       $data[] = $Loan->extentions;
-
+      
+      
       $payed = $Loan->payable - $Loan->balance;
       $data[] = number_format( $payed, 0);
-      $data[] =  ( $payed / $Loan->payable ) * 100 . ' %';
+      
+      if( $Loan->payable )
+      {
+           $data[] =  ( $payed / $Loan->payable ) * 100 . ' %';
+      }	
+      else
+      {
+      	$data[] = "-";
+      }
+
 
       fputcsv($file, $data);
     }

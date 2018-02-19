@@ -4,6 +4,10 @@
 		"selected_items":
 		[
 			[
+				"de",
+				"delays"
+			],
+			[
 				"tex",
 				"text-center"
 			],
@@ -111,6 +115,15 @@
 	},
 	"buffers":
 	[
+		{
+			"file": "app/Console/Kernel.php",
+			"settings":
+			{
+				"buffer_size": 1597,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		}
 	],
 	"build_system": "",
 	"build_system_choices":
@@ -225,13 +238,16 @@
 	],
 	"file_history":
 	[
-		"/Users/gerson/Code/presta-control/app/Http/Controllers/AppController.php",
+		"/Users/gerson/Code/presta-control/resources/views/loans/create.blade.php",
 		"/Users/gerson/Code/presta-control/resources/views/clients/profile.blade.php",
+		"/Users/gerson/Code/presta-control/app/Http/Controllers/LoansController.php",
+		"/Users/gerson/Code/presta-control/app/Http/Controllers/ClientsController.php",
+		"/Users/gerson/Code/presta-control/resources/views/layouts/app.blade.php",
+		"/Users/gerson/Code/presta-control/app/Http/Controllers/AppController.php",
 		"/Users/gerson/Code/presta-control/routes/web.php",
 		"/Users/gerson/Code/presta-control/resources/views/users.blade.php",
 		"/Users/gerson/Desktop/Models/PreOP-C/3DModel copy.obj",
 		"/Users/gerson/Code/presta-control/resources/views/loans/today.blade.php",
-		"/Users/gerson/Code/presta-control/app/Http/Controllers/LoansController.php",
 		"/Users/gerson/Code/presta-control/.env",
 		"/Users/gerson/Code/presta-control/app/Http/Controllers/Auth/RegisterController.php",
 		"/Users/gerson/Code/presta-control/app/Http/Middleware/RedirectIfAuthenticated.php",
@@ -241,8 +257,6 @@
 		"/Users/gerson/Code/presta-control/vendor/laravel/framework/src/Illuminate/Auth/AuthenticationException.php",
 		"/Users/gerson/Code/presta-control/vendor/laravel/framework/src/Illuminate/Auth/Authenticatable.php",
 		"/Users/gerson/Code/presta-control/app/Http/Controllers/Controller.php",
-		"/Users/gerson/Code/presta-control/resources/views/loans/create.blade.php",
-		"/Users/gerson/Code/presta-control/app/Http/Controllers/ClientsController.php",
 		"/Users/gerson/Code/presta-control/resources/views/home.blade.php",
 		"/Users/gerson/Code/presta-control/resources/views/auth/login.blade.php",
 		"/Users/gerson/Code/presta-control/app/Models/Assignments.php",
@@ -315,7 +329,6 @@
 		"/Users/gerson/GitHub/dsdlib/integration-test/DSDviewer.h",
 		"/Users/gerson/GitHub/dsdlib/integration-test/DSDviewer.cpp",
 		"/Users/gerson/Code/presta-control/vendor/laravel/framework/src/Illuminate/Auth/Access/Response.php",
-		"/Users/gerson/Code/presta-control/resources/views/layouts/app.blade.php",
 		"/Users/gerson/Code/presta-control/vendor/monolog/monolog/src/Monolog/Handler/ZendMonitorHandler.php",
 		"/Users/gerson/Code/presta-control/app/Http/Controllers/Auth/ResetPasswordController.php",
 		"/Users/gerson/Code/presta-control/vendor/laravel/framework/src/Illuminate/Foundation/Auth/AuthenticatesUsers.php",
@@ -356,7 +369,7 @@
 	],
 	"find":
 	{
-		"height": 28.0
+		"height": 46.0
 	},
 	"find_in_files":
 	{
@@ -370,6 +383,12 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"fec",
+			"cedula",
+			"input_date",
+			"date",
+			"fee",
+			"intrate",
 			"v",
 			"modal",
 			"auth",
@@ -456,14 +475,45 @@
 	"groups":
 	[
 		{
+			"selected": 0,
 			"sheets":
 			[
+				{
+					"buffer": 0,
+					"file": "app/Console/Kernel.php",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1597,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1250,
+								1250
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/PHP/PHP.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 903.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				}
 			]
 		}
 	],
 	"incremental_find":
 	{
-		"height": 28.0
+		"height": 32.0
 	},
 	"input":
 	{
@@ -500,7 +550,7 @@
 	"project": "control.sublime-project",
 	"replace":
 	{
-		"height": 52.0
+		"height": 60.0
 	},
 	"save_all_on_build": true,
 	"select_file":
@@ -509,6 +559,26 @@
 		"last_filter": "",
 		"selected_items":
 		[
+			[
+				"clie",
+				"app/Http/Controllers/ClientsController.php"
+			],
+			[
+				"profile",
+				"resources/views/clients/profile.blade.php"
+			],
+			[
+				"profil",
+				"resources/views/clients/profile.blade.php"
+			],
+			[
+				"loanco",
+				"app/Http/Controllers/LoansController.php"
+			],
+			[
+				"create",
+				"resources/views/loans/create.blade.php"
+			],
 			[
 				"appcon",
 				"app/Http/Controllers/AppController.php"
@@ -552,14 +622,6 @@
 			[
 				"home",
 				"resources/views/home.blade.php"
-			],
-			[
-				"create",
-				"resources/views/loans/create.blade.php"
-			],
-			[
-				"profile",
-				"resources/views/clients/profile.blade.php"
 			],
 			[
 				"repor",
@@ -706,10 +768,6 @@
 				"TetraMesh.h"
 			],
 			[
-				"loanco",
-				"app/Http/Controllers/LoansController.php"
-			],
-			[
 				"ozne",
 				"vendor/monolog/monolog/src/Monolog/Handler/ZendMonitorHandler.php"
 			],
@@ -817,7 +875,7 @@
 	"show_minimap": false,
 	"show_open_files": false,
 	"show_tabs": true,
-	"side_bar_visible": false,
+	"side_bar_visible": true,
 	"side_bar_width": 329.0,
 	"status_bar_visible": true,
 	"template_settings":

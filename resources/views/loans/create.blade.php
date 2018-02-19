@@ -16,6 +16,20 @@ label
 
 @section('content')
 <div class="container-fluid">
+
+  <div class="row bg-dark justify-content-end">    
+    <div class="col">
+      <label id="loan-date" class="text-light text-right pt-3 pb-1">Fecha del Prestamo</label>
+    </div>
+
+    <div class="col-3">
+      <input type="date" id="input_date" class="form-control p-1 mt-2 text-center"
+      value="{{ date('Y-m-d') }}" onchange="onDateChanged()">
+    </div>
+
+  </div>
+
+
   <div class="row py-4">
     <div class="col-md-6">
       <label class="page-header text-center">Monto a Prestar</label>
@@ -43,22 +57,26 @@ label
 
   <div class="row bg-dark py-3 my-1">
 
-    <div class="col-xs-12 col-md-4 text-center">
+    <div class="col-xs-12 col-md-3 text-center">
       <h4 class="m-0 pt-2 text-light">
         <span id="label_interests" class="font-weight-bold">0</span>% de interés
       </h4>
     </div><!-- /.col-md-6 -->
 
 
-    <div class="col-xs-12 col-md-3 my-4 my-sm-0">
+    <div class="col-xs-12 col-md-5 my-4 my-sm-0">
       <div class="row justify-content-center">
-        <div class="col-3 col-md-6">
+        <div class="col-3">
           <input id="input_duration" type="number" class="form-control text-center m-0" name="duration" value="3" min="1" max="99" required>
+        </div>
+        <span class="text-light pt-2">+</span>
+        <div class="col-3 col-md-3">
+          <input id="input_delays" type="number" class="form-control text-center m-0" name="delays" value="0" min="0" max="99" required>
         </div>
       </div>      
     </div>
 
-    <div class="col-md-5">
+    <div class="col-md-4">
       <div class="row justify-content-center">
         <div class="col-xs-12 pt-2">
           <div class="form-check form-check-inline m-0">
@@ -130,6 +148,7 @@ label
         <input id="balance" type="hidden" name="balance" value="0">
         <input id="duemod" type="hidden" name="duemod" value="0">
         <input id="duration" type="hidden" name="duration" value="3">
+        <input id="delays" type="hidden" name="delays" value="0">
         <input id="intrate" type="hidden" name="intrate" value="0">
         <input id="intval" type="hidden" name="intval" value="0">
         <input id="loaned" type="hidden" name="loaned" value="0">
@@ -137,6 +156,7 @@ label
         <input id="payplan" type="hidden" name="payplan" value="we">
         <input id="firdue" type="hidden" name="firdue" value="0">
         <input id="regdue" type="hidden" name="regdue" value="0">
+        <input id="date" type="hidden" name="date" value="{{ date('Y-m-d') }}">
 
         @if ( isset( $_GET['auto'] ) )
         <input type="hidden" name="first_name" value="0">
@@ -179,8 +199,6 @@ label
         <div class="col-12"><hr style="background-color: #777"></div>
         @endif
         <div class="form-row">
-
-
 
           <div class="col-md-12 form-group mt-2 text-center">
             <a style="cursor: pointer;" onclick="onNextDueClick()" class="text-light">Fecha de Primer Pago:</a>
@@ -247,6 +265,7 @@ label
   $('#input_loan_amount').on('input', onLoanAmountChange);
   $('#input_balance_amount').on('input', onBalanceAmountChange);
   $('#input_duration').on('input', onDurationChange);
+  $('#input_delays').on('input', onDelaysChange);
   $('#input_mindue_amount').on('input', onMinimunDueChange);
   $('#input_regdue_amount').on('input', onRegularDueChange);
   /* ------------------------------ Function Definitions ------------------------------ */
@@ -291,6 +310,30 @@ label
 
   /* Update the Form */    
   get('duration').value = input_duration;
+
+  /* Update all the labels */
+  window.update();
+}
+
+function onDelaysChange()
+{
+  /* Get the value */
+  var input_delays = get('input_delays').value;
+
+  /* Update the Form */    
+  get('delays').value = input_delays;
+
+  /* Update all the labels */
+  window.update();
+}
+
+function onDateChanged()
+{
+  /* Get the value */
+  var input_date = get('input_date').value;
+
+  /* Update the Form */    
+  get('date').value = input_date;
 
   /* Update all the labels */
   window.update();
@@ -451,7 +494,6 @@ function onNextDueClick()
   var picker = $datepicker.pickadate('picker');
   picker.open();
 }
-var a;
 
 function onNextDueSet()
 {

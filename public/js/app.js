@@ -11,13 +11,10 @@ function toggle_v( element, visibility )
 {
 if ( visibility )
 {
-  document.getElementById( element ).classList.remove( 'invisible' );
-  
+  document.getElementById( element ).classList.remove( 'invisible' ); 
 }
 else
 {
-  // document.getElementById( element ).classList.remove( 'visible' );
-  // document.getElementById( element ).classList.add( 'visible' );
   document.getElementById( element ).classList.add( 'invisible' );
 }
 

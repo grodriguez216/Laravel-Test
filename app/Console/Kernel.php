@@ -72,7 +72,7 @@ class Kernel extends ConsoleKernel
         $po = new PayOrder;
         $po->loan_id = $loan->id;
         $po->date = $loan->next_due;
-        $po->amount = $loan->firdue ? $loan->firdue : $loan->regdue;
+        $po->amount = $loan->intval;
         $po->balance = $po->amount;
         $po->save();
 

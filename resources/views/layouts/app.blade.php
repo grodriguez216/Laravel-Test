@@ -36,8 +36,7 @@
       </li>
     </ul>
   </nav>
-  
-  
+
   <div id="loader" class="loader">
     <img src="{{ asset('img/gears-loader-red.gif') }}">
   </div>

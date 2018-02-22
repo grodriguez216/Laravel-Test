@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Validator;
 use Auth;
+use DB;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
@@ -36,6 +37,8 @@ class LoansController extends Controller
     /* [START Instantiante the new loan] */
     $loan = new Loan;
     /* [ END Instantiante the new loan] */
+
+    DB::beginTransaction();
 
     /* [START Add or Find the client] */
     $contoller = new ClientsController();
@@ -78,15 +81,29 @@ class LoansController extends Controller
     else
       $loan->next_due = $this->getNextPeriod( $loan->payplan, $loan->created_at );  
     /* [ END Next due date calculation ] */
+    
+    /* [START Commit changes] */
+    $loan->save();
+    /* [ END Commit changes] */
+
+    /* [START Add peding orders] */
+    for ($index=0; $index < $loan->delays; $index++)
+    { 
+      $order = new PayOrder;
+      $order->loan_id = $loan->id;
+      $order->amount = $loan->intval;
+      $order->balance = $loan->intval;
+      $order->date = $loan->created_at;
+      $order->save();
+    }
+    /* [ END Add peding orders] */
+
+    DB::commit();
 
     /* [START New loan notification] */
     $notifications = new NotificationController;
     $notifications->send( $client->phone, 'NL', $loan );
     /* [ END New loan notification] */
-
-    /* [START Commit changes] */
-    $loan->save();
-    /* [ END Commit changes] */
 
     return redirect("clientes/perfil/{$client->id}");
   }
@@ -236,18 +253,13 @@ class LoansController extends Controller
       $loan->credits = ( $CREDITS < 1000 ) ? 0 : $CREDITS;
       /* [ END Check the credits] */
 
-      /* [START Signal labels ] */
-      // $loan->mod = $loan->mod > 0 ? '-'.$loan->mod : '+'.$loan->mod * -1;
-      // $loan->credits = $loan->credits > 0 ? '+'.$loan->credits : '-'.$loan->credits * -1;
-      /* [ END Signal labels ] */
-
       /* [START Format dates] */
       $loan->next_due_display = date('d/m/Y', strtotime( $loan->next_due ));
       $loan->date = date('d/m/Y', strtotime( $loan->created_at ));
       /* [ END Format dates] */
 
       /* [START Check pending bills] */
-      $loan->pending = $loan->orders->sum('balance');
+      $loan->pending = $loan->orders->where('status', 1)->sum('balance');
       /* [ END Check pending bills] */
 
     }
@@ -261,172 +273,177 @@ class LoansController extends Controller
 
   private function addPayments(Request $request, Loan $loan)
   {
-
     /* [START store user input] */
-    $TYPE = $request->input('type');
-    $custompay = $request->input('custompay', 0);
-    $multiplier = $request->input('duemulti', 1);
-    $EXTRA = (int) $request->input('extra', 0);
+    $TYPE = $request->input('type','OT');
+    $CREDITS = $request->input('credits', 0);
     /* [ END store user input] */
 
     /* [START Global vars ] */
-    $DUE = 0;
-    $CREDITS = 0;
+    $DUE = $loan->firdue ? $loan->firdue : $loan->regdue;
     /* [ END Global vars ] */
 
-    /* [START Add any client bonus payments ] */
-    $CREDITS += $EXTRA;
-    /* [ END Add any client bonus payments ] */
-
-    switch ( $type )
-    {
-      case 'PC':
-      /* ---------------------------------- PC ---------------------------------- */
-      /* [START Check First Due] */
-      // if( $loan->firdue )
-      // {
-      // $DUE = $loan->firdue;
-      // $loan->firdue = 0;
-      // }
-      /* [ END Check First Due] */
-      /* [START Check for Custom Regular Payments] */
-      /* [ END Check for Custom Regular Payments] */
-      /* Check if the user selected a custom 'regular due' */
-      // if ( !$custompay ) $substract += $due; 
-      /* Amount to substract (+) the mods */
-      // $substract += ( $loan->duemod );
-      /* Reset the discount after a PC payment */
-      // $loan->duemod = 0;
-      /* ______________________________ END: PC ______________________________ */
-      break;
-
-      case 'PM':
-      /* ---------------------------------- PM ---------------------------------- */
-
-      /* Add the interests to the creditable amount */
-      $CREDITS += $loan->intval;
-
-      /* Increase the counter for minimal payments */
-      $loan->extentions++;
-
-      /* ______________________________ END: PM ______________________________ */
-      break;
-    }
-
+    /* Instantiate the payment controller */
     $pc = new PaymentsController;
 
     /* Get all the peding orders this client has */
-    $ORDERS = PayOrder::where('loan_id', $loan->id)->where('status', 1)->orderBy('date')->get();
-    
+    $ORDERS = PayOrder::where('loan_id', $loan->id)->where('status', 1)->orderBy('date', 'id')->get();
+
+    DB::beginTransaction();
+
+    /* order currently being updated */
     $order_index = 0;
 
-    /* For each payment the client is trying to make */
-    for ($index = 0; $index < $multiplier; $index++)
+    /* Modifiable variable for the creditable amount */
+    /* Making a Payment complete implicitly pays 1 peding order. 
+    So we add its equivalent for the numbers to add up */
+    $credits = ($TYPE === 'PC' && $loan->delays) ? $CREDITS + $this->nicecify($loan->intval) : $CREDITS;
+    $payment = $CREDITS;
+
+    /* Whether the client has any orders pending to cancel */
+    $hasPendings = $loan->delays;
+
+    /* Cancel the orders before touching the loan balance */
+    while ( $hasPendings )
     {
-      /* Modifiable variable for the creditable amount */
-      $credits = $CREDITS;
+      /* Most recent pending order */
+      $order = $ORDERS->get( $order_index );
 
-      /* Whether the client has any orders pending to cancel */
-      $hasPendings = $loan->delays;
-
-      /* Cancel the orders before touching the loan balance */
-      while ( $hasPendings )
+      /* If the order can be canceled right away | Usually the first run at this loop */ 
+      if ( $order->balance <= $credits )
       {
-        /* Most recent pending order */
-        $order = $ORDERS->get( $order_index );
+        /* Amount to deduct from the balances */
 
-        /* If the order can be canceled right away | Usually the first run at this loop */ 
-        if ( $order->balance <= $credits )
+        $credits -= $order->balance;
+        $payment -= $order->balance;
+
+        /* Register the Payment */
+        $pc->addPayment( 'IN', $loan->id, $order->id, $order->balance, $loan->balance);
+
+        /* Cancel this order */
+        $order->balance = 0;
+        $order->status = 0;
+
+        /* Reduce the number of pending orders  */
+        $loan->delays--;
+
+        /* Check if there are more peding orders */
+        if ( $loan->delays )
         {
-          /* Register the Payment */
-          $pc->addPayment( $TYPE, $loan->id, $order->id, $order->balance, $loan->balance);
-          
-          /* Get the remaining credits if any */
-          $credits -= $order->balance;
-          
-          /* Cancel this order */
-          $order->balance = 0;
-          $order->status = 0;
-
-          /* Reduce the number of pending orders  */
-          $loan->delays--;
-
-          /* Check if there are more peding orders */
-          if ( $loan->delays )
-          {
-            /* The remaining credits must be used to pay the next peding order */
-            $hasPendings = true;
-            $order_index++;
-          }
-          else
-          {
-            /* Allow the remaining credits to be substracted from the  */  
-            $hasPendings = false;
-          }
-
-          /* If the credits are exactly 0, there is no point in continuing */
-          $hasPendings = (bool) $credits;
+          /* The remaining credits must be used to pay the next peding order */
+          $hasPendings = true;
+          $order_index++;
         }
         else
         {
-          /* If the balance is greater than the available credits | Usually remainings of the first run */
-
-          /* Register the Payment */
-          $pc->addPayment( 'AB', $loan->id, $order->id, $credits, $loan->balance);
-
-          /* Substract the credits from the pending balance */
-          $order->balance -= $credits;
-
-          /* All credits have been spent */
-          $credits = 0;
-
-          /* Check if order must be canceled */
-          if ( $order->balance === 0)
-          {
-            $order->status = 0;
-            $loan->delays--;
-          }
-          
-          /* No more credits for this payment */
+          /* Allow the remaining credits to be substracted from the balance */  
           $hasPendings = false;
         }
 
-        /* [START Update the order] */
-        $order->save();
-        /* [ END Update the order] */
-
-      } /* end while */
-
-      /* If after paying the orders there's still credits. They affect the loan's balance directly */
-      if ( $credits )
+        /* If the credits are exactly 0, there is no point in continuing */
+        $hasPendings = (bool) $credits ? $hasPendings : false;
+      }
+      else
       {
-        /* Register the Payment */
-        $pc->addPayment( $TYPE, $loan->id, null, $credits, $loan->balance);
+        /* If the balance is greater than the available credits | Usually remainings of the first run */
 
-        /* [START Close the loan if balance reaches 0] */
-        $loan->balance -= $credits;
-        $loan->balance = $loan->balance > 0 ? $loan->balance : 0;
-        $loan->status = $loan->balance;
-        /* [ END Close the loan if balance reaches 0] */
+        /* Register the Payment */
+        $pc->addPayment( 'AB', $loan->id, $order->id, $credits, $loan->balance);
+
+        /* Substract the credits from the pending balance */
+        $order->balance -= $credits;
+
+        /* All credits have been spent */
+        $credits = 0;
+
+        /* Check if order must be canceled */
+        if ( $order->balance === 0)
+        {
+          $order->status = 0;
+          $loan->delays--;
+        }
+
+        /* No more credits for this payment */
+        $hasPendings = false;
       }
 
-      /* [START Update the loan ] */
-      $loan->save();
-      /* [ END Update the loan ] */
+      if ( $TYPE === 'PM')
+      {
+        $loan->extentions++;
+      }
 
-    } /*  end for */
+      /* [START Update the order] */
+      $order->save();
+      /* [ END Update the order] */
+    } /* end while */
+
+    /* If after paying the orders there's still credits. They affect the loan's balance directly */
+    if ( $credits )
+    {
+      /* [START Close the loan if balance reaches 0] */
+      $loan->balance -= $credits; /* (includes 1 peding order if the payment is PC ) */
+      $loan->balance = $loan->balance > 0 ? $loan->balance : 0;
+      $loan->status = (bool) $loan->balance;
+      /* [ END Close the loan if balance reaches 0] */
+
+      /* [START Calc duemod] */
+
+
+      /* update the firdue substracting the payed amount */
+      if ( $loan->firdue )
+      {
+        $loan->firdue -= $credits;
+
+        if ( $loan->firdue < 0)
+        {
+          $loan->duemod = $loan->firdue;
+          $loan->firdue = 0; 
+        }
+      }
+      else
+      {
+        if ( $TYPE === 'PC')
+        {
+          /* paying more than it should on a regular due */
+          if ( $credits > ($loan->regdue + $loan->duemod) )
+          {
+            $loan->duemod -= $credits - $loan->regdue;
+          }
+          else
+          {
+            /* reset the mod */
+            $loan->duemod = 0;  
+          }
+        }
+        else
+        {
+          $loan->duemod = $credits;    
+        }
+
+        /* Avoid zero-payments */
+        if ( -1 * $loan->duemod >= $DUE)
+        {
+          $loan->duemod + $DUE;
+        }
+      }
+      /* [ END Calc duemod] */
+
+      /* Register the Payment */
+      $pc->addPayment( $TYPE, $loan->id, 0, $payment, $loan->balance);
+    }
+
+    /* [START Update the loan ] */
+    $loan->save();
+    /* [ END Update the loan ] */
+
+    DB::commit();
 
     /* [START Send an SMS messge ] */
     $notification = new NotificationController();
-    $loan->credits = $CREDITS * $multiplier;
+    $loan->credits = $CREDITS;
     $sms_type = ( $loan->status ) ? 'SP' : 'CL';
-    $notification->notify( $loan->client->phone, $sms_type, $loan );
+    $notification->send( $loan->client->phone, $sms_type, $loan );
+    unset($loan->credits);
     /* [ END Send an SMS messge ] */
-  }
-
-  private function changeDueDate(Request $request)
-  {
-
   }
 
   public function update(Request $request)
@@ -442,12 +459,18 @@ class LoansController extends Controller
 
     if ( $request->path() == 'prestamos/pagar')
     {
-      return $this->addPayments( $request, $loan );
+      $this->addPayments( $request, $loan );
     }
-
-
-
-    die('tr');
+    else
+    {
+      /* Update the next payment date */      
+      $next_due = $request->input('next_due', false);
+      if ($next_due)
+      {
+        $loan->next_due = $next_due;
+        $loan->extentions++;
+      }
+    }
 
     /* Commit the changes */
     $loan->update();

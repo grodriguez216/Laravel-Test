@@ -98,7 +98,7 @@
   content: " ";
   border-top: .5em solid transparent;
   border-bottom: .5em solid transparent;
-  border-right: 0.75em solid #a38546;
+  border-right: 0.75em solid #343a40;
   width: 0;
   height: 0;
   display: block;
@@ -106,7 +106,7 @@
 }
 .picker__nav--next:before {
   border-right: 0;
-  border-left: 0.75em solid #a38546;
+  border-left: 0.75em solid #343a40;
 }
 .picker__nav--prev:hover,
 .picker__nav--next:hover {
@@ -179,7 +179,7 @@
   right: 2px;
   width: 0;
   height: 0;
-  border-top: 0.5em solid #a38546;
+  border-top: 0.5em solid #343a40;
   border-left: .5em solid transparent;
 }
 .picker__day--disabled:before {
@@ -192,7 +192,7 @@
 .picker__day--outfocus:hover {
   cursor: pointer;
   color: #ffffff;
-  background: #a38546;
+  background: #343a40;
 }
 .picker__day--highlighted {
   border-color: #848484;
@@ -201,7 +201,7 @@
 .picker--focused .picker__day--highlighted {
   cursor: pointer;
   color: #ffffff;
-  background: #a38546;
+  background: #343a40;
 }
 .picker__day--selected,
 .picker__day--selected:hover,
@@ -244,13 +244,13 @@
 .picker__button--close:hover {
   cursor: pointer;
   color: #000000;
-  background: #a38546;
-  border-bottom-color: #a38546;
+  background: #343a40;
+  border-bottom-color: #343a40;
 }
 .picker__button--today:focus,
 .picker__button--clear:focus,
 .picker__button--close:focus {
-  background: #a38546;
+  background: #343a40;
   border-color: #848484;
   outline: none;
 }

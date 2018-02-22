@@ -2,6 +2,7 @@
 
 @php
 use App\Helper;
+use App\User;
 @endphp
 
 @section('styles')
@@ -140,7 +141,7 @@ use App\Helper;
       @foreach ($loans->sortByDesc('created_at')->sortByDesc('status') as $loan)
 
       <div class="card loan mb-4">
-        <div class="card-header bg-dark">
+        <div class="card-header {{ $loan->status ? "bg-dark" : "bg-secondary" }}">
          <div class="row text-light">
           <div class="col text-left">Prestamo # {{ $loan->id }}</div>
           <div class="col text-right">{{ $loan->date}}</div>
@@ -156,6 +157,7 @@ use App\Helper;
                 <th>Prestado</th>
                 <td class="text-right"><small>₡</small><span class="money">{{ $loan->loaned }}</span></td>
               </tr>
+              @if ($loan->status)
               <tr>
                 <th>Saldo</th>
                 <td class="text-right text-danger">₡<span class="money">{{ $loan->balance }}</span></td>
@@ -166,219 +168,239 @@ use App\Helper;
               </tr>
               <tr>
                 <th>Pendientes</th>
-                <td class="text-right"><small>₡</small><span class="money">{{ $loan->pending }}</span> ({{ $loan->delays }})</td>
-              </tr>
-              <tr>
-                <th>Intereses</th>
-                <td class="text-right">{{ $loan->intrate }}%</td>
-              </tr>
-              <tr>
-                <th>Extensiones</th>
-                <td class="text-right">{{ $loan->extentions }}</td>
-              </tr>
-            </table>
-          </div> {{-- col-5 --}}
+                <td class="text-right {{ $loan->delays > 1 ? "text-danger" : "" }}">
+                  <small>₡</small>
+                  <span class="money">{{ $loan->pending }}</span> ({{ $loan->delays }})</td>
+                </tr>
+                @endif
+                <tr>
+                  <th>Intereses</th>
+                  <td class="text-right">{{ $loan->intrate }}%</td>
+                </tr>
+                <tr>
+                  <th>Extensiones</th>
+                  <td class="text-right">{{ $loan->extentions }}</td>
+                </tr>
 
-          <div class="col-12 my-2 d-lg-none">
-            <hr>
-          </div>
+              </table>
+            </div> {{-- col-5 --}}
 
-          <div class="col-12 col-lg-7" style="padding-right: 10px">
+            <div class="col-12 my-2 d-lg-none">
+              <hr>
+            </div>
 
-            @if ( $loan->status )
-            
+            <div class="col-12 col-lg-7" style="padding-right: 10px">
 
-            <div class="row">
-              <div class="form-row justify-content-center">
-                <div class="col-9 big-input m-0">
-                  <div class="input-group">
-                    <span class="input-group-addon">₡</span>
-                    <input id="input_credits-{{ $loan->id }}" type="text" pattern="\d*"
-                    class="form-control amount-control money p-0"
-                    placeholder="Monto"  value="{{ $loan->due }}" required>
-                  </div>
-                </div>
-                <div class="col-12 text-center">
-                  <span id="label_mods-{{ $loan->id }}">
-                    @if ($loan->mod) Descuento: {{ $loan->mod }} @else &nbsp; @endif
-                  </span>
-                </div>
-              </div>
-            </div>{{--row --}}
+              @if ( $loan->status )
 
-            <div class="row justify-content-center bg-light py-3 my-3" style="border: 1px solid #eee">
-              <div class="form-check form-check-inline mb-0">
-                <label class="custom-control custom-radio mb-0">
-                  <input class="custom-control-input" type="radio" name="type" onchange="onTypeChange('PC','{{ $loan->id }}')" value="PC" checked>
-                  <span class="custom-control-indicator"></span>
-                  <span class="custom-control-description">Completo</span>
-                </label>
-              </div>
-
-              <div class="form-check form-check-inline mb-0">
-                <label class="custom-control custom-radio mb-0">
-                  <input class="custom-control-input" type="radio" name="type" onchange="onTypeChange('PM','{{ $loan->id }}')" value="PM">
-                  <span class="custom-control-indicator"></span>
-                  <span class="custom-control-description">Minimo</span>
-                </label>
-              </div>
-
-              <div class="form-check form-check-inline mb-0">
-                <label class="custom-control custom-radio mb-0">
-                  <input class="custom-control-input" type="radio" name="type" onchange="onTypeChange('OT','{{ $loan->id }}')" value="OT">
-                  <span class="custom-control-indicator"></span>
-                  <span class="custom-control-description">Otro</span>
-                </label>
-              </div>
-            </div> {{-- row --}}
-
-            <div class="row mt-5">
-              {{ csrf_field() }}
-              <input type="hidden" name="id" value="{{ $loan->id }}">
-              <input type="hidden" name="due" value="{{ $loan->credits }}">
-              <input type="hidden" name="int" value="{{ $loan->interest }}">
-              <div class="col-12 d-flex justify-content-center">
-                <button type="button" onclick="showConfirModal( {{ $loan->id }} )" class="btn btn-dark px-5">Pagar</button>
-                <div class="col-4">
-                  <div class="row">
-                    <div class="col-3 text-center mt-2">X</div>
-                    <div class="col">
-                      <input id="input_multi-{{ $loan->id }}" type="text" pattern="\d*" class="form-control text-center" value="1" oninput="onMultiplierChange({{$loan->id}})">
+              <div class="row">
+                <div class="form-row justify-content-center">
+                  <div class="col-9 big-input m-0">
+                    <div class="input-group">
+                      <span class="input-group-addon">₡</span>
+                      <input id="input_credits-{{ $loan->id }}" type="text" pattern="\d*"
+                      class="form-control amount-control money p-0" oninput="onCreditsChange({{$loan->id}})"
+                      placeholder="Monto"  value="{{ $loan->due }}" required>
                     </div>
                   </div>
+                  <div class="col-12 text-center">
+                    <span id="label_mods-{{ $loan->id }}">
+                      @if($loan->mod)
+                      Descuento: <span class="money">{{ $loan->mod }}</span>
+                      @else
+                      @if ($loan->due > $loan->regdue)
+                      Cuota Especial
+                      @else
+                      &nbsp;
+                      @endif
+                      @endif
+                    </span>
+                  </div>
+                </div>
+              </div>{{--row --}}
 
+              <div class="row justify-content-center bg-light py-3 my-3" style="border: 1px solid #eee">
+                <div class="form-check form-check-inline mb-0">
+                  <label class="custom-control custom-radio mb-0">
+                    <input class="custom-control-input" type="radio" name="type" onchange="onTypeChange('PC','{{ $loan->id }}')" value="PC" checked>
+                    <span class="custom-control-indicator"></span>
+                    <span class="custom-control-description">Completo</span>
+                  </label>
                 </div>
 
-              </div>
-            </div> {{-- row --}}
+                <div class="form-check form-check-inline mb-0">
+                  <label class="custom-control custom-radio mb-0">
+                    <input class="custom-control-input" type="radio" name="type" onchange="onTypeChange('PM','{{ $loan->id }}')" value="PM">
+                    <span class="custom-control-indicator"></span>
+                    <span class="custom-control-description">Minimo</span>
+                  </label>
+                </div>
 
-            <div id="confirModal-{{ $loan->id }}" class="modal" tabindex="-1" role="dialog">
-              <div class="modal-dialog modal-sm" role="document">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h5 class="modal-title text-center">Confirmar Pago</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                      <span aria-hidden="true">&times;</span>
-                    </button>
+                <div class="form-check form-check-inline mb-0 d-none">
+                  <label class="custom-control custom-radio mb-0">
+                    <input class="custom-control-input" type="radio" name="type" onchange="onTypeChange('OT','{{ $loan->id }}')" value="OT">
+                    <span class="custom-control-indicator"></span>
+                    <span class="custom-control-description">Otro</span>
+                  </label>
+                </div>
+              </div> {{-- row --}}
+
+              <div class="row mt-5">
+                {{ csrf_field() }}
+                <input type="hidden" name="id" value="{{ $loan->id }}">
+                <input type="hidden" name="due" value="{{ $loan->credits }}">
+                <input type="hidden" name="int" value="{{ $loan->interest }}">
+                <div class="col-12 d-flex justify-content-center">
+                  <button type="button" onclick="showConfirModal( {{ $loan->id }} )" class="btn btn-dark px-5">Pagar</button>
+                  <div class="col-4">
+                    <div class="row">
+                      <div class="col-3 text-center mt-2">X</div>
+                      <div class="col">
+                        <input id="input_multi-{{ $loan->id }}" type="text" pattern="\d*" class="form-control text-center" value="1" oninput="onMultiplierChange({{$loan->id}})">
+                      </div>
+                    </div>
+
                   </div>
-                  <div class="modal-body text-center">
-                    <p>Seguro que desea realizar este pago <span id="ctype-{{$loan->id}}" class="font-weight-bold"></span>?</p>
-                    <h3>
-                      <small>₡</small><span id="camount-{{$loan->id}}"></span> x <span id="cduemulti-{{$loan->id}}"></span>
-                    </h3>
 
+                </div>
+              </div> {{-- row --}}
+
+              <div id="confirModal-{{ $loan->id }}" class="modal" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-md" role="document">
+                  <div class="modal-content">
+
+                    <div class="modal-header">
+                      <h5 class="modal-title text-center">Confirmación de Pago</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+
+                    <div class="modal-body text-center">
+                      <p>Seguro que desea grabar este pago?</p>
+                      <h3>
+                        <small>₡</small>
+                        <span id="modal_total-{{$loan->id}}"></span>
+                      </h3>
+                    </div>
+
+                    <div class="modal-footer justify-content-center py-4">
+                      <form id="pf-{{ $loan->id }}" action="{{ route('loans.pay') }}" method="post">
+
+                        {{ csrf_field() }}
+
+                        {{-- Read-Only Values --}}
+                        <input type="hidden" id="due-{{ $loan->id }}" value="{{ $loan->due }}">
+                        <input type="hidden" id="reg-{{ $loan->id }}" value="{{ $loan->regdue }}">
+                        <input type="hidden" id="mod-{{ $loan->id }}" value="{{ $loan->mod }}">
+                        <input type="hidden" id="cred-{{ $loan->id }}" value="{{ $loan->credits }}">
+                        <input type="hidden" id="min-{{ $loan->id }}" value="{{ $loan->mindue }}">
+
+                        {{-- Values to Post --}}
+                        <input type="hidden" name="id" value="{{ $loan->id }}">
+                        <input type="hidden" name="credits" id="post_credits-{{ $loan->id }}" value="{{$loan->due}}">
+                        <input type="hidden" name="type" id="post_type-{{ $loan->id }}" value="PC">
+                        <input type="hidden" name="multi" id="post_multi-{{ $loan->id }}" value="1">
+
+                        <button type="submit" class="btn btn-danger py-2 px-5">Confirmar Pago</button>
+                        <button type="button" class="btn btn-dark py-2 px-3" data-dismiss="modal">Cancelar</button>
+                      </form>
+                    </div><!-- modal-footer -->
                   </div>
-
-                  <div class="modal-footer">
-                    <form id="pf-{{ $loan->id }}" action="{{ route('loans.pay') }}" method="post">
-
-                      {{-- Read-Only Values --}}
-                      <input id="due-{{ $loan->id }}" value="{{ $loan->due }}">
-                      <input id="mod-{{ $loan->id }}" value="{{ $loan->mod }}">
-                      <input id="cred-{{ $loan->id }}" value="{{ $loan->credits }}">
-                      <input id="min-{{ $loan->id }}" value="{{ $loan->mindue }}">
-
-                      {{-- Values to Post --}}
-                      <input name="id" value="{{ $loan->id }}">
-                      <input name="credits" id="post_credits-{{ $loan->id }}" value="{{$loan->due}}">
-                      <input name="type" id="post_type-{{ $loan->id }}" value="PC">
-                      <input name="multi" id="post_multi-{{ $loan->id }}" value="1">
-
-                      <button type="submit" class="btn btn-outline-danger px-4">Si, Pagar</button>
-                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                    </form>
-                  </div><!-- modal-footer -->
                 </div>
               </div>
-            </div>
 
-            
-            @else
-            <div class="col text-center mt-3">
-              <a data-toggle="collapse" href="#paylist-{{ $loan->id }}">Historial&nbsp;
-                <i class="fa fa-chevron-down"></i>
-              </a>
-            </div>
-            @endif
-          </div>{{-- row col-7 --}}
 
-        </div> {{-- row --}}
-        <div class="collapse p-2 mt-2" id="paylist-{{ $loan->id }}" style="">
-          <hr>
-          <div class="row">
-            <div class="col-12 py-3">
-              <table class="table table-sm table-hover">
-                <thead class="bg-dark text-light">
-                  <th><small class="bold pl-3">Fecha</small></th>
-                  <th><small class="bold">Tipo</small></th>
-                  <th><small class="bold">Monto</small></th>
-                  <th><small class="bold">Balance</small></th>
-                </thead>
-                <tbody>
-                  @foreach ($loan->payments->sortBy('id') as $payment)
-                  <tr>
-                    <td>{{ Helper::date( $payment->created_at, 'd-m-Y' ) }}</td>
+              @else
+              <div class="col text-center mt-3">
+                <a data-toggle="collapse" href="#paylist-{{ $loan->id }}">Historial de Pagos&nbsp;
+                  <i class="fa fa-list-ul"></i>
+                </a>
+              </div>
+              @endif
+            </div>{{-- row col-7 --}}
+
+          </div> {{-- row --}}
+          <div class="collapse p-2 mt-2" id="paylist-{{ $loan->id }}" style="">
+            <hr>
+            <div class="row">
+              <div class="col-12 py-3">
+                <table class="table table-sm table-hover">
+                  <thead class="bg-dark text-light">
+                    <th><small class="bold pl-2">Fecha</small></th>
+                    <th><small class="bold">Agente</small></th>
+                    <th><small class="bold">Tipo</small></th>
+                    <th><small class="bold">Monto</small></th>
+                    <th><small class="bold">Balance</small></th>
+                  </thead>
+                  <tbody>
+                    @foreach ($loan->payments->sortBy('id') as $payment)
                     @php
                     switch ( $payment->type )
                     {
-                      case 'PC': $payment->type = 'C'; break;
-                      case 'PM': $payment->type = 'M'; break;
-                      case 'AB': $payment->type = 'A'; break;
+                      case 'PC': $payment->type = 'Cuota'; break;
+                      case 'PM': $payment->type = 'Minimo'; break;
+                      case 'IN': $payment->type = 'Intereses'; break;
+                      case 'AB': $payment->type = 'Abono'; break;
                       case 'RB': $payment->type = 'R'; break;
                     }
+                    $agent = User::find( $payment->user_id );
                     @endphp
-                    <td class="text-center">{{ $payment->type }}</td>
-                    <td><span class="money">{{ $payment->amount }}</span></td>
-                    <td><span class="money">{{ $payment->balance }}</span></td>
-                  </tr>
-                  @endforeach
-                </tbody>
-              </table>
-            </div> {{-- col --}}
-          </div> {{-- row --}}
+                    <tr>
+                      <td class="pl-2">{{ Helper::date( $payment->created_at, 'd/m/Y - h:i A' ) }}</td>
+                      <td>{{ $agent->name }}</td>
+                      <td class="">{{ $payment->type }}</td>
+                      <td><span class="money">{{ $payment->amount }}</span></td>
+                      <td><span class="money">{{ $payment->balance }}</span></td>
+                    </tr>
+                    @endforeach
+                  </tbody>
+                </table>
+              </div> {{-- col --}}
+            </div> {{-- row --}}
 
-          <div class="row d-none">
-            <div class="col-4 mr-auto text-left">
-              <a class="btn btn-outline-danger btn-sm" href="prestamos/reembolso/{{$loan->id}}">Reembolsar último abono</a>
+            <div class="row d-none">
+              <div class="col-4 mr-auto text-left">
+                <a class="btn btn-outline-danger btn-sm" href="prestamos/reembolso/{{$loan->id}}">Reembolsar último abono</a>
+              </div>
             </div>
+          </div> {{-- collpse --}}
+        </div> {{-- Card Body --}}
+
+        @if ( $loan->status)
+        <div class="card-footer">
+          <div class="row">
+
+            <div class="col">
+              <span class="pr-5">Próximo Pago</span>
+              <a href="#" onclick="onNextDueClick( {{$loan->id}} )">
+                {{ $loan->next_due_display }}
+              </a>
+              ( {{ date('h A', strtotime("{$loan->paytime}:00")) }} )
+            </div>
+
+            @if ($loan->payments->isNotEmpty())
+            <div class="col-3 text-right">
+              <a data-toggle="collapse" href="#paylist-{{ $loan->id }}">
+                <i class="fa fa-list-ul"></i>&nbsp;Pagos
+              </a>
+            </div>
+            @endif
           </div>
-        </div> {{-- collpse --}}
-      </div> {{-- Card Body --}}
 
-      @if ( $loan->status)
-      <div class="card-footer">
-        <div class="row">
-
-          <div class="col">
-            <span class="pr-5">Próximo Pago</span>
-            <a href="#" onclick="onNextDueClick( {{$loan->id}} )">
-              {{ $loan->next_due_display }}
-            </a>
-            ( {{ date('h A', strtotime("{$loan->paytime}:00")) }} )
-          </div>
-
-          <div class="col-3 text-right">
-            <a data-toggle="collapse" href="#paylist-{{ $loan->id }}">Pagos&nbsp;
-              <i class="fa fa-chevron-down"></i>
-            </a>
-          </div>
-
-
+          <form id="dateForm-{{$loan->id}}" action="{{ route('loans.update') }}" method="post">
+            {{ csrf_field() }}
+            <input type="hidden" name="id" value="{{ $loan->id }}">
+            <input class="datepicker d-none" type="date" id="nd-{{ $loan->id }}" name="next_due" data-value="{{ $loan->next_due }}">
+          </form>
         </div>
-        <form id="lf-{{$loan->id}}" action="{{ route('loans.update') }}" method="post">
-          {{ csrf_field() }}
-          <input type="hidden" name="id" value="{{ $loan->id }}">
-          <input class="datepicker d-none" type="date" id="nd-{{ $loan->id }}" name="next_due" data-value="{{ $loan->next_due }}">
-        </form>
-      </div>
-      @endif
+        @endif
 
-    </div> {{-- Loan Card --}}
-    @endforeach
+      </div> {{-- Loan Card --}}
+      @endforeach
 
-  </div> {{-- col-12 scroll --}}
-
-</div> {{-- row --}}
+    </div> {{-- col-12 scroll --}}
+  </div> {{-- row --}}
 
 </div> {{-- container --}}
 
@@ -455,27 +477,25 @@ use App\Helper;
 <script src="{{ asset('js/picker.es_ES.js') }}"></script>
 <script type="text/javascript">
 
-  var $datepicker = null;
-  var $active_form = null;
 
-  window.onload = function()
-  {
-    window.datepicker_init();
-    window.nicecify_money();
-    toggle('loader', false );
-  };
+
 
   /* ---------------------------------- EVENT BINDS ---------------------------------- */
   function onCreditsChange(target)
   {
+    /* Get the new amount to pay */
+    var d = get('input_credits-'+target).value;
+    let input_credits =  ( d ) ? parseInt(d.replaceAll(',', '')) : 0;
 
+    /* Update the inputs and form */
+    get('input_credits-'+target).value = nicecify( input_credits );
+    get('post_credits-'+target).value = input_credits;
   }
 
   function onMultiplierChange(target)
   {
     /* new multiplier factor */
     var input_multi = get('input_multi-'+target).value;
-
     var post_multi = get('post_multi-'+target).value;
     var post_credits = get('post_credits-'+target).value;
 
@@ -499,20 +519,28 @@ use App\Helper;
     var mod = get('mod-'+target).value;
     var min = get('min-'+target).value;
     var cred = get('cred-'+target).value;
+    var reg = get('reg-'+target).value;
 
     get('post_type-'+target).value = type;
 
     switch ( type )
     {
-
       case 'PC':
       /* ---------------------------------- REGULAR DUES ---------------------------------- */
       get('input_credits-' + target).value = nicecify(due);
 
       if( mod > 0)
+      {
         get(`label_mods-${target}`).innerHTML = "Descuento: " + nicecify(mod);
+      }
       else
+      {
         get(`label_mods-${target}`).innerHTML = "&nbsp";
+        if( due > reg )
+        {
+          get(`label_mods-${target}`).innerHTML = "Cuota Especial";
+        }
+      }
 
       /* Update the postable credits */
       get('post_credits-'+target).value = due;
@@ -528,6 +556,9 @@ use App\Helper;
         get(`label_mods-${target}`).innerHTML = "Alterado:" + ( cred > 0 ? " +" : " -") + nicecify(cred);
       else
         get(`label_mods-${target}`).innerHTML = "&nbsp";
+
+      /* Update the postable credits */
+      get('post_credits-'+target).value = min;
       /* ______________________________ END: MINIMUN DUES ______________________________ */
       break;
       
@@ -541,18 +572,15 @@ use App\Helper;
     }
   }
   /* ______________________________ END: EVENT BINDS ______________________________ */
-
-
-
-
-
-
   /* ---------------------------------- DATAPICKER ---------------------------------- */
+  var $datepicker = null;
+  var $active_form = null;
+
   function datepicker_init()
   {
     var options =
     {
-      min: 'true',
+      min: true,
       today: false,
       clear: false,
       close: false,
@@ -566,7 +594,7 @@ use App\Helper;
   function onNextDueClick( form )
   {
     event.stopPropagation();
-    window.$active_form = 'lf-' + form;
+    window.$active_form = 'dateForm-' + form;
     window.$active_input = 'nd-' + form;
     var picker = $datepicker.pickadate('picker');
     picker.$root[0] = get( $active_input + '_root');
@@ -578,9 +606,23 @@ use App\Helper;
     get( $active_form ).submit();
   }
   /* ______________________________ END: DATAPICKER ______________________________ */
-  
+  /* ---------------------------------- MODAL ---------------------------------- */
+  function showConfirModal( target )
+  {
+    get('modal_total-'+target).innerHTML = get('input_credits-'+target).value;
 
-  
+
+    $('#confirModal-'+target ).modal('show');
+  }
+  /* ______________________________ END: MODAL ______________________________ */
+  /* ---------------------------------- OTHER ---------------------------------- */
+  window.onload = function()
+  {
+    window.datepicker_init();
+    window.nicecify_money();
+    toggle('loader', false );
+  };
+
   function nicecify_money()
   {
     var items = document.getElementsByClassName('money');
@@ -596,40 +638,8 @@ use App\Helper;
       } 
     }
   }
+  /* ______________________________ END: OTHER ______________________________ */
 
-  function showConfirModal( id )
-  {
-    var type = get('payType-' + id ).innerHTML;
-    var pc =   get('dues_label-'+ id).innerHTML;
-    var pm = get('interest_label-'+ id).innerHTML;
-    var ex = get('input_amount-'+ id).value;
-    var dm = get( 'input_multi-' + id ).value;
-
-    /* Parse ints */
-    pc = parseInt(pc.replaceAll(',', ''));
-    pm = parseInt(pm.replaceAll(',', ''));
-    ex = ex ? parseInt( ex ) : 0;
-
-    get('ctype-' + id).innerHTML = ( type === 'PC' ) ? 'Completo' : 'Minimo';
-
-    if ( get('customcheck-'+ id).checked ) type = 'EX';
-
-    switch( type )
-    {
-      case 'PC':get('camount-' + id).innerHTML = nicecify(pc + ex); break;
-      case 'PM':get('camount-' + id).innerHTML = nicecify(pm + ex); break;
-      case 'EX':get('camount-' + id).innerHTML = nicecify(ex);
-    }
-
-    get('cduemulti-'+id).innerHTML = dm;
-
-    $('#confirModal-' + id ).modal('show');
-  }
-
-  function onCustomAmountCheck( id, element )
-  {
-    toggle_v( 'regdue_box-' +id , !element.checked );
-  }
   
 </script>
 @endsection

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Auth;
+
 use Illuminate\Http\Request;
 
 use App\Models\Payment;
@@ -19,6 +21,7 @@ class PaymentsController extends Controller
     $payment = new Payment;
     
     $payment->type = $type;
+    $payment->user_id = Auth::user()->id;
     $payment->loan_id = $loan;
     $payment->payorder_id = $order;
     $payment->amount = $amount;

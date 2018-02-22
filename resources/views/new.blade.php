@@ -266,13 +266,18 @@ label
                 <select class="form-control custom-select" name="paytime" required>
                   {{ $curh = date('H') }}
                   @for ($i = 1; $i <= 24; $i++)
+                  @if ($i > 5 && $i< 24)
+
                   <option value="{{ $i }}" @if ( $i == $curh ) selected @endif>
                     @if ($i <= 12)
-                    @if ($i == 12 ) 12 : 00 p.m. @else {{ $i }} : 00 a.m. @endif
+                    @if ($i == 12 ) 12 : 00 m.d @else {{ $i }} : 00 a.m. @endif
                     @else
-                    @if ($i-12 == 12 ) 12 : 00 a.m. @else {{ $i-12 }} : 00 p.m. @endif                    
+                    {{ $i-12 }} : 00 p.m.
                     @endif
                   </option>
+
+
+                  @endif
                   @endfor
                 </select>
               </div>

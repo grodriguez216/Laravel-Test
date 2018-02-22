@@ -46,10 +46,9 @@ body
         @endif
       </div>
 
-
-
-
-      <button class="btn btn-lg btn-outline-light btn-block" type="submit">Ingresar</button>
+      <div class="justify-content-center w-100 d-flex pt-3">
+        <button class="btn btn-outline-light btn-block w-50" type="submit">Ingresar</button>
+      </div>
     </form>
 
 

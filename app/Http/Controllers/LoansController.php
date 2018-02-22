@@ -416,7 +416,7 @@ class LoansController extends Controller
         }
         else
         {
-          $loan->duemod = $credits;    
+          $loan->duemod -= $credits;    
         }
 
         /* Avoid zero-payments */

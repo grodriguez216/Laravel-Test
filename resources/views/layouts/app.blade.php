@@ -34,6 +34,9 @@
           </form>
         </div>
       </li>
+      <li class="nav-item">
+        <span class="nav-link font-"> {{ date('d-M-Y / h:i A') }} </span>
+      </li>
     </ul>
   </nav>
 

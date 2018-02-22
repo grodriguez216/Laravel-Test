@@ -285,8 +285,8 @@ use App\User;
                     </div>
 
                     <div class="modal-footer justify-content-center py-4">
-                      <form id="pf-{{ $loan->id }}" action="{{ route('loans.pay') }}" method="post">
 
+                      <form id="payForm-{{ $loan->id }}" action="{{ route('loans.pay') }}" method="post">
                         {{ csrf_field() }}
 
                         {{-- Read-Only Values --}}
@@ -301,10 +301,12 @@ use App\User;
                         <input type="hidden" name="credits" id="post_credits-{{ $loan->id }}" value="{{$loan->due}}">
                         <input type="hidden" name="type" id="post_type-{{ $loan->id }}" value="PC">
                         <input type="hidden" name="multi" id="post_multi-{{ $loan->id }}" value="1">
-
-                        <button type="submit" class="btn btn-danger py-2 px-5">Confirmar Pago</button>
-                        <button type="button" class="btn btn-dark py-2 px-3" data-dismiss="modal">Cancelar</button>
                       </form>
+
+                      <button class="btn btn-danger py-2 px-5" onclick="sendPayForm({{$loan->id}})">
+                        Confirmar Pago
+                      </button>
+                      <button class="btn btn-dark py-2 px-3" data-dismiss="modal">Cancelar</button>
                     </div><!-- modal-footer -->
                   </div>
                 </div>
@@ -614,32 +616,40 @@ use App\User;
 
     $('#confirModal-'+target ).modal('show');
   }
-  /* ______________________________ END: MODAL ______________________________ */
-  /* ---------------------------------- OTHER ---------------------------------- */
-  window.onload = function()
-  {
-    window.datepicker_init();
-    window.nicecify_money();
-    toggle('loader', false );
-  };
 
-  function nicecify_money()
+  function sendPayForm(target)
   {
-    var items = document.getElementsByClassName('money');
-    for (var i = 0; i < items.length; i++)
+   $('#confirModal-'+target ).modal('hide');
+   toggle('loader', true);
+   get('payForm-'+target).submit();
+ }
+
+ /* ______________________________ END: MODAL ______________________________ */
+ /* ---------------------------------- OTHER ---------------------------------- */
+ window.onload = function()
+ {
+  window.datepicker_init();
+  window.nicecify_money();
+  toggle('loader', false );
+};
+
+function nicecify_money()
+{
+  var items = document.getElementsByClassName('money');
+  for (var i = 0; i < items.length; i++)
+  {
+    if( items[i].value )
     {
-      if( items[i].value )
-      {
-        items[i].value = nicecify( items[i].value );  
-      }
-      else
-      {
-        items[i].innerHTML = nicecify( items[i].innerHTML );  
-      } 
+      items[i].value = nicecify( items[i].value );  
     }
+    else
+    {
+      items[i].innerHTML = nicecify( items[i].innerHTML );  
+    } 
   }
-  /* ______________________________ END: OTHER ______________________________ */
+}
+/* ______________________________ END: OTHER ______________________________ */
 
-  
+
 </script>
 @endsection

@@ -10,11 +10,11 @@ use App\Helper;
 
 @section('content')
   
-  <div class="container-fluid">
+  <div class="container-fluid pt-3">
     
     <div class="row">
       
-      <div class="col-12 text-center mb-3">
+      <div class="col-12 text-center my-3">
         <h1 class="page-title">Zonas de cobro</h1>
         <hr>
       </div>

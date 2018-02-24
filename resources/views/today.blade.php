@@ -10,38 +10,44 @@ use App\Helper;
 
 @section('content')
 
-<div class="container">
-  <div class="row justify-content-center">
-    <div class="col-6 mb-3">
-      <h2 class="page-title">Cobros pendientes al <small><strong>{{ date('d-m-Y') }}</strong></small></h2>
-      <hr>
-    </div>
-    <div class="col-6 text-right mb-3">
-      <h2 class="page-title">Comision de hoy: <small><strong class="money">₡{{ $aggregate }}</strong></small></h2>
-      <hr>
+<div class="container pt-3">
+
+  <div class="row justify-content-end">
+    <div class="col-8">
+      <h4 class="text-right"><strong>Progreso:</strong>
+        <small>₡</small><span class="money">{{$payed}}</span>
+        /
+        <small>₡</small><span class="money">{{$total}}</span>
+      </h4>
     </div>
   </div>
 
   <div class="row">
     @if ($loans->isNotEmpty())
-    @foreach ($loans as $loan)
 
+    @foreach ($zones->sortBy('name') as $zone)
+
+    @if ($zone->loans->isNotEmpty())
+
+    <div class="col-12 mt-3">
+      <h4>{{ $zone->name }}</h4>
+      <hr>
+    </div>
+    @foreach ($zone->loans->sortBy('paytime') as $loan)
+    @if ( $loan->client->zone_id == $zone->id )
     <div class="col-12 col-md-6">
       <div style="cursor:pointer" class="card w-100 mb-3" onclick="redir({{ $loan->client->id }})">
-        <div class="card-header text-white bg-danger">
+        <div class="card-header text-white bg-dark">
           <h5 class="card-title mb-0">
             {{ $loan->client->first_name }} {{ $loan->client->last_name }}
           </h5> {{-- card-title --}}
         </div> {{-- header --}}
         <div class="card-body text-center">
-
           <div class="row">
-
             <div class="col-12 col-md-9">
               @php
               if ( !$loan->address_work ) $loan->address_work = $loan->address_home;
               @endphp
-
               @if ( strpos($loan->client->address_work, 'maps') )
               <a target="_blank" href="{{ $loan->client->address_work }}">Ver Mapa</a>
               @else
@@ -56,11 +62,7 @@ use App\Helper;
               {{ $time . ':00 ' . $aa }}
             </div>
           </div>
-
-
-
         </div> {{-- body --}}
-
         <div class="card-footer">
           <div class="row text-center">
             <div class="col">
@@ -73,12 +75,10 @@ use App\Helper;
                 @endif
               </p>
             </div>
-
             <div class="col">
               <small><strong>Minimo:&nbsp;</strong></small>
               <p>₡<span class="money">{{ $loan->mindue }}</span></p>
             </div>
-
             <div class="col">
               <small><strong>Saldo:&nbsp;</strong></small>
               <p>₡<span class="money">{{ $loan->balance }}</span></p>
@@ -87,15 +87,17 @@ use App\Helper;
         </div> {{-- footer --}}
       </div>
     </div>
+
+    @endif
+    @endforeach
+    @endif
     @endforeach
     @else
     <div class="col-12 text-center">
       <h1 class="pt-5 mt-5">No hay cobros para hoy.</h1>  
     </div>
-
     @endif
   </div> {{-- row --}}
-
 </div>
 @endsection
 

@@ -30,7 +30,7 @@ body
           <input id="email" type="number" class="form-control py-3" name="email"
           value="{{ old('email') }}" placeholder="Usuario" required autofocus>
           @if ($errors->has('email'))
-          <span class="help-block">
+          <span class="help-block text-light">
             <strong>Usuario Incorrecto</strong>
           </span>
           @endif

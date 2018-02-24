@@ -67,7 +67,7 @@ class AppController extends Controller
     $data['rep_start'] = date('d/m/Y', strtotime($rep_start));
     $data['rep_end'] =  date('d/m/Y', strtotime($rep_end));
 
-    $loans = Loan::all();
+    $loans = Loan::where('status', 1)->get();
 
     $this->create_csv( $loans );
 
@@ -87,7 +87,7 @@ class AppController extends Controller
   public function zones()
   {
     $data['zones'] = Zones::all();
-    return view('loans.zones', $data );
+    return view('zones', $data );
   }
 
   public function create_zone( Request $request )
@@ -152,7 +152,7 @@ class AppController extends Controller
         $data['all_zones'][] = $z;
       }
     }
-    return view('loans.user_zones', $data );
+    return view('assigments', $data );
   }
 
   public function update_user_zone( $id, $action, $zone )

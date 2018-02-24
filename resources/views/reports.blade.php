@@ -10,19 +10,19 @@ use App\Helper;
 
 @section('content')
   
-  <div class="container-fluid">
+  <div class="container-fluid pt-3">
     
     <div class="row justify-content-center">
       
-      <div class="col-12 text-center pb-3">
-        <h3 class="page-title"> Reporte Total </h3>
+      <div class="col-12 text-center py-3">
+        <h3 class="page-title"> Reporte de Prestamos Activos </h3>
       </div> {{-- col-12 --}}
       
       <div class="col-12">
         @if ($loans->count() > 0)
 
               <table class="table table-striped table-hover">
-                <thead>
+                <thead class="bg-dark text-light">
                   <tr>
                     <th>Cliente</th>
                     <th>Inicio</th>

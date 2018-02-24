@@ -14,7 +14,7 @@ $notification_cl = $notifications->where('type', 'CL')->first();
 
 @section('content')
   
-  <div class="container-fluid">
+  <div class="container-fluid pt-3">
     
     <div class="card-deck pb-4">
       

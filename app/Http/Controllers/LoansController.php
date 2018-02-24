@@ -9,7 +9,8 @@ use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Models\Loan;
-use App\Models\Payments;
+use App\Models\Zones;
+use App\Models\Payment;
 use App\Models\PayOrder;
 use App\Models\Assignments;
 use App\User;
@@ -481,39 +482,89 @@ class LoansController extends Controller
 
   public function today()
   {
-    $uzones = Assignments::where('user_id', Auth::user()->id )->get();
+    /* Total payments from today */
+    $payed_in = Payment::where('created_at', '>', date('Y-m-d'))
+    ->where('type', 'IN')
+    ->get()->sum('amount');
+
+    $payed_ab = Payment::where('created_at', '>', date('Y-m-d'))
+    ->where('type', 'AB')
+    ->get()->sum('amount');
+
+    $pending = 0;
 
     $cli_arr = collect();
     $zones_arr = collect();
+    $zones = collect();
+    $other = collect();
 
-    foreach ($uzones as $z)
-    {    
-      if ($z->type == 'Z') $zones_arr->push( $z->target_id );
-    }
+    $USER = Auth::user()->id;
 
-    foreach ($uzones as $c)
-      if ($c->type == 'C') $cli_arr->push( $c->target_id );
-
-    $loans = collect();
-
-    $t = Loan::where('delays', '>', 0)->orderBy('paytime')->get();
-
-
-    foreach ($t as $l)
+    if ( $USER === 0 )
     {
-      if ( in_array( $l->client->zone_id, $zones_arr->toArray() ) )
-        $loans->push($l);
-
-      if ( in_array( $l->client->id, $cli_arr->toArray() ) )
-        $loans->push($l);
+      $zones = Zones::all();
     }
+    else
+    {
+      $assignments_z = Assignments::where('user_id', $USER )->get();
+
+      /* [START Get User Assigments] */
+      foreach ($assignments_z as $z)
+      {
+        if ($z->type == 'Z')
+        {
+          $zones->push( Zones::find($z->target_id) );
+        }
+      }
+      /* [ END Get User Assigments] */
+    }
+
+    /* [START Get All delayed Loans] */
+    $loans = Loan::where('delays', '>', 0)
+    ->where('next_due', '<=', date('Y-m-d'))
+    ->get();
+    /* [ END Get All delayed Loans] */
+
+    /* [START Group loans by zone] */
+    foreach ($loans as $lid => $loan)
+    {
+      $mapped = false;
+
+      foreach ($zones as $zone)
+      {
+        if (!$zone->loans)
+        {
+          $zone->loans = collect();  
+        }
+
+        if( $loan->client->zone_id == $zone->id )
+        {
+          $zone->loans->push( $loan );
+          $mapped = true;
+        }
+      }
+
+      /* Handle unmapped loans */
+      if ( !$mapped )
+      {
+        $other->push( $loan );
+      }
+      /* Get the pending amount */
+      $pending += PayOrder::where('loan_id', $loan->id)
+      ->where('status', 1)
+      ->where('date', '<=', date('Y-m-d'))->get()->sum('amount');
+    }
+    /* [ END Group loans by zone] */
 
     $data = array(
+      'payed' => $payed_ab + $payed_in,
+      'total' => $pending + $payed_in,
       'loans' => $loans,
-      'aggregate' => Auth::user()->aggregate
+      'zones' => $zones,
+      'other' => $other,
     );
 
-    return view('loans.today', $data);
+    return view('today', $data);
   }
 
   private function nicecify( $amount )

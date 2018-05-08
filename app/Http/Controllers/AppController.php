@@ -33,15 +33,30 @@ class AppController extends Controller
     {
       $item = array();
       $item['value'] = $cli->id;
-      $fullname = $cli->first_name . ' ' . $cli->last_name . " ( {$cli->phone} )";
 
-      $fullname = str_replace('á', 'a', $fullname);
-      $fullname = str_replace('é', '2', $fullname);
-      $fullname = str_replace('í', 'i', $fullname);
-      $fullname = str_replace('ó', 'o', $fullname);
-      $fullname = str_replace('ú', 'u', $fullname);
+      /* [START Get full name] */
+      $name = $cli->first_name . ' ' . $cli->last_name;
+      $name = str_replace('á', 'a', $name);
+      $name = str_replace('é', 'e', $name);
+      $name = str_replace('í', 'i', $name);
+      $name = str_replace('ó', 'o', $name);
+      $name = str_replace('ú', 'u', $name);
+      $name = str_replace('Á', 'A', $name);
+      $name = str_replace('É', 'E', $name);
+      $name = str_replace('Í', 'I', $name);
+      $name = str_replace('Ó', 'O', $name);
+      $name = str_replace('Ú', 'U', $name);
+      /* [ END Get full name] */
 
-      $item['label'] = $fullname;
+      $label = array(
+        'id' => $cli->id,
+        'name' => $name,
+        'ssn' => $cli->ssn,
+        'phone' => $cli->phone,
+        'addr' => $cli->address_home ? $cli->address_home : $cli->address_work
+      );
+
+      $item['label'] = json_encode($label);
 
       $nice_list[] = $item;
     }
@@ -253,18 +268,18 @@ class AppController extends Controller
       
       if( $Loan->payable )
       {
-           $data[] =  ( $payed / $Loan->payable ) * 100 . ' %';
-      }	
-      else
-      {
-      	$data[] = "-";
-      }
+       $data[] =  ( $payed / $Loan->payable ) * 100 . ' %';
+     }	
+     else
+     {
+       $data[] = "-";
+     }
 
 
-      fputcsv($file, $data);
-    }
+     fputcsv($file, $data);
+   }
 
-    fclose($file);
-  }
+   fclose($file);
+ }
 
 }

@@ -20,22 +20,21 @@ label
   <div class="row bg-dark justify-content-end pt-3 pb-3">    
     <div class="col">
       <div class="form-group p-0 m-0">
-        <label id="loan-date" class="text-light text-right pt-2">Fecha del Prestamo</label>
+        <label id="loan-date" class="text-light text-right pt-2">Fecha</label>
       </div>
     </div>
-    <div class="col-3">
+    <div class="col-9 col-md-3">
       <div class="form-group p-0 m-0">
         <input type="date" id="input_date" class="form-control text-center" value="{{ date('Y-m-d') }}" onchange="onDateChanged()">
       </div>
     </div>
   </div>
 
-
   <div class="row py-4">
     <div class="col-md-6">
       <label class="page-header text-center">Monto a Prestar</label>
       <div class="form-row justify-content-center">
-        <div class="col-9 big-input">
+        <div class="col-12 big-input">
           <div class="input-group">
             <span class="input-group-addon">₡</span>
             <input id="input_loan_amount" type="text" pattern="\d*" class="form-control amount-control py-3" placeholder="Monto" value="{{old('loan')}}" required>
@@ -47,7 +46,7 @@ label
     <div class="col-md-6">
       <label class="page-header text-center">Monto a Pagar</label>
       <div class="form-row justify-content-center">
-        <div class="col-9 big-input">
+        <div class="col-12 big-input">
           <div class="input-group">
             <span class="input-group-addon">₡</span>
             <input id="input_balance_amount" type="text" pattern="\d*" class="form-control amount-control py-3" placeholder="Saldo" value="{{old('balance')}}" required>
@@ -57,52 +56,51 @@ label
     </div>{{-- col-6 --}}
   </div>{{-- row --}}
 
-
-
   <div class="row bg-dark py-3 my-1">
 
-
-    <div class="col">
+    <div class="col-12 col-md-3 pb-3">
       <div class="row justify-content-center">
         <h4 class="m-0 pt-2 text-light text-center"> <span id="label_interests" class="font-weight-bold">0</span>% de interés </h4>
       </div>
     </div>
 
-    <div class="col">
+    <div class="col-12 col-md-4">
       <div class="row justify-content-center">
-        <div class="col-3">
+        <div class="col-6 col-md-4">
           <input id="input_delays" type="number" class="form-control text-center m-0" name="delays" value="0" min="0" max="99" required>
         </div>
-        <div class="col-6">
+        <div class="col-6 col-md-8">
           <label class="text-left text-light pt-2">Cuotas Pendientes</label>
         </div>
       </div>
     </div>
 
-    <div class="col-xs-12 col-5">
+    <div class="col-12 col-md-5">
+      
+      <hr class="d-md-none" style="border-color: white">
 
-      <div class="row justify-content-center">
+      <div class="row justify-content-end">
 
-        <div class="col-xs-3 col-2">
+        <div class="col-6 col-md-3">
           <input id="input_duration" type="number" class="form-control text-center m-0" name="duration" value="3" min="1" max="99" required>
         </div>
 
-        <div class="col-xs-12 pt-2">
-          <div class="form-check form-check-inline m-0">
+        <div class="col-6 col-md-9 pt-md-2">
+          <div class="form-check form-check-inline m-0 pb-2">
             <label class="custom-control custom-radio">
               <input class="custom-control-input" type="radio" name="type" onchange="onPayPlanChange('we')" value="we" checked>
               <span class="custom-control-indicator"></span>
               <span class="custom-control-description text-light">Semanas</span>
             </label>
           </div>
-          <div class="form-check form-check-inline m-0">
+          <div class="form-check form-check-inline m-0 pb-2">
             <label class="custom-control custom-radio">
               <input class="custom-control-input" type="radio" name="type" onchange="onPayPlanChange('bw')" value="bw">
               <span class="custom-control-indicator"></span>
               <span class="custom-control-description text-light">Quincenas</span>
             </label>
           </div>
-          <div class="form-check form-check-inline m-0">
+          <div class="form-check form-check-inline m-0 pb-2">
             <label class="custom-control custom-radio">
               <input class="custom-control-input" type="radio" name="type" onchange="onPayPlanChange('mo')" value="mo">
               <span class="custom-control-indicator"></span>
@@ -117,38 +115,13 @@ label
 
 
     </div>
-
-
-
-
-
-{{-- 
-    <div class="col-xs-12 col-md-3 text-center">
-      <h4 class="m-0 pt-2 text-light">
-        <span id="label_interests" class="font-weight-bold">0</span>% de interés
-      </h4>
-    </div><!-- /.col-md-6 --> --}}
-
-
-{{--     <div class="col-xs-12 col-md-5 my-4 my-sm-0">
-      <div class="row justify-content-center">
-        <div class="col-3">
-          <input id="input_duration" type="number" class="form-control text-center m-0" name="duration" value="3" min="1" max="99" required>
-        </div>
-        <span class="text-light pt-2">+</span>
-        <div class="col-3 col-md-3">
-          <input id="input_delays" type="number" class="form-control text-center m-0" name="delays" value="0" min="0" max="99" required>
-        </div>
-      </div>      
-    </div> --}}
-
   </div><!-- /.row -->
 
   <div class="row py-4">
     <div class="col-md-6">
       <label class="page-header text-center">Monto de las Cuotas</label>
       <div class="form-row justify-content-center">
-        <div class="col-9 big-input">
+        <div class="col-12 big-input">
           <div class="input-group">
             <span class="input-group-addon">₡</span>
             <input id="input_regdue_amount" type="text" pattern="\d*" class="form-control amount-control py-3" placeholder="Cuotas" required>
@@ -163,7 +136,7 @@ label
     <div class="col-md-6 ">
       <label class="page-header text-center">Cuota Minima</label>
       <div class="form-row justify-content-center">
-        <div class="col-9 big-input">
+        <div class="col-12 big-input">
           <div class="input-group">
             <span class="input-group-addon">₡</span>
             <input id="input_mindue_amount" type="text" pattern="\d*" class="form-control amount-control py-3" placeholder="Minimo" required>
@@ -203,25 +176,31 @@ label
         <input type="hidden" name="phone" value="{{ $_GET['key'] }}">
         @else
         <div class="form-row">
-          <div class="col-6 col-md-4 form-group">
+
+          <div class="col-md-4 form-group">
             <input type="text"  name="first_name" class="form-control py-3 {{ $errors->has('first_name') ? 'is-invalid' : '' }}" value="{{ old('first_name') }}" placeholder="Nombre *" required>
             <div class="invalid-feedback {{ $errors->has('first_name') ? 'd-block' : 'd-none' }}">{{ $errors->first('first_name') }}</div>
           </div>
-          <div class="col-6 col-md-4 form-group}">
+
+          <div class="col-md-4 form-group">
             <input type="text" name="last_name" class="form-control py-3 {{ $errors->has('last_name') ? 'is-invalid' : '' }}" value="{{ old('last_name') }}" placeholder="Apellidos *" required>
             <div class="invalid-feedback {{ $errors->has('last_name') ? 'd-block' : 'd-none' }}">{{ $errors->first('last_name') }}</div>
           </div>
-          <div class="col-6 col-md-4 form-group}">
+
+          <div class="col-md-4 form-group">
             <input type="number" name="ssn" class="form-control py-3 {{ $errors->has('ssn') ? 'is-invalid' : '' }}" value="{{ old('ssn') }}" placeholder="Cedula">
             <div class="invalid-feedback {{ $errors->has('ssn') ? 'd-block' : 'd-none' }}">{{ $errors->first('ssn') }}</div>
           </div>
+
           <div class="col-12 col-md-4 form-group">
             <input type="number" name="phone" class="form-control py-3 {{ $errors->has('phone') ? 'is-invalid' : '' }}" value="{{ old('phone') }}" placeholder="Telefono *" required max="99999999">
             <div class="invalid-feedback {{ $errors->has('phone') ? 'd-block' : 'd-none' }}">{{ $errors->first('phone') }}</div>
           </div>
+
           <div class="col-12 col-md-4 form-group">
             <input type="number" name="phone_home" class="form-control py-3" value="{{ old('phone_home') }}" placeholder="Telefono (casa)" max="99999999">
           </div>
+
           <div class="col-12 col-md-4 form-group">
             <input type="number" name="phone_work" class="form-control py-3" value="{{ old('phone_work') }}" placeholder="Telefono (trabajo)" max="99999999">
           </div>

@@ -85,20 +85,88 @@
 @section('scripts')
 <script type="text/javascript">
 
-  var data = { list: @php echo $client_list; @endphp };
+  // var data = { list: @php echo $client_list; @endphp };
+  var vdata = @php echo $client_list; @endphp;
   
   var input = get("client_name");
   
-  var aws = new Awesomplete( input , data);
+  var aws = new Awesomplete( input,
+  {
+    list: vdata,
+    filter: function (text, input)
+    {
+      var d_name = d_phone = d_ssn = 0;
+      var obj = JSON.parse(text.value);
+
+      if( obj.name )
+        d_name = obj.name.toString().toLowerCase().indexOf(input.toLowerCase()) !== -1;  
+
+      if( obj.phone )
+        d_phone = obj.phone.toString().toLowerCase().indexOf(input.toLowerCase()) !== -1;
+      
+      if( obj.ssn)
+        d_ssn = obj.ssn.toString().toLowerCase().indexOf(input.toLowerCase()) !== -1;
+
+      if( obj.addr)
+        d_addr = obj.addr.toString().toLowerCase().indexOf(input.toLowerCase()) !== -1;
+
+      return d_name || d_phone || d_ssn || d_addr;
+
+    },
+    data: function (item, input)
+    {
+      var obj = JSON.parse(item.label);
+      var litem =
+      {
+        label: obj.name,
+        value: item.label
+      };
+
+      if( obj.phone )
+        litem.label += ` ( ${obj.phone} )`;
+
+      return litem
+    }
+  });
   
   /* Every time the user inputs a character, set the flag to false */
-  //input.addEventListener("input", function(){});
+  input.addEventListener("input", function(ev)
+  {
+    var replacements =
+    [
+    { 'key' :'á', 'rep': 'a' },
+    { 'key' :'é', 'rep': 'e' },
+    { 'key' :'í', 'rep': 'i' },
+    { 'key' :'ó', 'rep': 'o' },
+    { 'key' :'ú', 'rep': 'u' },
+    { 'key' :'Á', 'rep': 'A' },
+    { 'key' :'É', 'rep': 'E' },
+    { 'key' :'Í', 'rep': 'I' },
+    { 'key' :'Ó', 'rep': 'O' },
+    { 'key' :'Ú', 'rep:': 'U' }
+    ];
+
+    for (var i = replacements.length - 1; i >= 0; i--)
+    {
+      if( !ev.data)
+        return false;
+
+      if( ev.data.indexOf( replacements[i].key ) > -1 )
+      {
+        let key = replacements[i].key;
+        let rep = replacements[i].rep;
+        let imp = input.value.replace( key, rep );
+        get('client_name').value = imp;
+        aws.evaluate();
+      }
+    }
+  });
   
   /* When the user clicks a suggestion, set the flag to the value */
   input.addEventListener("awesomplete-select", function(selection)
   {
-    console.log( selection.text.value );
-    window.location.href = "/clientes/perfil/" + selection.text.value;
+    var obj = JSON.parse( selection.text.value );
+    window.location.href = "/clientes/perfil/" + obj.id;
   });
   
 </script>

@@ -157,9 +157,13 @@ use App\User;
                 <th>Prestado</th>
                 <td class="text-right"><small>₡</small><span class="money">{{ $loan->loaned }}</span></td>
               </tr>
+              <tr>
+                <th>Para</th>
+                <td class="text-right"><small>₡</small><span class="money">{{ $loan->payable }}</span></td>
+              </tr>
               @if ($loan->status)
               <tr>
-                <th>Saldo</th>
+                <th>Saldo Capital</th>
                 <td class="text-right text-danger">₡<span class="money">{{ $loan->balance }}</span></td>
               </tr>
               <tr>
@@ -222,7 +226,8 @@ use App\User;
               <div class="row justify-content-center bg-light py-3 my-3" style="border: 1px solid #eee">
                 <div class="form-check form-check-inline mb-0">
                   <label class="custom-control custom-radio mb-0">
-                    <input class="custom-control-input" type="radio" name="type" onchange="onTypeChange('PC','{{ $loan->id }}')" value="PC" checked>
+                    <input class="custom-control-input" type="radio" name="type"
+                    onchange="onTypeChange('PC','{{ $loan->id }}')" value="PC" checked>
                     <span class="custom-control-indicator"></span>
                     <span class="custom-control-description">Completo</span>
                   </label>
@@ -230,17 +235,10 @@ use App\User;
 
                 <div class="form-check form-check-inline mb-0">
                   <label class="custom-control custom-radio mb-0">
-                    <input class="custom-control-input" type="radio" name="type" onchange="onTypeChange('PM','{{ $loan->id }}')" value="PM">
+                    <input class="custom-control-input" type="radio" name="type"
+                    onchange="onTypeChange('PM','{{ $loan->id }}')" value="PM">
                     <span class="custom-control-indicator"></span>
                     <span class="custom-control-description">Minimo</span>
-                  </label>
-                </div>
-
-                <div class="form-check form-check-inline mb-0 d-none">
-                  <label class="custom-control custom-radio mb-0">
-                    <input class="custom-control-input" type="radio" name="type" onchange="onTypeChange('OT','{{ $loan->id }}')" value="OT">
-                    <span class="custom-control-indicator"></span>
-                    <span class="custom-control-description">Otro</span>
                   </label>
                 </div>
               </div> {{-- row --}}
@@ -282,6 +280,9 @@ use App\User;
                         <small>₡</small>
                         <span id="modal_total-{{$loan->id}}"></span>
                       </h3>
+                      @if ($loan->delays == 0)
+                        <h4 class="text-danger font-weight-bold pt-3">Afectará el saldo capital</h4>
+                      @endif
                     </div>
 
                     <div class="modal-footer justify-content-center py-4">
@@ -293,8 +294,8 @@ use App\User;
                         <input type="hidden" id="due-{{ $loan->id }}" value="{{ $loan->due }}">
                         <input type="hidden" id="reg-{{ $loan->id }}" value="{{ $loan->regdue }}">
                         <input type="hidden" id="mod-{{ $loan->id }}" value="{{ $loan->mod }}">
-                        <input type="hidden" id="cred-{{ $loan->id }}" value="{{ $loan->credits }}">
                         <input type="hidden" id="min-{{ $loan->id }}" value="{{ $loan->mindue }}">
+                        <input type="hidden" id="delays-{{ $loan->id }}" value="{{ $loan->delays }}">
 
                         {{-- Values to Post --}}
                         <input type="hidden" name="id" value="{{ $loan->id }}">
@@ -520,7 +521,6 @@ use App\User;
     var due = get('due-'+target).value;
     var mod = get('mod-'+target).value;
     var min = get('min-'+target).value;
-    var cred = get('cred-'+target).value;
     var reg = get('reg-'+target).value;
 
     get('post_type-'+target).value = type;
@@ -553,11 +553,7 @@ use App\User;
       case 'PM':
       /* ---------------------------------- MINIMUN DUES ---------------------------------- */
       get('input_credits-' + target).value = nicecify(min);
-
-      if( cred !== 0)
-        get(`label_mods-${target}`).innerHTML = "Alterado:" + ( cred > 0 ? " +" : " -") + nicecify(cred);
-      else
-        get(`label_mods-${target}`).innerHTML = "&nbsp";
+      get(`label_mods-${target}`).innerHTML = "&nbsp";
 
       /* Update the postable credits */
       get('post_credits-'+target).value = min;

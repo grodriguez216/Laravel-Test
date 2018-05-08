@@ -10,7 +10,7 @@ use App\Helper;
 
 class NotificationController extends Controller
 {
-  
+
   /* BulkSMS.com Credentials */
   
   var $username = 'nosreg216';
@@ -26,10 +26,19 @@ class NotificationController extends Controller
     
     $result = $this->send_message( $post_body );
   }
+
+  public function test()
+  {
+    $message = "Test message: " . date('Y-m-d h:i:s A');
+    
+    $post_body = $this->enconde_seven_bit_sms( $message, '87586789' );
+  
+    $result = $this->send_message( $post_body );
+  }
   
   function buildMessagge( $type, Loan $loan)
   {
-    
+
     $notification = Notification::where('type', $type)->first();
     
     $message = $notification->message;
@@ -127,7 +136,7 @@ class NotificationController extends Controller
     $post_body = '';
     
     foreach( $post_fields as $key => $value )
-    $post_body .= urlencode( $key ).'='.urlencode( $value ).'&';
+      $post_body .= urlencode( $key ).'='.urlencode( $value ).'&';
     
     $post_body = rtrim( $post_body,'&' );
     return $post_body;

@@ -21,6 +21,8 @@ class LoansController extends Controller
   public function __construct()
   {
     $this->middleware('auth');
+
+    date_default_timezone_set('America/Costa_Rica');
   }
 
   public function showCreateForm()
@@ -82,7 +84,7 @@ class LoansController extends Controller
     else
       $loan->next_due = $this->getNextPeriod( $loan->payplan, $loan->created_at );  
     /* [ END Next due date calculation ] */
-    
+
     /* [START Commit changes] */
     $loan->save();
     /* [ END Commit changes] */
@@ -92,8 +94,8 @@ class LoansController extends Controller
     { 
       $order = new PayOrder;
       $order->loan_id = $loan->id;
-      $order->amount = $loan->intval;
-      $order->balance = $loan->intval;
+      $order->amount = $loan->mindue;
+      $order->balance = $loan->mindue;
       $order->date = $loan->created_at;
       $order->save();
     }
@@ -101,10 +103,13 @@ class LoansController extends Controller
 
     DB::commit();
 
-    /* [START New loan notification] */
-    $notifications = new NotificationController;
-    $notifications->send( $client->phone, 'NL', $loan );
-    /* [ END New loan notification] */
+    if ( getenv('APP_ENV') !== 'local' )
+    {
+      /* [START New loan notification] */
+      $notifications = new NotificationController;
+      $notifications->send( $client->phone, 'NL', $loan );
+      /* [ END New loan notification] */
+    }
 
     return redirect("clientes/perfil/{$client->id}");
   }
@@ -132,13 +137,14 @@ class LoansController extends Controller
     }
   }
 
-  private function getNextPeriod( $plan, $base = false )
+  private function getNextPeriod( $plan, $base = false, $num = 1 )
   {
     /* set the relative base date-time */
     $base = $base ? strtotime($base) : time();
 
     /* End of month relative to base time */
-    define('EOM', date('m', $base ) == 2 ? 28 : 30);
+
+    $EOM = date('m', $base ) == 2 ? 28 : 30;
 
     $next_due_ts;
 
@@ -152,9 +158,9 @@ class LoansController extends Controller
       case 'bw':
       $today = date('d', $base );
       $this_15 = strtotime( date('Y-m-15', $base) );
-      $this_30 = strtotime( date('Y-m-'.EOM, $base) );
+      $this_30 = strtotime( date('Y-m-'.$EOM, $base) );
 
-      if ( $today >= EOM )
+      if ( $today >= $EOM )
       {
         /* Is past the end of the month, so next bill is the 15th of next month */
         $next_15 = strtotime( '+1 month', $this_15 );
@@ -178,13 +184,19 @@ class LoansController extends Controller
       break;
     }
 
-    /* format the date for export */
-    return date('Y-m-d', $next_due_ts );
+    if( $num == 1 )
+    {
+      /* format the date for export */
+      return date('Y-m-d', $next_due_ts );
+    }
+    else
+    {
+      return $this->getNextPeriod( $plan, date('Y-m-d', $next_due_ts ), $num -1);
+    }
   }
 
   private function getDueDate( $plan, $duration, $delays, $base = false )
   {
-
     /* set the relative base date-time */
     $base = $base ? strtotime($base) : time();
 
@@ -205,7 +217,7 @@ class LoansController extends Controller
       break;
 
       case 'mo':
-      $due_date_ts = strtotime("+{$loan->duration} months", $base);
+      $due_date_ts = strtotime("+{$duration} months", $base);
       break;
     }
 
@@ -245,15 +257,6 @@ class LoansController extends Controller
       $loan->mod = $DUE - $loan->due;
       /* [ END Apply discounts] */
 
-      /* [ON MINIMAL PAYMENTS] ALL MONEY PAYED OVER THE INTERESTS IS CREDITED TO THE BALANCE. */
-
-      /* [START Check the credits] */
-      /* Difference between the minimal payment and the interests */      
-      $CREDITS = ( $MINIMUN - $loan->intval );
-      /* Dismiss credits lower than 1K */
-      $loan->credits = ( $CREDITS < 1000 ) ? 0 : $CREDITS;
-      /* [ END Check the credits] */
-
       /* [START Format dates] */
       $loan->next_due_display = date('d/m/Y', strtotime( $loan->next_due ));
       $loan->date = date('d/m/Y', strtotime( $loan->created_at ));
@@ -267,9 +270,70 @@ class LoansController extends Controller
     return $loanlist;
   }
 
+  public function updateDaily()
+  {
+    $today = date('Y-m-d');
+
+    $loans_today = Loan::where('status', 1)
+    ->where('next_due', '<=', $today)
+    ->get();
+
+    if ( $loans_today->isEmpty() )
+      return true;
+
+    foreach ($loans_today as $loan)
+    {
+      $next_due = $loan->next_due;
+
+      if ( $loan->delays > 0 )
+      {
+        $next_due = $this->getNextPeriod( $loan->payplan, $loan->next_due, $loan->delays );
+      }
+
+      if ( $next_due === $today )
+      {
+        $po = new PayOrder;
+        $po->loan_id = $loan->id;
+        $po->date = $today;
+        $po->amount = $loan->mindue;
+        $po->balance = $po->amount;
+        $po->save();
+
+        /* Update the loan */
+        $loan->delays++;
+        $loan->save();
+      }
+    }
+  }
+
+  public function rememberDaily()
+  {
+    $notifier = new NotificationController;
+
+    $loans_tomorrow = Loan::where('status', 1)
+    ->where('next_due', '<=', date('Y-m-d', strtotime('+1 day')))
+    ->get();
+
+    if ( $loans_tomorrow->isEmpty() )
+      return true;
+
+    foreach ($loans_tomorrow as $loan)
+    {
+      $next_due = $loan->next_due;
+
+      if ( $loan->delays )
+        $next_due = $this->getNextPeriod( $loan->payplan, $loan->next_due, $loan->delays );
+
+      if ( $next_due == date('Y-m-d') )
+      {
+        $notifier->send( $loan->client->phone, 'PR', $loan );  
+      }
+
+    }
+  }
+
   private function calcPaymentFees()
   {
-
   }
 
   private function addPayments(Request $request, Loan $loan)
@@ -277,6 +341,7 @@ class LoansController extends Controller
     /* [START store user input] */
     $TYPE = $request->input('type','OT');
     $CREDITS = $request->input('credits', 0);
+    $MULTI = $request->input('multi', 0);
     /* [ END store user input] */
 
     /* [START Global vars ] */
@@ -297,23 +362,36 @@ class LoansController extends Controller
     /* Modifiable variable for the creditable amount */
     /* Making a Payment complete implicitly pays 1 peding order. 
     So we add its equivalent for the numbers to add up */
-    $credits = ($TYPE === 'PC' && $loan->delays) ? $CREDITS + $this->nicecify($loan->intval) : $CREDITS;
+    $credits = $CREDITS;
+
+    if ( $TYPE === 'PC'
+      && $loan->delays
+      && $loan->intrate
+      && $credits >= $DUE
+    )
+    {
+      $extra = $loan->mindue * $MULTI;
+      $credits += $extra;
+    }
+
     $payment = $CREDITS;
 
     /* Whether the client has any orders pending to cancel */
     $hasPendings = $loan->delays;
 
     /* Cancel the orders before touching the loan balance */
-    while ( $hasPendings )
+    while ( $hasPendings && $ORDERS->isNotEmpty() )
     {
       /* Most recent pending order */
       $order = $ORDERS->get( $order_index );
+
+      if ( !isset($order->balance) )
+        continue;
 
       /* If the order can be canceled right away | Usually the first run at this loop */ 
       if ( $order->balance <= $credits )
       {
         /* Amount to deduct from the balances */
-
         $credits -= $order->balance;
         $payment -= $order->balance;
 
@@ -381,13 +459,12 @@ class LoansController extends Controller
     if ( $credits )
     {
       /* [START Close the loan if balance reaches 0] */
-      $loan->balance -= $credits; /* (includes 1 peding order if the payment is PC ) */
+      $loan->balance -= $credits; /* (includes *multi* peding orders if the payment is PC ) */
       $loan->balance = $loan->balance > 0 ? $loan->balance : 0;
       $loan->status = (bool) $loan->balance;
       /* [ END Close the loan if balance reaches 0] */
 
       /* [START Calc duemod] */
-
 
       /* update the firdue substracting the payed amount */
       if ( $loan->firdue )
@@ -404,26 +481,22 @@ class LoansController extends Controller
       {
         if ( $TYPE === 'PC')
         {
-          /* paying more than it should on a regular due */
-          if ( $credits > ($loan->regdue + $loan->duemod) )
-          {
-            $loan->duemod -= $credits - $loan->regdue;
-          }
-          else
-          {
-            /* reset the mod */
-            $loan->duemod = 0;  
-          }
+          /* reset the mod */
+          $loan->duemod = 0;  
         }
         else
         {
-          $loan->duemod -= $credits;    
+          /* PM substract the remaining */
+          if ( $loan->intrate > 0 )
+          {
+            $loan->duemod -= $credits;      
+          }
         }
 
         /* Avoid zero-payments */
-        if ( -1 * $loan->duemod >= $DUE)
+        if ( -1 * $loan->duemod >= ($DUE * $MULTI))
         {
-          $loan->duemod + $DUE;
+          $loan->duemod += ($DUE * $MULTI);
         }
       }
       /* [ END Calc duemod] */
@@ -436,15 +509,22 @@ class LoansController extends Controller
     $loan->save();
     /* [ END Update the loan ] */
 
+    /* [START Update the date] */
+    $loan->next_due = $this->getNextPeriod( $loan->payplan, $loan->next_due );
+    /* [ END Update the date] */
+
     DB::commit();
 
-    /* [START Send an SMS messge ] */
-    $notification = new NotificationController();
-    $loan->credits = $CREDITS;
-    $sms_type = ( $loan->status ) ? 'SP' : 'CL';
-    $notification->send( $loan->client->phone, $sms_type, $loan );
-    unset($loan->credits);
-    /* [ END Send an SMS messge ] */
+    if ( getenv('APP_ENV') !== 'local' )
+    {
+      /* [START Send an SMS messge ] */
+      $notification = new NotificationController();
+      $loan->credits = $CREDITS;
+      $sms_type = ( $loan->status ) ? 'SP' : 'CL';
+      $notification->send( $loan->client->phone, $sms_type, $loan );
+      unset($loan->credits);
+      /* [ END Send an SMS messge ] */
+    }
   }
 
   public function update(Request $request)
@@ -522,6 +602,7 @@ class LoansController extends Controller
     /* [START Get All delayed Loans] */
     $loans = Loan::where('delays', '>', 0)
     ->where('next_due', '<=', date('Y-m-d'))
+    ->where('status', 1)
     ->get();
     /* [ END Get All delayed Loans] */
 
@@ -559,6 +640,7 @@ class LoansController extends Controller
     $data = array(
       'payed' => $payed_ab + $payed_in,
       'total' => $pending + $payed_in,
+      'progress' => 0,
       'loans' => $loans,
       'zones' => $zones,
       'other' => $other,
@@ -571,5 +653,99 @@ class LoansController extends Controller
   {
     return round( $amount / 1000, 0, PHP_ROUND_HALF_UP) * 1000;
   }
+
+  private function calcDelays(Loan $loan)
+  {
+    $delays = 0; 
+    $today = date('Y-m-d');
+
+    /* Get the date of the last payment made to this loan */
+    $lp = $loan->payments->sortByDesc('id')->first();
+
+    /* Set the date to either the last payment or the loan date */
+    $loan->ref_date = ($lp) ? (string) $lp->created_at : (string) $loan->created_at;
+
+    /* If loan should have pending orders */
+    if( $loan->ref_date <= $today )
+    {
+      $hasPendings = true;
+      while ( $hasPendings )
+      { 
+        /* Calculate 1 period more after the current set date */
+        $nextPeriod = $this->getNextPeriod($loan->payplan, $loan->ref_date);
+
+        /* If the date alreday happened, add a delay and check again */
+        if ( $nextPeriod < $today )
+        {
+          $delays++;
+          $loan->ref_date = $nextPeriod;
+        }
+        else
+        {
+          /* Means the date for next period has not happened yet */
+          $hasPendings = false;
+        }
+      }
+    }
+
+    unset($loan->ref_date);
+
+    /* Update the loan */
+    $loan->delays = $delays;
+    $loan->save();
+
+    return $delays;
+  }
+
+  private function addPendingOrders( Loan $loan)
+  {
+    /* Delete previous active orders */
+    PayOrder::where('loan_id', $loan->id)->where('status', 1)->delete();
+    
+    for ($i=0; $i < $loan->delays; $i++)
+    {
+      $po = new PayOrder;
+      $po->loan_id = $loan->id;
+      $po->date = date('Y-m-d');
+      $po->amount = $loan->mindue;
+      $po->balance = $po->amount;
+      $po->save();
+    }
+  }
+
+  public function act()
+  {
+
+    DB::beginTransaction();
+
+    $toUpdate = Loan::where('status', 1)
+    ->where('intrate', 0)
+    ->get();
+
+    echo '<pre>';
+
+    foreach ($toUpdate as $loan)
+    {
+      $this->calcDelays($loan);
+      $this->addPendingOrders( $loan );  
+      
+      print_r( $loan->toArray() );
+      echo 'orders:';
+      $this->br();
+      print_r( $loan->orders->toArray() );
+
+      $this->hr();
+    }
+
+    DB::rollback();
+    // DB::commit();
+
+    // $this->updateDaily();
+    // $controller = new NotificationController();
+    // $controller->test();
+  }
+
+  private function br($num = 1){ for ($i=0; $i < $num; $i++) echo "<br>"; }
+  private function hr($num = 1){ for ($i=0; $i < $num; $i++) echo "<hr>"; }
 
 }

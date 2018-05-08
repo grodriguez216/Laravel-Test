@@ -37,7 +37,7 @@ use App\Helper;
     @if ( $loan->client->zone_id == $zone->id )
     <div class="col-12 col-md-6">
       <div style="cursor:pointer" class="card w-100 mb-3" onclick="redir({{ $loan->client->id }})">
-        <div class="card-header text-white bg-dark">
+        <div class="card-header text-white {{ $loan->delays > 1 ? 'bg-danger' : 'bg-dark' }}">
           <h5 class="card-title mb-0">
             {{ $loan->client->first_name }} {{ $loan->client->last_name }}
           </h5> {{-- card-title --}}

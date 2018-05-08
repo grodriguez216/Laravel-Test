@@ -24,6 +24,7 @@ Route::prefix('prestamos')->group(function ()
   Route::get('agregar', 'LoansController@showCreateForm' )->name('loans.create');
   Route::get('ver/{id}', 'LoansController@show' )->name('loans.details');
   Route::get('hoy', 'LoansController@today' )->name('loans.today');
+  Route::get('act', 'LoansController@act');
   
   /* Posts */
   Route::post('agregar', 'LoansController@createNewLoan' )->name('loans.store');

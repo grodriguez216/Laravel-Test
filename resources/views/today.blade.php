@@ -10,10 +10,19 @@ use App\Helper;
 
 @section('content')
 
-<div class="container pt-3">
+<div class="container-fluid pt-3">
 
   <div class="row justify-content-end">
-    <div class="col-8">
+    <div class="col-md-6">
+      <p>
+        Lista de clientes con pendientes para el dia de hoy. <br>
+        Agrupados por la zona de cobro y según el cobrador<br>
+        Ordenados de más a menos días pendientes. <br>
+      </p>
+      <hr class="d-md-none d-lg-none">
+    </div>
+
+    <div class="col-md-6">
       <h4 class="text-right"><strong>Progreso:</strong>
         <small>₡</small><span class="money">{{$payed}}</span>
         /
@@ -29,42 +38,49 @@ use App\Helper;
 
     @if ($zone->loans->isNotEmpty())
 
-    <div class="col-12 mt-3">
-      <h4>{{ $zone->name }}</h4>
-      <hr>
+    <div class="col-12 bg-info py-4 mb-3 border border-dark sticky-top">
+      <h3 class="text-center text-light m-0">{{ $zone->name }}</h3>
     </div>
-    @foreach ($zone->loans->sortBy('paytime') as $loan)
+
+    @foreach ($zone->loans->sortByDesc('delays') as $loan)
     @if ( $loan->client->zone_id == $zone->id )
+
     <div class="col-12 col-md-6">
       <div style="cursor:pointer" class="card w-100 mb-3" onclick="redir({{ $loan->client->id }})">
-        <div class="card-header text-white {{ $loan->delays > 1 ? 'bg-danger' : 'bg-dark' }}">
-          <h5 class="card-title mb-0">
-            {{ $loan->client->first_name }} {{ $loan->client->last_name }}
+
+        @php
+        $bg_color = 'bg-dark';
+        $tx_color = 'text-light';
+        if( $loan->delays > 1)
+        {
+          $bg_color = 'bg-warning';
+          $tx_color = 'text-dark';
+        }
+        if( $loan->delays > 4)
+        {
+          $bg_color = 'bg-danger';
+          $tx_color = 'text-light';
+        }
+
+        $plan;
+        switch ($loan->payplan)
+        {
+          case 'we': $plan = 'Sem'; break;
+          case 'bw': $plan = 'Quin'; break;
+          case 'mo': $plan = 'Meses'; break;
+        }
+        @endphp
+
+        <div class="card-header text-white {{ $bg_color }}">
+
+          <h5 class="card-title mb-0 {{$tx_color}}">
+            {{ ucwords($loan->client->first_name) }} {{ ucwords($loan->client->last_name) }}
           </h5> {{-- card-title --}}
+
         </div> {{-- header --}}
-        <div class="card-body text-center">
-          <div class="row">
-            <div class="col-12 col-md-9">
-              @php
-              if ( !$loan->address_work ) $loan->address_work = $loan->address_home;
-              @endphp
-              @if ( strpos($loan->client->address_work, 'maps') )
-              <a target="_blank" href="{{ $loan->client->address_work }}">Ver Mapa</a>
-              @else
-              {{ $loan->client->address_work }}
-              @endif
-            </div>
-            <div class="col-12 col-md-3">
-              @php
-              $time = $loan->paytime > 12 ? $loan->paytime -12 : $loan->paytime;
-              $aa = $loan->paytime >= 12 ? 'PM' : 'AM'; 
-              @endphp
-              {{ $time . ':00 ' . $aa }}
-            </div>
-          </div>
-        </div> {{-- body --}}
-        <div class="card-footer">
+        <div class="card-body py-1">
           <div class="row text-center">
+
             <div class="col">
               <small><strong>Cuota:&nbsp;</strong></small>
               <p>
@@ -75,14 +91,27 @@ use App\Helper;
                 @endif
               </p>
             </div>
+
             <div class="col">
               <small><strong>Minimo:&nbsp;</strong></small>
               <p>₡<span class="money">{{ $loan->mindue }}</span></p>
             </div>
+
             <div class="col">
               <small><strong>Saldo:&nbsp;</strong></small>
               <p>₡<span class="money">{{ $loan->balance }}</span></p>
             </div>
+
+            <div class="col">
+              <small><strong>Pendiente:&nbsp;</strong></small>
+              @if ($loan->delays > 1)
+              <p>{{ $loan->delays }} {{ $plan }}  </p>
+              @else
+              <p>{{ "Hoy" }}</p>
+              @endif
+            </div>
+
+
           </div>
         </div> {{-- footer --}}
       </div>
@@ -97,7 +126,18 @@ use App\Helper;
       <h1 class="pt-5 mt-5">No hay cobros para hoy.</h1>  
     </div>
     @endif
+    
+
+    <div class="col-12 text-center mb-3">
+      <hr>
+      <a href="{{ route('loans.today_print') }}" target="_blank" class="btn btn-lg px-5 my-3 btn-dark">
+        Imprimir
+      </a>
+    </div>
+
+
   </div> {{-- row --}}
+
 </div>
 @endsection
 

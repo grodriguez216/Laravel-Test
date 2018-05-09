@@ -16,32 +16,8 @@
 </head>
 <body onload="toggle('loader', false );">
 
-  <nav class="navbar navbar-expand-md navbar-dark bg-dark">
-    <a class="navbar-brand" href="{{ route('home') }}">Presta<strong>Control</strong></a>
-    <ul class="navbar-nav ml-auto">
-      <li class="nav-item dropdown">
-        <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-          @if( session('auth2') )
-          {{ session('name') }}
-          @else
-          {{ Auth::user()->name }} <span class="caret"></span>
-          @endif
-        </a>
-        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-          <a class="dropdown-item" href="{{ route('logout') }}" onclick="logout()">Cerrar Sesión</a>
-          <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-            {{ csrf_field() }}
-          </form>
-        </div>
-      </li>
-    </ul>
-  </nav>
-
-  
-    <div class="col py-2 text-center bg-secondary">
-      <span class="text-light">
-        {{ date('d-M-Y / h:i A') }}
-      </span>
+    <div class="col py-2 text-center">
+      <h5 class="text-dark"> {{ date('d-M-Y / h:i A') }} </h5>
     </div>
   
 
@@ -58,9 +34,6 @@
     <script src="{{ asset('js/awesomplete.js') }}"></script>
     <script src="{{ asset('js/nouislider.min.js') }}"></script>
     <script src="{{ asset('js/app.js') }}"></script>
-    <script type="text/javascript">
-      function logout() { event.preventDefault(); document.getElementById('logout-form').submit(); }
-    </script>
     @yield('scripts')
   </footer>
 </body>

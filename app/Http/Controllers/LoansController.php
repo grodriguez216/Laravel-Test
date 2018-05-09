@@ -560,7 +560,7 @@ class LoansController extends Controller
     return back();
   }
 
-  public function today()
+  private function _today()
   {
     /* Total payments from today */
     $payed_in = Payment::where('created_at', '>', date('Y-m-d'))
@@ -645,9 +645,21 @@ class LoansController extends Controller
       'zones' => $zones,
       'other' => $other,
     );
+    return $data;
+  }
 
+  public function today()
+  {
+    $data = $this->_today();
     return view('today', $data);
   }
+
+  public function today_print()
+  {
+    $data = $this->_today();
+    return view('today_print', $data);
+  }
+
 
   private function nicecify( $amount )
   {

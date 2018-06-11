@@ -15,12 +15,12 @@ label
 @endsection
 
 @section('content')
-<div class="container-fluid">
-
-  <div class="row bg-dark justify-content-end pt-3 pb-3">    
+<div class="container">
+  <hr>
+  <div class="row justify-content-end pt-0 pb-3 mb-3">    
     <div class="col">
       <div class="form-group p-0 m-0">
-        <label id="loan-date" class="text-light text-right pt-2">Fecha</label>
+        <label id="loan-date" class="text-dark text-right pt-2"><strong>Fecha</strong></label>
       </div>
     </div>
     <div class="col-9 col-md-3">
@@ -28,6 +28,7 @@ label
         <input type="date" id="input_date" class="form-control text-center" value="{{ date('Y-m-d') }}" onchange="onDateChanged()">
       </div>
     </div>
+
   </div>
 
   <div class="row py-4">
@@ -56,11 +57,11 @@ label
     </div>{{-- col-6 --}}
   </div>{{-- row --}}
 
-  <div class="row bg-dark py-3 my-1">
+  <div class="row bg-light border border-navy pt-3 pb-2 my-1">
 
     <div class="col-12 col-md-3 pb-3">
       <div class="row justify-content-center">
-        <h4 class="m-0 pt-2 text-light text-center"> <span id="label_interests" class="font-weight-bold">0</span>% de interés </h4>
+        <h4 class="m-0 pt-2 text-dark text-center"> <span id="label_interests" class="font-weight-bold">0</span>% de interés </h4>
       </div>
     </div>
 
@@ -70,14 +71,14 @@ label
           <input id="input_delays" type="number" class="form-control text-center m-0" name="delays" value="0" min="0" max="99" required>
         </div>
         <div class="col-6 col-md-8">
-          <label class="text-left text-light pt-2">Cuotas Pendientes</label>
+          <label class="text-left text-dark pt-2">Cuotas Pendientes</label>
         </div>
       </div>
     </div>
 
     <div class="col-12 col-md-5">
-      
-      <hr class="d-md-none" style="border-color: white">
+
+      <hr class="d-md-none border-navy my-4">
 
       <div class="row justify-content-end">
 
@@ -90,21 +91,21 @@ label
             <label class="custom-control custom-radio">
               <input class="custom-control-input" type="radio" name="type" onchange="onPayPlanChange('we')" value="we" checked>
               <span class="custom-control-indicator"></span>
-              <span class="custom-control-description text-light">Semanas</span>
+              <span class="custom-control-description text-dark">Semanas</span>
             </label>
           </div>
           <div class="form-check form-check-inline m-0 pb-2">
             <label class="custom-control custom-radio">
               <input class="custom-control-input" type="radio" name="type" onchange="onPayPlanChange('bw')" value="bw">
               <span class="custom-control-indicator"></span>
-              <span class="custom-control-description text-light">Quincenas</span>
+              <span class="custom-control-description text-dark">Quincenas</span>
             </label>
           </div>
           <div class="form-check form-check-inline m-0 pb-2">
             <label class="custom-control custom-radio">
               <input class="custom-control-input" type="radio" name="type" onchange="onPayPlanChange('mo')" value="mo">
               <span class="custom-control-indicator"></span>
-              <span class="custom-control-description text-light">Meses</span>
+              <span class="custom-control-description text-dark">Meses</span>
             </label>
           </div>
         </div>
@@ -148,10 +149,10 @@ label
   </div>{{-- row --}}
 
 
-  <div class="row py-5 bg-dark justify-content-center">
+  <div class="row py-5 bg-light border border-navy justify-content-center">
     <div class="col-md-11">
       @if ( !isset( $_GET['auto'] ) )
-      <h4 class="text-center text-light pb-3">Agregar el Cliente</h4>
+      <h4 class="text-center text-navy pb-3"><strong>Agregar Cliente</strong></h4>
       <hr style="background-color: #fff">
       <br>
       @endif
@@ -205,7 +206,7 @@ label
             <input type="number" name="phone_work" class="form-control py-3" value="{{ old('phone_work') }}" placeholder="Telefono (trabajo)" max="99999999">
           </div>
 
-          <div class="col-12"><hr style="background-color: #777"></div>
+          <div class="col-12"><hr></div>
 
           <div class="col-md-6 form-group mt-2">
             <textarea class="form-control" name="address_home" rows="3" placeholder="Direccion (Casa)"></textarea>
@@ -214,17 +215,17 @@ label
             <textarea class="form-control" name="address_work" rows="3" placeholder="Direccion (Trabajo)"></textarea>
           </div>
         </div>
-        <div class="col-12"><hr style="background-color: #777"></div>
+        <div class="col-12"><hr></div>
         @endif
         <div class="form-row">
 
           <div class="col-md-12 form-group mt-2 text-center">
-            <a style="cursor: pointer;" onclick="onNextDueClick()" class="text-light">Fecha de Primer Pago:</a>
-            <label  id="firdue-date" class="text-light"></label>
+            <a style="cursor: pointer;" onclick="onNextDueClick()" class="text-navy">Fecha de Primer Pago:</a>
+            <label  id="firdue-date" class="text-dark"> Siguiente Periodo Natural</label>
           </div>
 
           <div class="col-md-6 form-group mt-2">
-            <label class="px-2 text-light">Zona de Cobro:</label>
+            <label class="px-2 text-navy">Zona de Cobro:</label>
             <div class="row justify-content-center mt-2">
               <div class="col-8 col-md-6">
                 <select class="form-control custom-select" name="zone_id" required>
@@ -239,7 +240,7 @@ label
           </div>
 
           <div class="col-md-6 form-group mt-2">
-            <label class="px-2 text-light">Hora de Cobro:</label>
+            <label class="px-2 text-navy">Hora de Cobro:</label>
             <div class="row justify-content-center mt-2">
               <div class="col-8 col-md-6">
                 <select class="form-control custom-select" name="paytime" required>
@@ -274,7 +275,7 @@ label
   </div>{{-- row --}}
 
   <div class="row justify-content-center py-5">
-    <button type="submit" onclick="onFormSubmit()" class="btn btn-lg btn-outline-danger">Finalizar</button>
+    <button type="submit" onclick="onFormSubmit()" class="btn btn-lg btn-outline-success px-5">Crear Préstamo</button>
   </div>
 </div><!-- /.container -->
 @endsection

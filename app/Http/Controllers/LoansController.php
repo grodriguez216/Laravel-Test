@@ -12,6 +12,7 @@ use App\Models\Loan;
 use App\Models\Zones;
 use App\Models\Payment;
 use App\Models\PayOrder;
+use App\Models\PayRoll;
 use App\Models\Assignments;
 use App\User;
 
@@ -227,7 +228,7 @@ class LoansController extends Controller
 
   public function displayLoans($id)
   {
-    $loanlist = Loan::where('client_id', $id)->get();
+    $loanlist = Loan::where('client_id', $id)->where('status', 1)->get();
 
     foreach ($loanlist as $loan)
     {
@@ -338,15 +339,28 @@ class LoansController extends Controller
 
   private function addPayments(Request $request, Loan $loan)
   {
-    /* [START store user input] */
+    /* [store user input] */
     $TYPE = $request->input('type','OT');
     $CREDITS = $request->input('credits', 0);
     $MULTI = $request->input('multi', 0);
-    /* [ END store user input] */
 
-    /* [START Global vars ] */
     $DUE = $loan->firdue ? $loan->firdue : $loan->regdue;
-    /* [ END Global vars ] */
+
+    $COLLECTOR = Auth::user();
+
+    if( $COLLECTOR->id )
+    {
+      $COLLECTOR->payroll = Payroll::where('user_id', $COLLECTOR->id)->first(); 
+
+      if( $loan->intrate > 0 )
+      {
+        $COLLECTOR->rate = $COLLECTOR->payroll->pay_rate;
+      }
+      else
+      {
+        $COLLECTOR->rate = 0.2;
+      }
+    }
 
     /* Instantiate the payment controller */
     $pc = new PaymentsController;
@@ -360,7 +374,7 @@ class LoansController extends Controller
     $order_index = 0;
 
     /* Modifiable variable for the creditable amount */
-    /* Making a Payment complete implicitly pays 1 peding order. 
+    /* Making a complete payment (PC) implicitly pays 1 peding order. 
     So we add its equivalent for the numbers to add up */
     $credits = $CREDITS;
 
@@ -370,14 +384,16 @@ class LoansController extends Controller
       && $credits >= $DUE
     )
     {
-      $extra = $loan->mindue * $MULTI;
-      $credits += $extra;
+      // $extra = $loan->mindue * $MULTI;
+      // $credits += $extra;
     }
 
     $payment = $CREDITS;
 
     /* Whether the client has any orders pending to cancel */
     $hasPendings = $loan->delays;
+
+    $collector_fee = 0;
 
     /* Cancel the orders before touching the loan balance */
     while ( $hasPendings && $ORDERS->isNotEmpty() )
@@ -397,6 +413,9 @@ class LoansController extends Controller
 
         /* Register the Payment */
         $pc->addPayment( 'IN', $loan->id, $order->id, $order->balance, $loan->balance);
+
+        /* Register the collector's fee */
+        $collector_fee += $order->balance * $COLLECTOR->rate;
 
         /* Cancel this order */
         $order->balance = 0;
@@ -427,6 +446,9 @@ class LoansController extends Controller
 
         /* Register the Payment */
         $pc->addPayment( 'AB', $loan->id, $order->id, $credits, $loan->balance);
+
+        /* Register the collector's fee */
+        $collector_fee += $credits * $COLLECTOR->rate;
 
         /* Substract the credits from the pending balance */
         $order->balance -= $credits;
@@ -503,11 +525,16 @@ class LoansController extends Controller
 
       /* Register the Payment */
       $pc->addPayment( $TYPE, $loan->id, 0, $payment, $loan->balance);
+
+      /* Register the collector's fee */
+      // $collector_fee += $payment * $COLLECTOR->rate;
     }
 
-    /* [START Update the loan ] */
+    /* [ Update the loan ] */
     $loan->save();
-    /* [ END Update the loan ] */
+
+    $COLLECTOR->payroll->balance += $collector_fee;
+    $COLLECTOR->payroll->save();
 
     /* [START Update the date] */
     $loan->next_due = $this->getNextPeriod( $loan->payplan, $loan->next_due );
@@ -759,5 +786,4 @@ class LoansController extends Controller
 
   private function br($num = 1){ for ($i=0; $i < $num; $i++) echo "<br>"; }
   private function hr($num = 1){ for ($i=0; $i < $num; $i++) echo "<hr>"; }
-
 }

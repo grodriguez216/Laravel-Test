@@ -16,7 +16,7 @@
 </head>
 <body onload="toggle('loader', false );">
 
-  <nav class="navbar navbar-expand-md navbar-dark bg-dark">
+  <nav class="navbar navbar-expand-md navbar-dark bg-navy">
     <a class="navbar-brand" href="{{ route('home') }}">Presta<strong>Control</strong></a>
     <ul class="navbar-nav ml-auto">
       <li class="nav-item dropdown">
@@ -38,8 +38,8 @@
   </nav>
 
   
-    <div class="col py-2 text-center bg-secondary">
-      <span class="text-light">
+    <div class="col py-2 text-center bg-">
+      <span class="text-dark">
         {{ date('d-M-Y / h:i A') }}
       </span>
     </div>

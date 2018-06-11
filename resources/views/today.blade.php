@@ -38,8 +38,8 @@ use App\Helper;
 
     @if ($zone->loans->isNotEmpty())
 
-    <div class="col-12 bg-info py-4 mb-3 border border-dark sticky-top">
-      <h3 class="text-center text-light m-0">{{ $zone->name }}</h3>
+    <div class="col-12 bg-white border-navy border py-4 mb-3 border border-dark sticky-top">
+      <h3 class="text-center text-navy m-0">{{ $zone->name }}</h3>
     </div>
 
     @foreach ($zone->loans->sortByDesc('delays') as $loan)

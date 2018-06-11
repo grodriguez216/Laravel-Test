@@ -40,12 +40,6 @@ class Kernel extends ConsoleKernel
       $controller = new LoansController();
       $controller->rememberDaily();
     })->dailyAt('13:00');
-
-    $schedule->call(function ()
-    { 
-      $controller = new NotificationController();
-      $controller->test();
-    })->dailyAt('08:30');
   }
   
   /**

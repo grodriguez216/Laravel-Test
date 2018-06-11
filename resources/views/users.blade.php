@@ -10,27 +10,22 @@ use App\Helper;
 
 @section('content')
 
-<div class="container-fluid pt-5">
+
+<div class="container pt-5">
 
   <div class="row">
-
-    <div class="col-12 text-center mb-3">
+    <div class="col-12 text-center mb-5">
       <h1 class="page-title">Usuarios Cobradores</h1>
-      <hr>
     </div>
 
-
-    <div class="col-md-8 mb-3">
-
-      <h3 class="text-center pb-3">Lista de Usuarios</h3>
-
+    <div class="col-md-12 mb-3">
       @if ($users->isNotEmpty())
-
       <table class="table">
         <thead class="thead-dark">
           <tr>
             <th scope="col">#</th>
             <th scope="col">Nombre</th>
+            <th scope="col">Usuario</th>
             <th scope="col" class="text-center">Opciones</th>
           </tr>
         </thead>
@@ -39,12 +34,13 @@ use App\Helper;
           <tr>
             <th scope="row">{{ $user->id }}</th>
             <td>{{ $user->name }}</td>
+            <td>{{ $user->email }}</td>
             <td class="text-center">
-              <a class="btn btn-outline-danger mx-1 px-3" href="#" data-toggle="modal" data-target="#confirModal-{{ $user->id }}">Pagar</a>
-              <a class="btn btn-outline-danger mx-1 px-3" href="/usuarios/perfil/{{ $user->id }}">Zonas</a>
-              @if ( \Auth::user()->id == 0)
-              <a class="btn btn-danger mx-1" href="/usuarios/borrar/{{ $user->id }}">Eliminar</a>
-              @endif
+
+              <a class="btn btn-outline-success mx-1 px-3" href="#" data-toggle="modal" data-target="#confirModal-{{ $user->id }}">Pagar</a>
+              <a class="btn btn-outline-info mx-1 px-3" href="/usuarios/perfil/{{ $user->id }}">Editar Zonas</a>
+              <a class="btn btn-outline-danger mx-1" href="/usuarios/bloquear/{{ $user->id }}">Bloquear</a>
+              {{-- <a class="btn btn-danger mx-1" href="/usuarios/borrar/{{ $user->id }}">Eliminar</a> --}}
             </td>
           </tr>
           @endforeach
@@ -56,7 +52,6 @@ use App\Helper;
     </div> {{-- col-6 --}}
 
     @foreach ($users as $user)
-
     <div id="confirModal-{{ $user->id }}" class="modal" tabindex="-1" role="dialog">
       <form action="{{ route('users.pay') }}" method="POST">
         {{ csrf_field() }}
@@ -71,10 +66,10 @@ use App\Helper;
             </div>
             <div class="modal-body text-center">
               <p>El monto pendiente a pagar es:</p>
-              <h3>₡<span class="money">{{ $user->aggregate }}</span></h3>
+              <h3>₡<span class="money">{{ $user->balance }}</span></h3>
             </div>
             <div class="modal-footer">
-              <button type="submit" class="btn btn-outline-danger px-4">Si, Pagar</button>
+              <button type="submit" class="btn btn-outline-success px-4">Si, Pagar</button>
               <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
             </div>
           </div>
@@ -84,8 +79,9 @@ use App\Helper;
     @endforeach
 
 
-    @if ( \Auth::user()->id == 0)
-    <div class="col-md-4 mb-3">
+    {{-- @if ( \Auth::user()->id == 0) --}}
+    @if ( true )
+    <div class="col-md-12 mb-3 d-none">
       <h3 class="text-center pb-3">Nuevo Usuario</h3>
       <form method="POST" action="/usuarios/agregar">
         {{ csrf_field() }}
@@ -104,7 +100,6 @@ use App\Helper;
         </div>
       </form>
     </div><!-- /.col -->
-
     @endif
 
   </div>

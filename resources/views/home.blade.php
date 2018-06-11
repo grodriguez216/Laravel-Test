@@ -13,9 +13,9 @@
 
   <div class="card-deck card-menu">
 
-    <div class="card border-danger mb-3">
+    <div class="card border-navy mb-3">
       <a class="card-link" href="{{ route('loans.create') }}">
-        <div class="card-body text-danger">
+        <div class="card-body text-navy">
           <h4 class="card-title"><i class="fa fa-credit-card"></i>&nbsp;Nuevo Prestamo</h4>
           <p class="card-text">Crear un prestamo para un cliente nuevo o existente</p>
         </div>
@@ -32,6 +32,9 @@
     </div>
 
   </div>{{-- card-deck --}}
+
+
+  @if (\Auth::user()->is_admin )
 
   <div class="card-deck card-menu">
 
@@ -52,7 +55,6 @@
         </div>
       </a>
     </div>
-
   </div>{{-- card-deck --}}
 
 
@@ -75,8 +77,9 @@
         </div>
       </a>
     </div>
-
   </div>
+
+  @endif
 
 </div><!-- /.row -->
 </div><!-- /.container -->

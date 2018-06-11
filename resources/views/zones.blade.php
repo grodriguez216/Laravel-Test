@@ -49,7 +49,7 @@ use App\Helper;
             </div>
           </fieldset>
           <div class="form-row justify-content-center">
-            <button type="submit" class="btn btn-outline-danger px-5">Agregar Zona</button>
+            <button type="submit" class="btn btn-outline-success px-5">Agregar Zona</button>
           </div>
         </form>
       </div><!-- /.col -->

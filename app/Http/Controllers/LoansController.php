@@ -803,16 +803,13 @@ class LoansController extends Controller
     
     $toUpdate = Loan::where('status', 1)
     ->where('next_due', '<=', $today)
+    ->where('payplan', 'bw')
     ->get();
-
-
 
     foreach ($toUpdate as $loan )
     {
       // $day_lp = $this->calcDelays($loan);
-
       // $this->addPendingOrders( $loan );
-
       // if( $loan->payplan === 'we')
       // {
       //   $loan->next_due = $this->getNextPeriod('we', $day_lp);
@@ -821,12 +818,25 @@ class LoansController extends Controller
       // {
       // }
 
-      // $loan->next_due = $this->getNextPeriod($loan->payplan, $day_lp);
+      if(  $loan->next_due == $today )
+      {
 
-      echo $loan->client_id, " | ", $loan->payplan, " | ",$loan->next_due, " | ", $loan->delays;
-      $this->hr();
+        $loan->delays++;
+        // $loan->next_due = $this->getNextPeriod($loan->payplan);
+        // $loan->collect_date = $loan->next_due;
 
-      // $loan->save();
+        $po = new PayOrder;
+        $po->loan_id = $loan->id;
+        $po->date = date('Y-m-d');
+        $po->amount = $loan->mindue;
+        $po->balance = $po->amount;
+        $po->save();
+
+        echo $loan->client_id, " | ", $loan->payplan, " | ",$loan->next_due, " | ", $loan->delays;
+        $this->hr();
+
+        $loan->save();
+      }
     }
 
     DB::rollback();

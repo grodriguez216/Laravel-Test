@@ -1,0 +1,8 @@
+ALTER TABLE `loans` 
+ADD COLUMN `collect_date` DATE NULL AFTER `extentions`;
+
+
+The date the next `order` should be created
+The date the loan should appear on the collectors' list
+
+

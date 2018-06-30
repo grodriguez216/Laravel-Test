@@ -66,7 +66,7 @@ class AppController extends Controller
     return view('home')->with( 'client_list', $json_list );
   }
 
-  public function reports(Request $request)
+  public function reports2(Request $request)
   {
     if ( \Auth::user()->is_admin == false) return back();
 
@@ -92,6 +92,28 @@ class AppController extends Controller
     $data['loans'] = $loans;
 
     /* All Active Loan Objects */
+    return view('reports', $data);
+  }
+
+  public function reports(Request $request)
+  {
+    $today = date('Y-m-d 00:00:01');
+
+    $payments = Payment::where('created_at', '>=', $today)->orderByDesc('created_at')->get();
+    $newLoans = Loan::where('created_at', '>=', $today)->orderByDesc('created_at')->get();
+
+    $earnings = $payments->where('type', 'IN');
+    $partials =  $payments->where('type', 'AB' );
+    $earnings = $earnings->concat($partials);
+
+    $reimbursements = $payments->where('type', 'PC');
+
+    $data = array(
+      'newLoans' => $newLoans,
+      'earnings' => $earnings,
+      'reimbursements' => $reimbursements
+    );
+
     return view('reports', $data);
   }
 

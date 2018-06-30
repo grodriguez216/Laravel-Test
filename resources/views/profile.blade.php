@@ -144,7 +144,7 @@ use App\User;
         <div class="card-header {{ $loan->status ? "bg-dark" : "bg-secondary" }}">
          <div class="row text-light">
           <div class="col text-left">Prestamo # {{ $loan->id }}</div>
-          <div class="col text-right">{{ $loan->date}}</div>
+          <div class="col text-right">Creacion: {{ $loan->date }}</div>
         </div>
       </div>
 
@@ -394,7 +394,7 @@ use App\User;
           <form id="dateForm-{{$loan->id}}" action="{{ route('loans.update') }}" method="post">
             {{ csrf_field() }}
             <input type="hidden" name="id" value="{{ $loan->id }}">
-            <input class="datepicker d-none" type="date" id="nd-{{ $loan->id }}" name="next_due" data-value="{{ $loan->next_due }}">
+            <input class="datepicker d-none" type="date" id="nd-{{ $loan->id }}" name="next_due" data-value="{{ $loan->collect_date }}">
           </form>
         </div>
         @endif

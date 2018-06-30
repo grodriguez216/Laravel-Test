@@ -16,7 +16,7 @@ class PaymentsController extends Controller
     $this->middleware('auth');
   }
   
-  public function addPayment( $type, $loan, $order, $amount, $balance )
+  public function addPayment( $type, $loan, $order, $amount, $balance, $fee = 0 )
   {
     $payment = new Payment;
     
@@ -26,6 +26,7 @@ class PaymentsController extends Controller
     $payment->payorder_id = $order;
     $payment->amount = $amount;
     $payment->balance = $balance;
+    $payment->fee = $fee;
     $payment->save();
     
     return $payment;

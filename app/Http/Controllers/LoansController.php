@@ -16,6 +16,8 @@ use App\Models\PayRoll;
 use App\Models\Assignments;
 use App\User;
 
+use App\Http\Controllers\NotificationController;
+
 class LoansController extends Controller
 {
 
@@ -81,9 +83,15 @@ class LoansController extends Controller
     /* [START Next due date calculation ] */
     $fixdue = $request->input('next_due', 0);
     if ( $fixdue )
+    {
       $loan->next_due = $fixdue;
+      $loan->collect_date = $fixdue;
+    }
     else
+    {
       $loan->next_due = $this->getNextPeriod( $loan->payplan, $loan->created_at );  
+      $loan->collect_date = $loan->next_due;
+    }
     /* [ END Next due date calculation ] */
 
     /* [START Commit changes] */
@@ -144,7 +152,6 @@ class LoansController extends Controller
     $base = $base ? strtotime($base) : time();
 
     /* End of month relative to base time */
-
     $EOM = date('m', $base ) == 2 ? 28 : 30;
 
     $next_due_ts;
@@ -232,7 +239,6 @@ class LoansController extends Controller
 
     foreach ($loanlist as $loan)
     {
-
       switch ( $loan->payplan )
       {
         case 'we':
@@ -259,14 +265,18 @@ class LoansController extends Controller
       /* [ END Apply discounts] */
 
       /* [START Format dates] */
-      $loan->next_due_display = date('d/m/Y', strtotime( $loan->next_due ));
-      $loan->date = date('d/m/Y', strtotime( $loan->created_at ));
+      $collect_ts = strtotime( $loan->collect_date );
+      $loan->next_due_display = date('d/m/Y', $collect_ts);
+      $loan->next_due_display = $this->translateDay($collect_ts) . " " . $loan->next_due_display;
+
+      $create_ts = strtotime( $loan->created_at );
+      $loan->date = date('d/m/Y', $create_ts);
+      $loan->date = $this->translateDay($create_ts) . " " . $loan->date;
       /* [ END Format dates] */
 
       /* [START Check pending bills] */
       $loan->pending = $loan->orders->where('status', 1)->sum('balance');
       /* [ END Check pending bills] */
-
     }
     return $loanlist;
   }
@@ -378,14 +388,16 @@ class LoansController extends Controller
     So we add its equivalent for the numbers to add up */
     $credits = $CREDITS;
 
+    $EXTRA = 0;
+
     if ( $TYPE === 'PC'
       && $loan->delays
       && $loan->intrate
       && $credits >= $DUE
     )
     {
-      // $extra = $loan->mindue * $MULTI;
-      // $credits += $extra;
+      $EXTRA = $loan->mindue * $MULTI;
+      $credits += $EXTRA;
     }
 
     $payment = $CREDITS;
@@ -411,11 +423,13 @@ class LoansController extends Controller
         $credits -= $order->balance;
         $payment -= $order->balance;
 
+        $fee = $order->balance * $COLLECTOR->rate;
+
         /* Register the Payment */
-        $pc->addPayment( 'IN', $loan->id, $order->id, $order->balance, $loan->balance);
+        $pc->addPayment( 'IN', $loan->id, $order->id, $order->balance, $loan->balance, $fee);
 
         /* Register the collector's fee */
-        $collector_fee += $order->balance * $COLLECTOR->rate;
+        $collector_fee += $fee;
 
         /* Cancel this order */
         $order->balance = 0;
@@ -444,11 +458,13 @@ class LoansController extends Controller
       {
         /* If the balance is greater than the available credits | Usually remainings of the first run */
 
+        $fee = $credits * $COLLECTOR->rate;
+
         /* Register the Payment */
-        $pc->addPayment( 'AB', $loan->id, $order->id, $credits, $loan->balance);
+        $pc->addPayment( 'AB', $loan->id, $order->id, $credits, $loan->balance, $fee);
 
         /* Register the collector's fee */
-        $collector_fee += $credits * $COLLECTOR->rate;
+        $collector_fee += $fee;
 
         /* Substract the credits from the pending balance */
         $order->balance -= $credits;
@@ -533,9 +549,12 @@ class LoansController extends Controller
     /* [ Update the loan ] */
     $loan->save();
 
-    $COLLECTOR->payroll->balance += $collector_fee;
-    $COLLECTOR->payroll->save();
-
+    if( $COLLECTOR->id )
+    {
+      $COLLECTOR->payroll->balance += $collector_fee;
+      $COLLECTOR->payroll->save();
+    }
+    
     /* [START Update the date] */
     $loan->next_due = $this->getNextPeriod( $loan->payplan, $loan->next_due );
     /* [ END Update the date] */
@@ -572,10 +591,10 @@ class LoansController extends Controller
     else
     {
       /* Update the next payment date */      
-      $next_due = $request->input('next_due', false);
-      if ($next_due)
+      $collect_date = $request->input('next_due', false);
+      if ($collect_date)
       {
-        $loan->next_due = $next_due;
+        $loan->collect_date = $collect_date;
         $loan->extentions++;
       }
     }
@@ -702,22 +721,30 @@ class LoansController extends Controller
     $lp = $loan->payments->sortByDesc('id')->first();
 
     /* Set the date to either the last payment or the loan date */
-    $loan->ref_date = ($lp) ? (string) $lp->created_at : (string) $loan->created_at;
+    $ref_date = ($lp) ? (string) $lp->created_at : (string) $loan->created_at;
+
+    if( $loan->payplan === 'we' )
+    {
+      $day_loan = date('l', strtotime($loan->created_at));
+      $day_lp_ts = strtotime("last ${day_loan}", strtotime($ref_date));
+      $day_lp = date('Y-m-d', $day_lp_ts);
+      $ref_date = $day_lp;
+    }
 
     /* If loan should have pending orders */
-    if( $loan->ref_date <= $today )
+    if( $ref_date <= $today )
     {
       $hasPendings = true;
       while ( $hasPendings )
       { 
         /* Calculate 1 period more after the current set date */
-        $nextPeriod = $this->getNextPeriod($loan->payplan, $loan->ref_date);
+        $nextPeriod = $this->getNextPeriod($loan->payplan, $ref_date);
 
         /* If the date alreday happened, add a delay and check again */
         if ( $nextPeriod < $today )
         {
           $delays++;
-          $loan->ref_date = $nextPeriod;
+          $ref_date = $nextPeriod;
         }
         else
         {
@@ -727,13 +754,11 @@ class LoansController extends Controller
       }
     }
 
-    unset($loan->ref_date);
-
     /* Update the loan */
     $loan->delays = $delays;
     $loan->save();
 
-    return $delays;
+    return $ref_date;
   }
 
   private function addPendingOrders( Loan $loan)
@@ -752,33 +777,112 @@ class LoansController extends Controller
     }
   }
 
+  private function translateDay($timestamp)
+  {
+    $eng = date('D', $timestamp);
+    switch ($eng)
+    {
+      case 'Sat': return 'Sab';
+      case 'Mon': return 'Lun';
+      case 'Tue': return 'Mar';
+      case 'Wed': return 'Mie';
+      case 'Thu': return 'Jue';
+      case 'Fri': return 'Vie';
+      case 'Sun': return 'Dom';
+    }
+  }
+
   public function act()
   {
+    // $controller = new NotificationController();
+    // $controller->test();
+
+    $today = date('Y-m-d');
 
     DB::beginTransaction();
-
+    
     $toUpdate = Loan::where('status', 1)
-    ->where('intrate', 0)
+    ->where('next_due', '<=', $today)
     ->get();
 
-    echo '<pre>';
 
-    foreach ($toUpdate as $loan)
+
+    foreach ($toUpdate as $loan )
     {
-      $this->calcDelays($loan);
-      $this->addPendingOrders( $loan );  
-      
-      print_r( $loan->toArray() );
-      echo 'orders:';
-      $this->br();
-      print_r( $loan->orders->toArray() );
+      // $day_lp = $this->calcDelays($loan);
 
+      // $this->addPendingOrders( $loan );
+
+      // if( $loan->payplan === 'we')
+      // {
+      //   $loan->next_due = $this->getNextPeriod('we', $day_lp);
+      // }
+      // else
+      // {
+      // }
+
+      // $loan->next_due = $this->getNextPeriod($loan->payplan, $day_lp);
+
+      echo $loan->client_id, " | ", $loan->payplan, " | ",$loan->next_due, " | ", $loan->delays;
       $this->hr();
+
+      // $loan->save();
     }
 
     DB::rollback();
     // DB::commit();
 
+
+    /* ---------------------------------- TO UPDATE ---------------------------------- */
+
+    // $ID = 409;
+
+    /* ______________________________ END: TO UPDATE ______________________________ */
+
+    // $loan = Loan::find($ID);
+
+    // $this->calcDelays($loan);
+    // $this->addPendingOrders( $loan );
+
+
+
+
+    // foreach ($loans_today as $loan)
+    // {
+    //   echo $loan , "<hr>";
+
+    //   $NEXT_DUE = $loan->next_due;
+
+    //   if ( $loan->delays > 0 )
+    //   {
+    //     $NEXT_DUE = $this->getNextPeriod( $loan->payplan, $loan->next_due, $loan->delays );
+    // }
+
+    //   echo $loan;
+    //   echo $this->br();
+    //   echo $NEXT_DUE;
+    //   echo $this->hr();
+
+      // if ( $NEXT_DUE === $today )
+      // {
+      //   $po = new PayOrder;
+      //   $po->loan_id = $loan->id;
+      //   $po->date = $today;
+      //   $po->amount = $loan->mindue;
+      //   $po->balance = $po->amount;
+      //   $po->save();
+
+      //   /* Update the loan */
+      //   $loan->delays++;
+      //   $loan->save();
+      // }
+    // }
+
+    // $toUpdate = Loan::where('status', 1)
+    // ->where('intrate', 0)
+    // ->get();
+    // echo '<pre>';
+    // DB::commit();
     // $this->updateDaily();
     // $controller = new NotificationController();
     // $controller->test();

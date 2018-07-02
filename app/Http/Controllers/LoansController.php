@@ -235,7 +235,8 @@ class LoansController extends Controller
 
   public function displayLoans($id)
   {
-    $loanlist = Loan::where('client_id', $id)->where('status', 1)->get();
+    // $loanlist = Loan::where('client_id', $id)->where('status', 1)->get();
+    $loanlist = Loan::where('client_id', $id)->get();
 
     foreach ($loanlist as $loan)
     {

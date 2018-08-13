@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Models\Client;
 use App\Models\Models;
 use App\Models\Zones;
+use App\User;
 use App\Models\Assignments;
 
 class ClientsController extends Controller
@@ -69,12 +70,15 @@ class ClientsController extends Controller
 
     $zones = Zones::all();
 
+    $users = User::where('is_admin', 0)->get();
+
     $has_asg = Assignments::where('target_id', $client->id)->where('type', 'C')->get();
     
     $data = array(
       'client' => $client,
       'loans' => $loans,
       'zones' => $zones,
+      'users' => $users,
       'is_asg' => !$has_asg->isEmpty()
     );
     

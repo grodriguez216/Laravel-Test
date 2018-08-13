@@ -4,7 +4,6 @@
 use App\Helper;
 @endphp
 
-
 @php
 $notification_nl = $notifications->where('type', 'NL')->first();
 $notification_sp = $notifications->where('type', 'SP')->first();

@@ -14,19 +14,17 @@
   <link rel="stylesheet" type="text/css" href="{{ asset('css/app.css') }}">
   <link href="https://fonts.googleapis.com/css?family=Roboto:200,300,500" rel="stylesheet">
 </head>
-<body onload="toggle('loader', false );">
+<body>
 
-    <div class="col py-2 text-center">
-      <h5 class="text-dark"> {{ date('d-M-Y / h:i A') }} </h5>
+  <div class="container-fluid pt-2 text-left">
+    <div class="row">
+      <div class="col">
+        <samp> {{ date('d-M-Y') }} </samp>
+      </div>
     </div>
-  
-
-  <div id="loader" class="loader">
-    <img src="{{ asset('img/gears-loader-red.gif') }}">
   </div>
   
-  @yield('content')
-  
+  @yield('content')  
   <footer>
     <script src="{{ asset('js/jquery-3.2.1.min.js') }}"></script>
     <script src="{{ asset('js/popper.min.js') }}"></script>

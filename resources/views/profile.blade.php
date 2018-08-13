@@ -126,10 +126,17 @@ use App\User;
         </div>
 
         <div class="card-footer text-center" style="background:#fff">
-          <a class="btn text-light bg-dark w-100 my-2" href="/prestamos/agregar?auto=1&amp;key={{ $client->phone }}">Agregar Prestamo</a>
-
+          <a class="btn text-light bg-dark w-100 my-2" href="/prestamos/agregar?auto=1&amp;key={{ $client->phone }}">
+            Agregar Prestamo
+          </a>
           @if ( !$is_asg )
-          <a class="btn w-100 mt-1" href="/clientes/asignar/{{ $client->id }}">Asignar a Wilson</a>
+
+          @foreach ($users as $user)
+          <a class="btn w-100 mt-1" href="/clientes/asignar/{{ $client->id }}/{{ $user->id }}">
+            Asignar a {{ $user->name }}
+          </a>
+          @endforeach
+
           @endif
 
         </div>
@@ -281,7 +288,7 @@ use App\User;
                         <span id="modal_total-{{$loan->id}}"></span>
                       </h3>
                       @if ($loan->delays == 0)
-                        <h4 class="text-danger font-weight-bold pt-3">Afectará el saldo capital</h4>
+                      <h4 class="text-danger font-weight-bold pt-3">Afectará el saldo capital</h4>
                       @endif
                     </div>
 

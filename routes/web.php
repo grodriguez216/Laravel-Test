@@ -25,13 +25,30 @@ Route::prefix('prestamos')->group(function ()
   Route::get('ver/{id}', 'LoansController@show' )->name('loans.details');
   Route::get('hoy', 'LoansController@today' )->name('loans.today');
   Route::get('hoy/imprimir', 'LoansController@today_print' )->name('loans.today_print');
-  Route::get('act', 'LoansController@act');
   
   /* Posts */
   Route::post('agregar', 'LoansController@createNewLoan' )->name('loans.store');
   Route::post('pagar', 'LoansController@update' )->name('loans.pay');
   Route::post('extender', 'LoansController@update' )->name('loans.update');
 });
+
+Route::prefix('debug')->group(function ()
+{
+  /* Gets */
+  Route::get('watch', 'LoansController@watch');
+
+  Route::get('addOrder/{id}', 'LoansController@addOrder');
+  
+  Route::get('fix/all', 'LoansController@fixAll');
+  Route::get('fix/{id}', 'LoansController@fix');
+  
+
+  Route::get('fake/all', 'LoansController@fake');
+  Route::get('fake/{id}', 'LoansController@fake');
+
+  Route::get('test', 'LoansController@test');
+});
+
 
 
 Route::prefix('clientes')->group(function ()

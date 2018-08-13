@@ -17,7 +17,6 @@ use App\Helper;
     <div class="col-12 text-center mb-5">
       <h1 class="page-title">Usuarios Cobradores</h1>
     </div>
-
     <div class="col-md-12 mb-3">
       @if ($users->isNotEmpty())
       <table class="table">

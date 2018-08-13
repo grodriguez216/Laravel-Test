@@ -12,6 +12,7 @@ use App\Models\Zones;
 use App\Models\Payment;
 use App\Models\PayOrder;
 use App\Models\PayRoll;
+use App\Models\Client;
 use App\Models\Assignments;
 use App\User;
 
@@ -607,88 +608,65 @@ class LoansController extends Controller
 
     private function _today()
     {
-      /* Total payments from today */
-      $payed_in = Payment::where('created_at', '>', date('Y-m-d'))
-      ->where('type', 'IN')
-      ->get()->sum('amount');
+      $assignedClientsIds = collect();
+      $assignedZonesIds = collect();
+      $assignedZones = collect();
+      $assignedLoans = collect();
 
-      $payed_ab = Payment::where('created_at', '>', date('Y-m-d'))
-      ->where('type', 'AB')
-      ->get()->sum('amount');
+      /* Get all the entities assigned to this user */
+      $AllUserAssignments = assignments::where('user_id', Auth::user()->id )->get();
 
-      $pending = 0;
-
-      $cli_arr = collect();
-      $zones_arr = collect();
-      $zones = collect();
-      $other = collect();
-
-      $USER = Auth::user()->id;
-
-      if ( $USER === 0 )
+      /* Get the list of zones assigned to this user */
+      if ( Auth::user()->is_admin )
       {
-        $zones = Zones::all();
+        $assignedZones = Zones::all();
       }
       else
       {
-        $assignments_z = Assignments::where('user_id', $USER )->get();
-
-        /* [START Get User Assigments] */
-        foreach ($assignments_z as $z)
+        $zoneAssigmentsCollect = $AllUserAssignments->where('type', 'Z');
+        foreach( $zoneAssigmentsCollect as $zma )
         {
-          if ($z->type == 'Z')
-          {
-            $zones->push( Zones::find($z->target_id) );
-          }
+          $zone = Zones::find($zma->target_id);
+          $zone->loans = collect();
+          $assignedZones->push( $zone );
         }
-        /* [ END Get User Assigments] */
       }
 
-      /* [START Get All delayed Loans] */
-      $loans = Loan::where('delays', '>', 0)
-      ->where('next_due', '<=', date('Y-m-d'))
+      /* Flatten the zone list into a 1-dimentional array of ids */
+      foreach ($assignedZones as $az) $assignedZonesIds->push( $az->id );
+
+      /* Get the list of clients assigned to this user */
+      $manualClientAssigmentsCollect = $AllUserAssignments->where('type', 'C');
+      foreach ($manualClientAssigmentsCollect as $mca) $assignedClientsIds->push( $mca->target_id );
+
+      $activeLoansForCollection = Loan::where('delays', '>', 0)
+      ->where('collect_date', '<=', date('Y-m-d 23:59:59'))
       ->where('status', 1)
       ->get();
-      /* [ END Get All delayed Loans] */
 
-      /* [START Group loans by zone] */
-      foreach ($loans as $lid => $loan)
+      foreach ($activeLoansForCollection as $loan)
       {
-        $mapped = false;
-
-        foreach ($zones as $zone)
+        /* When the loan is within a zone linked to this user */
+        if( $assignedZonesIds->contains( $loan->client->zone_id ) )
         {
-          if (!$zone->loans)
+          foreach ($assignedZones as $zone)
           {
-            $zone->loans = collect();  
+            if ($loan->client->zone_id == $zone->id) $zone->loans->push( $loan );
           }
-
-          if( $loan->client->zone_id == $zone->id )
-          {
-            $zone->loans->push( $loan );
-            $mapped = true;
-          }
-        }
-
-        /* Handle unmapped loans */
-        if ( !$mapped )
+        } /* When the loan belongs to a client assigned to this user */
+        else if( $assignedClientsIds->contains($loan->client_id) )
         {
-          $other->push( $loan );
+          $assignedLoans->push($loan);
         }
-        /* Get the pending amount */
-        $pending += PayOrder::where('loan_id', $loan->id)
-        ->where('status', 1)
-        ->where('date', '<=', date('Y-m-d'))->get()->sum('amount');
       }
-      /* [ END Group loans by zone] */
 
       $data = array(
-        'payed' => $payed_ab + $payed_in,
-        'total' => $pending + $payed_in,
+        'payed' => 0,
+        'total' => 0,
         'progress' => 0,
-        'loans' => $loans,
-        'zones' => $zones,
-        'other' => $other,
+        'loans' => $activeLoansForCollection,
+        'zones' => $assignedZones,
+        'other' => $assignedLoans,
       );
       return $data;
     }

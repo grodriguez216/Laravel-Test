@@ -36,27 +36,21 @@ Route::prefix('debug')->group(function ()
 {
   /* Gets */
   Route::get('watch', 'LoansController@watch');
-
   Route::get('addOrder/{id}', 'LoansController@addOrder');
-  
   Route::get('fix/all', 'LoansController@fixAll');
   Route::get('fix/{id}', 'LoansController@fix');
-  
-
   Route::get('fake/all', 'LoansController@fake');
   Route::get('fake/{id}', 'LoansController@fake');
-
   Route::get('test', 'LoansController@test');
 });
-
-
 
 Route::prefix('clientes')->group(function ()
 {
   /* Gets */
   Route::get('/', 'ClientsController@index' )->name('clients.list');
   Route::get('perfil/{id}', 'ClientsController@show' )->name('clients.profile');
-  Route::get('asignar/{id}', 'ClientsController@assign' )->name('loans.assign');
+  Route::get('asignar/{cid}/{uid}/{exp}', 'ClientsController@assign' )->name('loans.assign');
+
   /* Posts */
   Route::post('editar', 'ClientsController@update' )->name('clients.update');
   Route::post('borrar', 'ClientsController@destroy' )->name('clients.delete');
@@ -69,6 +63,7 @@ Route::prefix('usuarios')->group(function ()
   Route::get('perfil/{id}', 'AppController@user_profile');
   Route::get('update/{id}/{action}/{zone}', 'AppController@update_user_zone' );
   Route::get('borrar/{id}', 'AppController@delete_user' );
+  Route::get('bloquear/{id}', 'AppController@block_user' );
   Route::post('agregar', 'AppController@create_new_user' );
   Route::post('/pagar', 'AppController@payuser' )->name('users.pay');
 });

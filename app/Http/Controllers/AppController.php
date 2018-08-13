@@ -257,9 +257,13 @@ public function create_new_user( Request $request )
   $user->name = ucwords( trim( $request->input('name') ) );
   $user->email = trim( $request->input('email') );
   $user->password = password_hash( trim( $request->input('email') ), PASSWORD_BCRYPT );
-  $user->zones = '{"zones":[]}';
   $user->save();
   return redirect('/usuarios/perfil/' . $user->id );
+}
+
+public function block_user( $id )
+{
+  echo "Contactar a Gerson";
 }
 
 public function delete_user( $id )

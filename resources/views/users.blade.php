@@ -10,13 +10,14 @@ use App\Helper;
 
 @section('content')
 
-
 <div class="container pt-5">
 
   <div class="row">
+
     <div class="col-12 text-center mb-5">
       <h1 class="page-title">Usuarios Cobradores</h1>
     </div>
+
     <div class="col-md-12 mb-3">
       @if ($users->isNotEmpty())
       <table class="table">
@@ -77,10 +78,14 @@ use App\Helper;
     </div>
     @endforeach
 
+  </div>
 
-    {{-- @if ( \Auth::user()->id == 0) --}}
-    @if ( true )
-    <div class="col-md-12 mb-3 d-none">
+  <hr class="py-3">
+
+  <div class="row">
+
+    @if ( \Auth::user()->is_admin)
+    <div class="col-md-12 mb-3">
       <h3 class="text-center pb-3">Nuevo Usuario</h3>
       <form method="POST" action="/usuarios/agregar">
         {{ csrf_field() }}
@@ -90,7 +95,7 @@ use App\Helper;
               <input type="text" class="form-control" name="name" placeholder="Nombre" required>
             </div>
             <div class="col-md-8 pb-3">
-              <input type="number" class="form-control" name="email" placeholder="Telefono (contraseña)" max="99999999" required>
+              <input type="number" class="form-control" name="email" placeholder="Telefono (Contraseña)" max="99999999" required>
             </div>
           </div>
         </fieldset>
@@ -100,6 +105,7 @@ use App\Helper;
       </form>
     </div><!-- /.col -->
     @endif
+
 
   </div>
 </div>

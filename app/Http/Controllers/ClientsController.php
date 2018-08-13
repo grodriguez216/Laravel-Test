@@ -86,15 +86,15 @@ class ClientsController extends Controller
     return view('profile', $data);
   }
 
-  public function assign($id)
+  public function assign($client, $user = 0, $exp = 0)
   {
     $asg = new Assignments;
     $asg->type = 'C';
-    $asg->user_id = 2;
-    $asg->target_id = $id;
-    $asg->expiration = date('Y-m-d', strtotime('+1 day') );
+    $asg->user_id = $user;
+    $asg->target_id = $client;
+    $expText = $exp ? "+{$exp} days" : "+10 years";
+    $asg->expiration = date('Y-m-d', strtotime($expText) );
     $asg->save();
-
     return back();
   }
 }

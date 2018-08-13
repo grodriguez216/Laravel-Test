@@ -12,38 +12,99 @@ use App\Helper;
 
 <div class="container-fluid pt-3">
 
-  <div class="row justify-content-end">
-    <div class="col-md-6">
-      <p>
-        Lista de clientes con pendientes para el dia de hoy. <br>
-        Agrupados por la zona de cobro y según el cobrador<br>
-        Ordenados de más a menos días pendientes. <br>
-      </p>
-      <hr class="d-md-none d-lg-none">
-    </div>
-
-    <div class="col-md-6">
-      <h4 class="text-right"><strong>Progreso:</strong>
-        <small>₡</small><span class="money">{{$payed}}</span>
-        /
-        <small>₡</small><span class="money">{{$total}}</span>
-      </h4>
-    </div>
-  </div>
-
   <div class="row">
     @if ($loans->isNotEmpty())
 
     @foreach ($zones->sortBy('name') as $zone)
-
     @if ($zone->loans->isNotEmpty())
-
     <div class="col-12 bg-white border-navy border py-4 mb-3 border border-dark sticky-top">
       <h3 class="text-center text-navy m-0">{{ $zone->name }}</h3>
     </div>
-
     @foreach ($zone->loans->sortByDesc('delays') as $loan)
     @if ( $loan->client->zone_id == $zone->id )
+    <div class="col-12 col-md-6">
+      <div style="cursor:pointer" class="card w-100 mb-3" onclick="redir({{ $loan->client->id }})">
+
+        @php
+        $bg_color = 'bg-dark';
+        $tx_color = 'text-light';
+        if( $loan->delays > 1)
+        {
+          $bg_color = 'bg-warning';
+          $tx_color = 'text-dark';
+        }
+        if( $loan->delays > 4)
+        {
+          $bg_color = 'bg-danger';
+          $tx_color = 'text-light';
+        }
+
+        $plan;
+        switch ($loan->payplan)
+        {
+          case 'we': $plan = 'Sem'; break;
+          case 'bw': $plan = 'Quin'; break;
+          case 'mo': $plan = 'Meses'; break;
+        }
+        @endphp
+
+        <div class="card-header text-white {{ $bg_color }}">
+
+          <h5 class="card-title mb-0 {{$tx_color}}">
+            {{ ucwords($loan->client->first_name) }} {{ ucwords($loan->client->last_name) }}
+          </h5> {{-- card-title --}}
+
+        </div> {{-- header --}}
+        <div class="card-body py-1">
+          <div class="row text-center">
+
+            <div class="col">
+              <small><strong>Cuota:&nbsp;</strong></small>
+              <p>
+                @if ( $loan->firdue )
+                ₡<span class="money">{{ $loan->firdue }}</span>
+                @else
+                ₡<span class="money">{{ $loan->regdue }}</span>
+                @endif
+              </p>
+            </div>
+
+            <div class="col">
+              <small><strong>Minimo:&nbsp;</strong></small>
+              <p>₡<span class="money">{{ $loan->mindue }}</span></p>
+            </div>
+
+            <div class="col">
+              <small><strong>Saldo:&nbsp;</strong></small>
+              <p>₡<span class="money">{{ $loan->balance }}</span></p>
+            </div>
+
+            <div class="col">
+              <small><strong>Pendiente:&nbsp;</strong></small>
+              @if ($loan->delays > 1)
+              <p>{{ $loan->delays }} {{ $plan }}  </p>
+              @else
+              <p>{{ "Hoy" }}</p>
+              @endif
+            </div>
+
+
+          </div>
+        </div> {{-- footer --}}
+      </div>
+    </div>
+    @endif
+    @endforeach
+    @endif
+    @endforeach
+
+    {{-- @if ( $other->isNotEmpty() ) --}}
+
+    <div class="col-12 bg-white border-navy border py-4 mb-3 border border-dark sticky-top">
+      <h3 class="text-center text-navy m-0">Asignaciones Manuales</h3>
+    </div>
+
+    @foreach ($other->sortByDesc('delays') as $loan)
 
     <div class="col-12 col-md-6">
       <div style="cursor:pointer" class="card w-100 mb-3" onclick="redir({{ $loan->client->id }})">
@@ -117,10 +178,11 @@ use App\Helper;
       </div>
     </div>
 
-    @endif
     @endforeach
-    @endif
-    @endforeach
+
+    {{-- @endif --}}
+
+
     @else
     <div class="col-12 text-center">
       <h1 class="pt-5 mt-5">No hay cobros para hoy.</h1>  

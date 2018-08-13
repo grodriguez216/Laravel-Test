@@ -129,15 +129,15 @@ use App\User;
           <a class="btn text-light bg-dark w-100 my-2" href="/prestamos/agregar?auto=1&amp;key={{ $client->phone }}">
             Agregar Prestamo
           </a>
-          @if ( !$is_asg )
+          
 
           @foreach ($users as $user)
-          <a class="btn w-100 mt-1" href="/clientes/asignar/{{ $client->id }}/{{ $user->id }}">
+          <a class="btn w-100 mt-1" href="/clientes/asignar/{{ $client->id }}/{{ $user->id }}/0">
             Asignar a {{ $user->name }}
           </a>
           @endforeach
 
-          @endif
+          
 
         </div>
 

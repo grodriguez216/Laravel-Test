@@ -20,7 +20,6 @@ use App\Http\Controllers\NotificationController;
 
 class LoansController extends Controller
 {
-
   public function __construct()
   {
     $this->middleware('auth');
@@ -84,13 +83,13 @@ class LoansController extends Controller
     $fixdue = $request->input('next_due', 0);
     if ( $fixdue )
     {
-      $loan->next_due = $fixdue;
+      $loan->last_order = $fixdue;
       $loan->collect_date = $fixdue;
     }
     else
     {
-      $loan->next_due = $this->getNextPeriod( $loan->payplan, $loan->created_at );  
-      $loan->collect_date = $loan->next_due;
+      $loan->last_order = $this->getNextPeriod( $loan->payplan, $loan->created_at );  
+      $loan->collect_date = $loan->last_order;
     }
     /* [ END Next due date calculation ] */
 
@@ -259,15 +258,21 @@ class LoansController extends Controller
       /* Amount due */
       $DUE = $loan->firdue ? $loan->firdue : $loan->regdue;
 
+
       /* [START Apply discounts] */
       $loan->due = $DUE + $loan->duemod;
       $loan->mod = $DUE - $loan->due;
       /* [ END Apply discounts] */
 
       /* [START Format dates] */
+      $last_order_ts = strtotime( $loan->last_order );
       $collect_ts = strtotime( $loan->collect_date );
-      $loan->next_due_display = date('d/m/Y', $collect_ts);
-      $loan->next_due_display = $this->translateDay($collect_ts) . " " . $loan->next_due_display;
+
+      $loan->last_order_display = date('d/m/Y', $last_order_ts);
+      $loan->collect_display = date('d/m/Y', $collect_ts);
+
+      $loan->last_order_display = $this->translateDay($last_order_ts  ) . " " . $loan->last_order_display;
+      $loan->collect_display = $this->translateDay($collect_ts) . " " . $loan->collect_display;
 
       $create_ts = strtotime( $loan->created_at );
       $loan->date = date('d/m/Y', $create_ts);
@@ -277,6 +282,12 @@ class LoansController extends Controller
       /* [START Check pending bills] */
       $loan->pending = $loan->orders->where('status', 1)->sum('balance');
       /* [ END Check pending bills] */
+
+
+
+
+
+
     }
     return $loanlist;
   }
@@ -285,21 +296,19 @@ class LoansController extends Controller
   {
     $today = date('Y-m-d');
 
-    $loans_today = Loan::where('status', 1)
-    ->where('next_due', '<=', $today)
-    ->get();
+    $loans_today = Loan::where('status', 1)->get();
 
     if ( $loans_today->isEmpty() )
       return true;
 
     foreach ($loans_today as $loan)
     {
-      $next_due = $loan->next_due;
+
+      $next_due = $loan->last_order;
 
       if ( $loan->delays > 0 )
       {
-
-        $next_due = $this->getNextPeriod( $loan->payplan, $loan->next_due, $loan->delays );
+        $next_due = $this->getNextPeriod( $loan->payplan, $loan->last_order, $loan->delays );
       }
 
       if ( $next_due === $today )
@@ -318,8 +327,72 @@ class LoansController extends Controller
     }
   }
 
+  public function test()
+  {
+
+    return;
+
+    DB::beginTransaction();
+
+    $today = date('Y-m-d');
+    $todayTs = strtotime( $today );
+
+    $activeLoans = Loan::where('status', 1)->get();
+
+    echo '<pre>';
+    foreach ( $activeLoans as $loan )
+    {
+      $lastOrderDate = $this->getLastOrderDate( $loan );
+      $lastOrderDateTs = strtotime( $lastOrderDate );
+
+      $nextOrderDate = $this->getNextPeriod(  $loan->payplan, $lastOrderDate );
+      $nextOrderDateTs = strtotime( $nextOrderDate );
+
+      $needsOrders = $nextOrderDateTs < $todayTs;
+
+      if ( $needsOrders )
+      {
+        // echo $nextOrderDateTs . " " . $todayTs . "<br>";
+        $this->createOrderRecursive( $loan, $nextOrderDate );
+      }
+    }
+
+    DB::commit();
+  }
+
+  public function createOrderRecursive( Loan $loan, $currentOrderDate )
+  {
+    $today = date('Y-m-d');
+    $todayTs = strtotime( $today );
+    
+    $currentOrderDateTs = strtotime( $currentOrderDate );
+
+    $this->createOrder( $loan, $currentOrderDate );
+
+    echo "created order for client: " . $loan->client_id . " date: " . $currentOrderDate . "<br>";
+    
+    $loan->collect_date = $currentOrderDate;
+    $loan->update();
+
+    /* evaluate recursivity */
+    $nextOrderDate = $this->getNextPeriod(  $loan->payplan, $currentOrderDate );
+    $nextOrderDateTs = strtotime( $nextOrderDate );
+
+    $needsOrders = $nextOrderDateTs < $todayTs;
+
+    if( $needsOrders )
+    {
+      return $this->createOrderRecursive( $loan, $nextOrderDate );
+    }
+
+    return $needsOrders;
+  }
+
+
   public function rememberDaily()
   {
+
+    return;
     $notifier = new NotificationController;
 
     $loans_tomorrow = Loan::where('status', 1)
@@ -343,10 +416,9 @@ class LoansController extends Controller
     }
   }
 
-  private function calcPaymentFees()
-  {
-  }
 
+  /* ------------------------------- Payments ------------------------------- */
+  
   private function addPayments(Request $request, Loan $loan)
   {
     /* [store user input] */
@@ -384,670 +456,484 @@ class LoansController extends Controller
     $order_index = 0;
 
     /* Modifiable variable for the creditable amount */
-      /* Making a complete payment (PC) implicitly pays 1 peding order.  
-      * So we add its equivalent for the numbers to add up */
-      $credits = $CREDITS;
+    /* Making a complete payment (PC) implicitly pays 1 peding order.  
+    * So we add its equivalent for the numbers to add up */
+    $credits = $CREDITS;
 
-      $EXTRA = 0;
+    $EXTRA = 0;
 
-      if ( $TYPE === 'PC'
-        && $loan->delays
-        && $loan->intrate
-        && $credits >= $DUE
-      )
+    if ( $TYPE === 'PC'
+      && $loan->delays
+      && $loan->intrate
+      && $credits >= $DUE
+    )
+    {
+      $EXTRA = $loan->mindue * $MULTI;
+      $credits += $EXTRA;
+    }
+
+    $payment = $CREDITS;
+
+    /* Whether the client has any orders pending to cancel */
+    $hasPendings = $loan->delays;
+
+    $collector_fee = 0;
+
+    /* Cancel the orders before touching the loan balance */
+    while ( $hasPendings && $ORDERS->isNotEmpty() )
+    {
+      /* Most recent pending order */
+      $order = $ORDERS->get( $order_index );
+
+      if ( !isset($order->balance) )
+        continue;
+
+      /* If the order can be canceled right away | Usually the first run at this loop */ 
+      if ( $order->balance <= $credits )
       {
-        $EXTRA = $loan->mindue * $MULTI;
-        $credits += $EXTRA;
-      }
+        /* Amount to deduct from the balances */
+        $credits -= $order->balance;
+        $payment -= $order->balance;
 
-      $payment = $CREDITS;
+        $fee = $order->balance * $COLLECTOR->rate;
 
-      /* Whether the client has any orders pending to cancel */
-      $hasPendings = $loan->delays;
+        /* Register the Payment */
+        $pc->addPayment( 'IN', $loan->id, $order->id, $order->balance, $loan->balance, $fee);
 
-      $collector_fee = 0;
+        /* Register the collector's fee */
+        $collector_fee += $fee;
 
-      /* Cancel the orders before touching the loan balance */
-      while ( $hasPendings && $ORDERS->isNotEmpty() )
-      {
-        /* Most recent pending order */
-        $order = $ORDERS->get( $order_index );
+        /* Cancel this order */
+        $order->balance = 0;
+        $order->status = 0;
 
-        if ( !isset($order->balance) )
-          continue;
+        /* Reduce the number of pending orders  */
+        $loan->delays--;
 
-        /* If the order can be canceled right away | Usually the first run at this loop */ 
-        if ( $order->balance <= $credits )
+        /* Check if there are more peding orders */
+        if ( $loan->delays )
         {
-          /* Amount to deduct from the balances */
-          $credits -= $order->balance;
-          $payment -= $order->balance;
-
-          $fee = $order->balance * $COLLECTOR->rate;
-
-          /* Register the Payment */
-          $pc->addPayment( 'IN', $loan->id, $order->id, $order->balance, $loan->balance, $fee);
-
-          /* Register the collector's fee */
-          $collector_fee += $fee;
-
-          /* Cancel this order */
-          $order->balance = 0;
-          $order->status = 0;
-
-          /* Reduce the number of pending orders  */
-          $loan->delays--;
-
-          /* Check if there are more peding orders */
-          if ( $loan->delays )
-          {
-            /* The remaining credits must be used to pay the next peding order */
-            $hasPendings = true;
-            $order_index++;
-          }
-          else
-          {
-            /* Allow the remaining credits to be substracted from the balance */  
-            $hasPendings = false;
-          }
-
-          /* If the credits are exactly 0, there is no point in continuing */
-          $hasPendings = (bool) $credits ? $hasPendings : false;
+          /* The remaining credits must be used to pay the next peding order */
+          $hasPendings = true;
+          $order_index++;
         }
         else
         {
-          /* If the balance is greater than the available credits | Usually remainings of the first run */
-
-          $fee = $credits * $COLLECTOR->rate;
-
-          /* Register the Payment */
-          $pc->addPayment( 'AB', $loan->id, $order->id, $credits, $loan->balance, $fee);
-
-          /* Register the collector's fee */
-          $collector_fee += $fee;
-
-          /* Substract the credits from the pending balance */
-          $order->balance -= $credits;
-
-          /* All credits have been spent */
-          $credits = 0;
-
-          /* Check if order must be canceled */
-          if ( $order->balance === 0)
-          {
-            $order->status = 0;
-            $loan->delays--;
-          }
-          /* No more credits for this payment */
+          /* Allow the remaining credits to be substracted from the balance */  
           $hasPendings = false;
         }
 
-        if ( $TYPE === 'PM')
-        {
-          $loan->extentions++;
-        }
-
-        /* [START Update the order] */
-        $order->save();
-        /* [ END Update the order] */
-      } /* end while */
-
-      /* If after paying the orders there's still credits. They affect the loan's balance directly */
-      if ( $credits )
+        /* If the credits are exactly 0, there is no point in continuing */
+        $hasPendings = (bool) $credits ? $hasPendings : false;
+      }
+      else
       {
-        /* [START Close the loan if balance reaches 0] */
-        $loan->balance -= $credits; /* (includes *multi* peding orders if the payment is PC ) */
-        $loan->balance = $loan->balance > 0 ? $loan->balance : 0;
-        $loan->status = (bool) $loan->balance;
-        /* [ END Close the loan if balance reaches 0] */
+        /* If the balance is greater than the available credits | Usually remainings of the first run */
 
-        /* [START Calc duemod] */
+        $fee = $credits * $COLLECTOR->rate;
 
-        /* update the firdue substracting the payed amount */
-        if ( $loan->firdue )
+        /* Register the Payment */
+        $pc->addPayment( 'AB', $loan->id, $order->id, $credits, $loan->balance, $fee);
+
+        /* Register the collector's fee */
+        $collector_fee += $fee;
+
+        /* Substract the credits from the pending balance */
+        $order->balance -= $credits;
+
+        /* All credits have been spent */
+        $credits = 0;
+
+        /* Check if order must be canceled */
+        if ( $order->balance === 0)
         {
-          $loan->firdue -= $credits;
+          $order->status = 0;
+          $loan->delays--;
+        }
+        /* No more credits for this payment */
+        $hasPendings = false;
+      }
 
-          if ( $loan->firdue < 0)
-          {
-            $loan->duemod = $loan->firdue;
-            $loan->firdue = 0; 
-          }
+      if ( $TYPE === 'PM')
+      {
+        $loan->extentions++;
+      }
+
+      /* [START Update the order] */
+      $order->save();
+      /* [ END Update the order] */
+    } /* end while */
+
+    /* If after paying the orders there's still credits. They affect the loan's balance directly */
+    if ( $credits )
+    {
+      /* [START Close the loan if balance reaches 0] */
+      $loan->balance -= $credits; /* (includes *multi* peding orders if the payment is PC ) */
+      $loan->balance = $loan->balance > 0 ? $loan->balance : 0;
+      $loan->status = (bool) $loan->balance;
+      /* [ END Close the loan if balance reaches 0] */
+
+      /* [START Calc duemod] */
+
+      /* update the firdue substracting the payed amount */
+      if ( $loan->firdue )
+      {
+        $loan->firdue -= $credits;
+
+        if ( $loan->firdue < 0)
+        {
+          $loan->duemod = $loan->firdue;
+          $loan->firdue = 0; 
+        }
+      }
+      else
+      {
+        if ( $TYPE === 'PC')
+        {
+          /* reset the mod */
+          $loan->duemod = 0;  
         }
         else
         {
-          if ( $TYPE === 'PC')
+          /* PM substract the remaining */
+          if ( $loan->intrate > 0 )
           {
-            /* reset the mod */
-            $loan->duemod = 0;  
-          }
-          else
-          {
-            /* PM substract the remaining */
-            if ( $loan->intrate > 0 )
-            {
-              $loan->duemod -= $credits;      
-            }
-          }
-
-          /* Avoid zero-payments */
-          if ( -1 * $loan->duemod >= ($DUE * $MULTI))
-          {
-            $loan->duemod += ($DUE * $MULTI);
+            $loan->duemod -= $credits;      
           }
         }
-        /* [ END Calc duemod] */
 
-        /* Register the Payment */
-        $pc->addPayment( $TYPE, $loan->id, 0, $payment, $loan->balance);
-
-        /* Register the collector's fee */
-        /* $collector_fee += $payment * $COLLECTOR->rate; */
-        
-      }
-
-      /* [ Update the loan ] */
-      $loan->save();
-
-      if( $COLLECTOR->id )
-      {
-        $COLLECTOR->payroll->balance += $collector_fee;
-        $COLLECTOR->payroll->save();
-      }
-
-      /* [START Update the date] */
-      $loan->next_due = $this->getNextPeriod( $loan->payplan, $loan->next_due );
-      /* [ END Update the date] */
-
-      DB::commit();
-
-      if ( getenv('APP_ENV') !== 'local' )
-      {
-        /* [START Send an SMS messge ] */
-        $notification = new NotificationController();
-        $loan->credits = $CREDITS;
-        $sms_type = ( $loan->status ) ? 'SP' : 'CL';
-        $notification->send( $loan->client->phone, $sms_type, $loan );
-        unset($loan->credits);
-        /* [ END Send an SMS messge ] */
-      }
-    }
-
-    public function update(Request $request)
-    {
-      try
-      {
-        $loan = Loan::findOrFail( $request->input('id') );
-      }
-      catch(ModelNotFoundException $e)
-      {
-        return redirect('/');
-      }
-
-      if ( $request->path() == 'prestamos/pagar')
-      {
-        $this->addPayments( $request, $loan );
-      }
-      else
-      {
-        /* Update the next payment date */      
-        $collect_date = $request->input('next_due', false);
-        if ($collect_date)
+        /* Avoid zero-payments */
+        if ( -1 * $loan->duemod >= ($DUE * $MULTI))
         {
-          $loan->collect_date = $collect_date;
-          $loan->extentions++;
+          $loan->duemod += ($DUE * $MULTI);
         }
       }
+      /* [ END Calc duemod] */
 
-      /* Commit the changes */
-      $loan->update();
+      /* Register the Payment */
+      $pc->addPayment( $TYPE, $loan->id, 0, $payment, $loan->balance);
 
-      /* Redirect back to the profile */
-      return back();
+      /* Register the collector's fee */
+      /* $collector_fee += $payment * $COLLECTOR->rate; */
     }
 
-    private function _today()
+    /* [ Update the loan ] */
+    $loan->save();
+
+    if( $COLLECTOR->id )
     {
-      $assignedClientsIds = collect();
-      $assignedZonesIds = collect();
-      $assignedZones = collect();
-      $assignedLoans = collect();
-
-      /* Get all the entities assigned to this user */
-      $AllUserAssignments = assignments::where('user_id', Auth::user()->id )->get();
-
-      /* Get the list of zones assigned to this user */
-      if ( Auth::user()->is_admin )
-      {
-        $assignedZones = Zones::all();
-      }
-      else
-      {
-        $zoneAssigmentsCollect = $AllUserAssignments->where('type', 'Z');
-        foreach( $zoneAssigmentsCollect as $zma )
-        {
-          $zone = Zones::find($zma->target_id);
-          $zone->loans = collect();
-          $assignedZones->push( $zone );
-        }
-      }
-
-      /* Flatten the zone list into a 1-dimentional array of ids */
-      foreach ($assignedZones as $az) $assignedZonesIds->push( $az->id );
-
-      /* Get the list of clients assigned to this user */
-      $manualClientAssigmentsCollect = $AllUserAssignments->where('type', 'C');
-      foreach ($manualClientAssigmentsCollect as $mca) $assignedClientsIds->push( $mca->target_id );
-
-      $activeLoansForCollection = Loan::where('delays', '>', 0)
-      ->where('collect_date', '<=', date('Y-m-d 23:59:59'))
-      ->where('status', 1)
-      ->get();
-
-      foreach ($activeLoansForCollection as $loan)
-      {
-        /* When the loan is within a zone linked to this user */
-        if( $assignedZonesIds->contains( $loan->client->zone_id ) )
-        {
-          foreach ($assignedZones as $zone)
-          {
-            if ($loan->client->zone_id == $zone->id) $zone->loans->push( $loan );
-          }
-        } /* When the loan belongs to a client assigned to this user */
-        else if( $assignedClientsIds->contains($loan->client_id) )
-        {
-          $assignedLoans->push($loan);
-        }
-      }
-
-      $data = array(
-        'payed' => 0,
-        'total' => 0,
-        'progress' => 0,
-        'loans' => $activeLoansForCollection,
-        'zones' => $assignedZones,
-        'other' => $assignedLoans,
-      );
-      return $data;
+      $COLLECTOR->payroll->balance += $collector_fee;
+      $COLLECTOR->payroll->save();
     }
 
-    public function today()
+    /* [START Update the date] */
+    // $loan->next_due = $this->getNextPeriod( $loan->payplan, $loan->next_due );
+    /* [ END Update the date] */
+
+    DB::commit();
+
+    if ( getenv('APP_ENV') !== 'local' )
     {
-      $data = $this->_today();
-      return view('today', $data);
+      /* [START Send an SMS messge ] */
+      $notification = new NotificationController();
+      $loan->credits = $CREDITS;
+      $sms_type = ( $loan->status ) ? 'SP' : 'CL';
+      $notification->send( $loan->client->phone, $sms_type, $loan );
+      unset($loan->credits);
+      /* [ END Send an SMS messge ] */
     }
-
-    public function today_print()
-    {
-      $data = $this->_today();
-      return view('today_print', $data);
-    }
-
-    private function nicecify( $amount )
-    {
-      return round( $amount / 1000, 0, PHP_ROUND_HALF_UP) * 1000;
-    }
-
-    private function getLastPaymentDate( Loan $loan)
-    {
-      /* Set the date to either the last payment or the loan date */
-      $lastPayment = $loan->payments->sortByDesc('id')->first();
-      $lastPaymentDate = ($lastPayment) ? (string) $lastPayment->created_at : (string) $loan->created_at;
-
-      $previousOrderCreationDate;
-
-      switch ($loan->payplan)
-      {
-        case 'we':
-        $loanOrderCreationDay = date('l', strtotime($loan->created_at));
-        $previousOrderCreationTimestamp = strtotime("last ${loanOrderCreationDay}", strtotime($lastPaymentDate));
-        $previousOrderCreationDate = date('Y-m-d', $previousOrderCreationTimestamp);
-        break;
-        default:
-        $previousOrderCreationDate = $lastPaymentDate;
-        break;
-      }
-
-      return $previousOrderCreationDate;
-    }
-
-
-
-    private function calcDelays(Loan $loan)
-    {
-      $delays = 0; 
-      $today = date('Y-m-d');
-
-      /* Get the date of the last payment made to this loan */
-      $lp = $loan->payments->sortByDesc('id')->first();
-
-      /* Set the date to either the last payment or the loan date */
-      $ref_date = ($lp) ? (string) $lp->created_at : (string) $loan->created_at;
-
-      if( $loan->payplan === 'we' )
-      {
-        $day_loan = date('l', strtotime($loan->created_at));
-        $day_lp_ts = strtotime("last ${day_loan}", strtotime($ref_date));
-        $day_lp = date('Y-m-d', $day_lp_ts);
-        $ref_date = $day_lp;
-      }
-
-      /* If loan should have pending orders */
-      if( $ref_date <= $today )
-      {
-        $hasPendings = true;
-        while ( $hasPendings )
-        { 
-          /* Calculate 1 period more after the current set date */
-          $nextPeriod = $this->getNextPeriod($loan->payplan, $ref_date);
-
-          /* If the date alreday happened, add a delay and check again */
-          if ( $nextPeriod < $today )
-          {
-            $delays++;
-            $ref_date = $nextPeriod;
-          }
-          else
-          {
-            /* Means the date for next period has not happened yet */
-            $hasPendings = false;
-          }
-        }
-      }
-
-      /* Update the loan */
-      $loan->delays = $delays;
-      $loan->save();
-
-      return $ref_date;
-    }
-
-    private function addPendingOrders( Loan $loan)
-    {
-      /* Delete previous active orders */
-      PayOrder::where('loan_id', $loan->id)->where('status', 1)->delete();
-
-      for ($i=0; $i < $loan->delays; $i++)
-      {
-        $po = new PayOrder;
-        $po->loan_id = $loan->id;
-        $po->date = date('Y-m-d');
-        $po->amount = $loan->mindue;
-        $po->balance = $po->amount;
-        $po->save();
-      }
-    }
-
-    private function translateDay($timestamp)
-    {
-      $eng = date('D', $timestamp);
-      switch ($eng)
-      {
-        case 'Sat': return 'Sab';
-        case 'Mon': return 'Lun';
-        case 'Tue': return 'Mar';
-        case 'Wed': return 'Mie';
-        case 'Thu': return 'Jue';
-        case 'Fri': return 'Vie';
-        case 'Sun': return 'Dom';
-      }
-    }
-    /* ---------------------------------- DEBUG FUNCTIONS ---------------------------------- */
-
-    public function watch()
-    {
-
-    }
-
-    public function fix($loan = 0)
-    {
-      try
-      {
-        $loan = Loan::findOrFail( $loan );
-      }
-      catch(ModelNotFoundException $e)
-      {
-        return redirect('/');
-      }
-      $lastPaymentDate = $this->getLastPaymentDate( $loan);
-      $this->_FixAllPendingOrders($loan, $lastPaymentDate);
-    }
-
-    public function fixAll()
-    {
-      $loans_today = Loan::where('status', 1)->where('next_due', '<=', date('Y-m-d'))->get();
-
-      foreach ($loans_today as $loan)
-      {
-        if( $loan->payplan == "we")
-        {
-          $lastPaymentDate = $this->getLastPaymentDate( $loan);
-          $this->_FixAllPendingOrders($loan, $lastPaymentDate);
-        }
-      }
-    }
-
-    private function _FixAllPendingOrders(Loan $loan, $date)
-    {
-      if( $date < date('Y-m-d') )
-      {
-        $nextPaymentDate = $this->getNextPeriod($loan->payplan, $date);
-
-        $this->_CreatePedingOrder($loan, $nextPaymentDate);
-
-        $loan->next_due = $nextPaymentDate;
-        $loan->collect_date = $nextPaymentDate;
-        $loan->delays++;
-        $loan->update();
-
-        $this->_FixAllPendingOrders($loan, $nextPaymentDate);
-      }
-    }
-
-    private function _CreatePedingOrder(Loan $loan, $date)
-    {
-      $po = new PayOrder;
-      $po->loan_id = $loan->id;
-      $po->date = $date;
-      $po->amount = $loan->mindue;
-      $po->balance = $po->amount;
-      $po->save();
-    }
-
-
-    public function addOrder($loan = 0)
-    {
-
-
-
-
-      // echo $loan->created_at;
-
-
-
-      // $weeksOfDiff = $this->datediff('ww', $lastPaymentDate, date('Y-m-d'), false);// echo $loan->orders->count();
-
-      // $variable
-
-
-      // echo ""
-
-    }
-
-
-
-    public function fake($code = 0)
-    {
-      DB::beginTransaction();
-      if ($code == 0) return $this->_fakeDaily();
-      else
-      {
-        print_r( $code );
-      }
-      DB::rollback();
-    }
-
-
-    private function _fakeDaily()
-    {
-      $DATA = [];
-      $loans_today = Loan::where('status', 1)->where('next_due', '<=', date('Y-m-d'))->get();
-      $DATA ['loans_today'] = $loans_today;
-
-      if ( $loans_today->isEmpty() )
-        return true;
-
-      return view("loans.list", $DATA);
-
-      // foreach ($loans_today as $loan)
-      // {
-      //   $next_due = $loan->next_due;
-
-      //   if ( $loan->delays > 0 )
-      //   {
-
-      //     $next_due = $this->getNextPeriod( $loan->payplan, $loan->next_due, $loan->delays );
-      //   }
-
-      //   if ( $next_due === $today )
-      //   {
-      //     $po = new PayOrder;
-      //     $po->loan_id = $loan->id;
-      //     $po->date = $today;
-      //     $po->amount = $loan->mindue;
-      //     $po->balance = $po->amount;
-      //     $po->save();
-
-      //     /* Update the loan */
-      //     $loan->delays++;
-      //     $loan->save();
-      //   }
-      // }
-    }
-
-    public function test()
-    { 
-
-      echo password_hash("71837022", PASSWORD_BCRYPT);
-
-
-    }
-
-
-
-    function datediff($interval, $datefrom, $dateto, $using_timestamps = false)
-    {
-      /*
-      $interval can be:
-      yyyy - Number of full years
-      q    - Number of full quarters
-      m    - Number of full months
-      y    - Difference between day numbers
-             (eg 1st Jan 2004 is "1", the first day. 2nd Feb 2003 is "33". The datediff is "-32".)
-      d    - Number of full days
-      w    - Number of full weekdays
-      ww   - Number of full weeks
-      h    - Number of full hours
-      n    - Number of full minutes
-      s    - Number of full seconds (default)
-      */
-
-      if (!$using_timestamps) 
-      {
-        $datefrom = strtotime($datefrom, 0);
-        $dateto   = strtotime($dateto, 0);
-      }
-
-      $difference        = $dateto - $datefrom; /*  Difference in seconds */
-
-      $months_difference = 0;
-
-      switch ($interval)
-      {
-        case 'yyyy': // Number of full years
-        $years_difference = floor($difference / 31536000);
-        if (mktime(date("H", $datefrom), date("i", $datefrom), date("s", $datefrom), date("n", $datefrom), date("j", $datefrom), date("Y", $datefrom)+$years_difference) > $dateto) {
-          $years_difference--;
-        }
-
-        if (mktime(date("H", $dateto), date("i", $dateto), date("s", $dateto), date("n", $dateto), date("j", $dateto), date("Y", $dateto)-($years_difference+1)) > $datefrom) {
-          $years_difference++;
-        }
-
-        $datediff = $years_difference;
-        break;
-
-        case "q": // Number of full quarters
-        $quarters_difference = floor($difference / 8035200);
-
-        while (mktime(date("H", $datefrom), date("i", $datefrom), date("s", $datefrom), date("n", $datefrom)+($quarters_difference*3), date("j", $dateto), date("Y", $datefrom)) < $dateto) {
-          $months_difference++;
-        }
-
-        $quarters_difference--;
-        $datediff = $quarters_difference;
-        break;
-
-        case "m": // Number of full months
-        $months_difference = floor($difference / 2678400);
-
-        while (mktime(date("H", $datefrom), date("i", $datefrom), date("s", $datefrom), date("n", $datefrom)+($months_difference), date("j", $dateto), date("Y", $datefrom)) < $dateto) {
-          $months_difference++;
-        }
-
-        $months_difference--;
-
-        $datediff = $months_difference;
-        break;
-
-        case 'y': // Difference between day numbers
-        $datediff = date("z", $dateto) - date("z", $datefrom);
-        break;
-
-        case "d": // Number of full days
-        $datediff = floor($difference / 86400);
-        break;
-
-        case "w": // Number of full weekdays
-        $days_difference  = floor($difference / 86400);
-            $weeks_difference = floor($days_difference / 7); // Complete weeks
-            $first_day        = date("w", $datefrom);
-            $days_remainder   = floor($days_difference % 7);
-            $odd_days         = $first_day + $days_remainder; // Do we have a Saturday or Sunday in the remainder?
-
-            if ($odd_days > 7) { // Sunday
-              $days_remainder--;
-            }
-
-            if ($odd_days > 6) { // Saturday
-              $days_remainder--;
-            }
-
-            $datediff = ($weeks_difference * 5) + $days_remainder;
-            break;
-
-        case "ww": // Number of full weeks
-        $datediff = floor($difference / 604800);
-        break;
-
-        case "h": // Number of full hours
-        $datediff = floor($difference / 3600);
-        break;
-
-        case "n": // Number of full minutes
-        $datediff = floor($difference / 60);
-        break;
-
-        default: // Number of full seconds (default)
-        $datediff = $difference;
-        break;
-      }
-
-      return $datediff;
-    }
-
-    /* ______________________________ END: DEBUG FUNCTIONS ______________________________ */
-
-    private function br($num = 1){ for ($i=0; $i < $num; $i++) echo "<br>"; }
-    private function hr($num = 1){ for ($i=0; $i < $num; $i++) echo "<hr>"; }
   }
+
+  public function update(Request $request)
+  {
+    try
+    {
+      $loan = Loan::findOrFail( $request->input('id') );
+    }
+    catch(ModelNotFoundException $e)
+    {
+      return redirect('/');
+    }
+
+    if ( $request->path() == 'prestamos/pagar')
+    {
+      $this->addPayments( $request, $loan );
+    }
+    else
+    {
+      /* Update the next payment date */      
+      $collect_date = $request->input('next_due', false);
+      if ($collect_date)
+      {
+        $loan->collect_date = $collect_date;
+        $loan->extentions++;
+      }
+    }
+
+    /* Commit the changes */
+    $loan->update();
+
+    /* Redirect back to the profile */
+    return back();
+  }
+
+  private function _today()
+  {
+    $assignedClientsIds = collect();
+    $assignedZonesIds = collect();
+    $assignedZones = collect();
+    $assignedLoans = collect();
+
+    /* Get all the entities assigned to this user */
+    $AllUserAssignments = assignments::where('user_id', Auth::user()->id )->get();
+
+    /* Get the list of zones assigned to this user */
+    if ( Auth::user()->is_admin )
+    {
+      $assignedZones = Zones::all();
+    }
+    else
+    {
+      $zoneAssigmentsCollect = $AllUserAssignments->where('type', 'Z');
+      foreach( $zoneAssigmentsCollect as $zma )
+      {
+        $zone = Zones::find($zma->target_id);
+        $zone->loans = collect();
+        $assignedZones->push( $zone );
+      }
+    }
+
+    /* Flatten the zone list into a 1-dimentional array of ids */
+    foreach ($assignedZones as $az) $assignedZonesIds->push( $az->id );
+
+    /* Get the list of clients assigned to this user */
+    $manualClientAssigmentsCollect = $AllUserAssignments->where('type', 'C');
+    foreach ($manualClientAssigmentsCollect as $mca) $assignedClientsIds->push( $mca->target_id );
+
+    $activeLoansForCollection = Loan::where('delays', '>', 0)
+    ->where('collect_date', '<=', date('Y-m-d 23:59:59'))
+    ->where('status', 1)
+    ->get();
+
+    foreach ($activeLoansForCollection as $loan)
+    {
+      /* When the loan is within a zone linked to this user */
+      if( $assignedZonesIds->contains( $loan->client->zone_id ) )
+      {
+        foreach ($assignedZones as $zone)
+        {
+          if ($loan->client->zone_id == $zone->id) $zone->loans->push( $loan );
+        }
+      } /* When the loan belongs to a client assigned to this user */
+      else if( $assignedClientsIds->contains($loan->client_id) )
+      {
+        $assignedLoans->push($loan);
+      }
+    }
+
+    $data = array(
+      'payed' => 0,
+      'total' => 0,
+      'progress' => 0,
+      'loans' => $activeLoansForCollection,
+      'zones' => $assignedZones,
+      'other' => $assignedLoans,
+    );
+    return $data;
+  }
+
+  public function today()
+  {
+    $data = $this->_today();
+    return view('today', $data);
+  }
+
+  public function today_print()
+  {
+    $data = $this->_today();
+    return view('today_print', $data);
+  }
+
+  private function nicecify( $amount )
+  {
+    return round( $amount / 1000, 0, PHP_ROUND_HALF_UP) * 1000;
+  }
+
+
+
+  private function getLastPaymentDate( Loan $loan)
+  {
+    /* Set the date to either the last payment or the loan date */
+    $lastPayment = $loan->payments->sortByDesc('id')->first();
+    $lastPaymentDate = ($lastPayment) ? (string) $lastPayment->created_at : (string) $loan->created_at;
+    return $lastPaymentDate;
+  }
+
+  public function getLastOrderDate( Loan $loan )
+  {
+    $lastOrder = PayOrder::where('loan_id', $loan->id)
+    ->orderBy("date", "desc")
+    ->first();
+    
+    if( $lastOrder )
+    {
+      return $lastOrder->date;
+    }
+    echo "no orders: " . $loan->client_id . "<hr>";
+    return $this->getLastPaymentDate($loan);
+  }
+
+  private function translateDay($timestamp)
+  {
+    $eng = date('D', $timestamp);
+    switch ($eng)
+    {
+      case 'Sat': return 'Sab';
+      case 'Mon': return 'Lun';
+      case 'Tue': return 'Mar';
+      case 'Wed': return 'Mie';
+      case 'Thu': return 'Jue';
+      case 'Fri': return 'Vie';
+      case 'Sun': return 'Dom';
+    }
+  }
+
+  /* ---------------------------------- DEBUG FUNCTIONS ---------------------------------- */
+
+  private function createOrder(Loan $loan, $date)
+  {
+    $po = new PayOrder;
+    $po->loan_id = $loan->id;
+    $po->date = $date;
+    $po->amount = $loan->mindue;
+    $po->balance = $po->amount;
+    $po->save();
+  }
+
+
+  function datediff($interval, $datefrom, $dateto, $using_timestamps = false)
+  {
+    /*
+    $interval can be:
+    yyyy - Number of full years
+    q    - Number of full quarters
+    m    - Number of full months
+    y    - Difference between day numbers
+    (eg 1st Jan 2004 is "1", the first day. 2nd Feb 2003 is "33". The datediff is "-32".)
+    d    - Number of full days
+    w    - Number of full weekdays
+    ww   - Number of full weeks
+    h    - Number of full hours
+    n    - Number of full minutes
+    s    - Number of full seconds (default)
+    */
+
+    if (!$using_timestamps) 
+    {
+      $datefrom = strtotime($datefrom, 0);
+      $dateto   = strtotime($dateto, 0);
+    }
+
+    $difference        = $dateto - $datefrom; /*  Difference in seconds */
+
+    $months_difference = 0;
+
+    switch ($interval)
+    {
+      case 'yyyy':
+      $years_difference = floor($difference / 31536000);
+      if (mktime(date("H", $datefrom), date("i", $datefrom), date("s", $datefrom), date("n", $datefrom), date("j", $datefrom), date("Y", $datefrom)+$years_difference) > $dateto) {
+        $years_difference--;
+      }
+
+      if (mktime(date("H", $dateto), date("i", $dateto), date("s", $dateto), date("n", $dateto), date("j", $dateto), date("Y", $dateto)-($years_difference+1)) > $datefrom) {
+        $years_difference++;
+      }
+
+      $datediff = $years_difference;
+      break;
+
+      case "q":
+      $quarters_difference = floor($difference / 8035200);
+
+      while (mktime(date("H", $datefrom), date("i", $datefrom), date("s", $datefrom), date("n", $datefrom)+($quarters_difference*3), date("j", $dateto), date("Y", $datefrom)) < $dateto) {
+        $months_difference++;
+      }
+
+      $quarters_difference--;
+      $datediff = $quarters_difference;
+      break;
+
+      case "m":
+      $months_difference = floor($difference / 2678400);
+
+      while (mktime(date("H", $datefrom), date("i", $datefrom), date("s", $datefrom), date("n", $datefrom)+($months_difference), date("j", $dateto), date("Y", $datefrom)) < $dateto) {
+        $months_difference++;
+      }
+
+      $months_difference--;
+
+      $datediff = $months_difference;
+      break;
+
+      /* Difference between day numbers */
+      case 'y': 
+      $datediff = date("z", $dateto) - date("z", $datefrom);
+      break;
+
+      /* Number of full days */
+      case "d": 
+      $datediff = floor($difference / 86400);
+      break;
+
+      /* Number of full weekdays */
+      case "w": 
+      $days_difference  = floor($difference / 86400);
+      $weeks_difference = floor($days_difference / 7);
+      $first_day        = date("w", $datefrom);
+      $days_remainder   = floor($days_difference % 7);
+      /* Do we have a Saturday or Sunday in the remainder? */
+      $odd_days         = $first_day + $days_remainder;
+
+      /* Sunday */
+      if ($odd_days > 7) {
+        $days_remainder--;
+      }
+
+      /* Saturday */
+      if ($odd_days > 6) {
+        $days_remainder--;
+      }
+
+      $datediff = ($weeks_difference * 5) + $days_remainder;
+      break;
+
+      /* Number of full weeks */
+      case "ww": 
+      $datediff = floor($difference / 604800);
+      break;
+
+      /* Number of full hours */
+      case "h":
+      $datediff = floor($difference / 3600);
+      break;
+
+      /* Number of full minutes */
+      case "n": 
+      $datediff = floor($difference / 60);
+      break;
+
+      /* Number of full seconds (default) */
+      default:
+      $datediff = $difference;
+      break;
+    }
+
+    return $datediff;
+  }
+
+  /* ______________________________ END: DEBUG FUNCTIONS ______________________________ */
+
+  private function br($num = 1){ for ($i=0; $i < $num; $i++) echo "<br>"; }
+  private function hr($num = 1){ for ($i=0; $i < $num; $i++) echo "<hr>"; }
+}

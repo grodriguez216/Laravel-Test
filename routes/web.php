@@ -35,12 +35,12 @@ Route::prefix('prestamos')->group(function ()
 Route::prefix('debug')->group(function ()
 {
   /* Gets */
-  Route::get('watch', 'LoansController@watch');
-  Route::get('addOrder/{id}', 'LoansController@addOrder');
-  Route::get('fix/all', 'LoansController@fixAll');
-  Route::get('fix/{id}', 'LoansController@fix');
-  Route::get('fake/all', 'LoansController@fake');
-  Route::get('fake/{id}', 'LoansController@fake');
+  // Route::get('watch', 'LoansController@watch');
+  // Route::get('addOrder/{id}', 'LoansController@addOrder');
+  // Route::get('fix/all', 'LoansController@fixAll');
+  // Route::get('fix/{id}', 'LoansController@fix');
+  // Route::get('fake/all', 'LoansController@fake');
+  // Route::get('fake/{id}', 'LoansController@fake');
   Route::get('test', 'LoansController@test');
 });
 

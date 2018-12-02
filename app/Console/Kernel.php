@@ -28,11 +28,6 @@ class Kernel extends ConsoleKernel
   */
   protected function schedule(Schedule $schedule)
   {
-    // $schedule->call(function ()
-    // {
-    //   $controller = new NotificationController();
-    //   $controller->test();
-    // })->everyMinute();
 
     $schedule->call(function ()
     {
@@ -45,10 +40,6 @@ class Kernel extends ConsoleKernel
       $controller = new LoansController();
       $controller->rememberDaily();
     })->dailyAt('13:00');
-
-
-
-
   }
   
   /**

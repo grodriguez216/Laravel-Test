@@ -28,12 +28,11 @@ class Kernel extends ConsoleKernel
   */
   protected function schedule(Schedule $schedule)
   {
-
     $schedule->call(function ()
     {
       $controller = new LoansController();
       $controller->updateDaily();
-    })->dailyAt('07:00');
+    })->dailyAt('05:00');
     
     $schedule->call(function ()
     {

@@ -294,44 +294,6 @@ class LoansController extends Controller
 
   public function updateDaily()
   {
-    $today = date('Y-m-d');
-
-    $loans_today = Loan::where('status', 1)->get();
-
-    if ( $loans_today->isEmpty() )
-      return true;
-
-    foreach ($loans_today as $loan)
-    {
-
-      $next_due = $loan->last_order;
-
-      if ( $loan->delays > 0 )
-      {
-        $next_due = $this->getNextPeriod( $loan->payplan, $loan->last_order, $loan->delays );
-      }
-
-      if ( $next_due === $today )
-      {
-        $po = new PayOrder;
-        $po->loan_id = $loan->id;
-        $po->date = $today;
-        $po->amount = $loan->mindue;
-        $po->balance = $po->amount;
-        $po->save();
-
-        /* Update the loan */
-        $loan->delays++;
-        $loan->save();
-      }
-    }
-  }
-
-  public function test()
-  {
-
-    return;
-
     DB::beginTransaction();
 
     $today = date('Y-m-d');
@@ -339,7 +301,6 @@ class LoansController extends Controller
 
     $activeLoans = Loan::where('status', 1)->get();
 
-    echo '<pre>';
     foreach ( $activeLoans as $loan )
     {
       $lastOrderDate = $this->getLastOrderDate( $loan );
@@ -348,74 +309,43 @@ class LoansController extends Controller
       $nextOrderDate = $this->getNextPeriod(  $loan->payplan, $lastOrderDate );
       $nextOrderDateTs = strtotime( $nextOrderDate );
 
-      $needsOrders = $nextOrderDateTs < $todayTs;
+      $needsOrder = ( $nextOrderDateTs === $todayTs );
 
-      if ( $needsOrders )
+      if ( $needsOrder )
       {
-        // echo $nextOrderDateTs . " " . $todayTs . "<br>";
-        $this->createOrderRecursive( $loan, $nextOrderDate );
+        $this->createOrder( $loan, $today);
+        $loan->last_order = $today;
+        $loan->update();
       }
     }
 
     DB::commit();
   }
 
-  public function createOrderRecursive( Loan $loan, $currentOrderDate )
-  {
-    $today = date('Y-m-d');
-    $todayTs = strtotime( $today );
-    
-    $currentOrderDateTs = strtotime( $currentOrderDate );
-
-    $this->createOrder( $loan, $currentOrderDate );
-
-    echo "created order for client: " . $loan->client_id . " date: " . $currentOrderDate . "<br>";
-    
-    $loan->collect_date = $currentOrderDate;
-    $loan->update();
-
-    /* evaluate recursivity */
-    $nextOrderDate = $this->getNextPeriod(  $loan->payplan, $currentOrderDate );
-    $nextOrderDateTs = strtotime( $nextOrderDate );
-
-    $needsOrders = $nextOrderDateTs < $todayTs;
-
-    if( $needsOrders )
-    {
-      return $this->createOrderRecursive( $loan, $nextOrderDate );
-    }
-
-    return $needsOrders;
-  }
-
-
   public function rememberDaily()
   {
 
-    return;
     $notifier = new NotificationController;
 
-    $loans_tomorrow = Loan::where('status', 1)
-    ->where('next_due', '<=', date('Y-m-d', strtotime('+1 day')))
-    ->get();
+    $today = date('Y-m-d');
+    $todayTs = strtotime( $today );
 
-    if ( $loans_tomorrow->isEmpty() )
-      return true;
+    $activeLoans = Loan::where('status', 1)->get();
 
-    foreach ($loans_tomorrow as $loan)
+    foreach ($activeLoans as $loan)
     {
-      $next_due = $loan->next_due;
+      $nextOrderDate = $this->getNextPeriod( $loan->payplan, $loan->last_order );
+      $nextOrderDateTs = strtotime( $nextOrderDate );
 
-      if ( $loan->delays )
-        $next_due = $this->getNextPeriod( $loan->payplan, $loan->next_due, $loan->delays );
+      $dayBeforeTheOrderTs = strtotime( "-1 day", $nextOrderDateTs );
 
-      if ( $next_due == date('Y-m-d') )
+      if( $dayBeforeTheOrderTs ==  $todayTs )
       {
-        $notifier->send( $loan->client->phone, 'PR', $loan );  
+        /* Send the payment reminder message */      
+        $notifier->send( $loan->client->phone, 'PR', $loan );
       }
     }
   }
-
 
   /* ------------------------------- Payments ------------------------------- */
   
@@ -462,11 +392,7 @@ class LoansController extends Controller
 
     $EXTRA = 0;
 
-    if ( $TYPE === 'PC'
-      && $loan->delays
-      && $loan->intrate
-      && $credits >= $DUE
-    )
+    if ( $TYPE === 'PC' && $loan->intrate && $credits >= $DUE )
     {
       $EXTRA = $loan->mindue * $MULTI;
       $credits += $EXTRA;
@@ -474,16 +400,15 @@ class LoansController extends Controller
 
     $payment = $CREDITS;
 
-    /* Whether the client has any orders pending to cancel */
-    $hasPendings = $loan->delays;
-
     $collector_fee = 0;
 
+    /* Whether the client has any orders pending to cancel */
     /* Cancel the orders before touching the loan balance */
-    while ( $hasPendings && $ORDERS->isNotEmpty() )
+    while ( $loan->orders->where("status" , 1)->isNotEmpty() && $credits > 0)
     {
-      /* Most recent pending order */
-      $order = $ORDERS->get( $order_index );
+
+      /* Most the most recent pending order */
+      $order = $loan->orders->where("status", 1)->sortByDesc("date")->first();
 
       if ( !isset($order->balance) )
         continue;
@@ -507,24 +432,19 @@ class LoansController extends Controller
         $order->balance = 0;
         $order->status = 0;
 
-        /* Reduce the number of pending orders  */
-        $loan->delays--;
+        $hasPendings = $loan->orders->where("status" , 1)->isNotEmpty();
 
         /* Check if there are more peding orders */
-        if ( $loan->delays )
+        if ( $hasPendings )
         {
           /* The remaining credits must be used to pay the next peding order */
-          $hasPendings = true;
           $order_index++;
         }
         else
         {
           /* Allow the remaining credits to be substracted from the balance */  
-          $hasPendings = false;
         }
-
         /* If the credits are exactly 0, there is no point in continuing */
-        $hasPendings = (bool) $credits ? $hasPendings : false;
       }
       else
       {
@@ -548,10 +468,8 @@ class LoansController extends Controller
         if ( $order->balance === 0)
         {
           $order->status = 0;
-          $loan->delays--;
         }
         /* No more credits for this payment */
-        $hasPendings = false;
       }
 
       if ( $TYPE === 'PM')
@@ -565,7 +483,7 @@ class LoansController extends Controller
     } /* end while */
 
     /* If after paying the orders there's still credits. They affect the loan's balance directly */
-    if ( $credits )
+    if ( $credits > 0 )
     {
       /* [START Close the loan if balance reaches 0] */
       $loan->balance -= $credits; /* (includes *multi* peding orders if the payment is PC ) */
@@ -626,9 +544,6 @@ class LoansController extends Controller
       $COLLECTOR->payroll->save();
     }
 
-    /* [START Update the date] */
-    // $loan->next_due = $this->getNextPeriod( $loan->payplan, $loan->next_due );
-    /* [ END Update the date] */
 
     DB::commit();
 
@@ -682,8 +597,7 @@ class LoansController extends Controller
     $assignedClientsIds = collect();
     $assignedZonesIds = collect();
     $assignedZones = collect();
-    $assignedLoans = collect();
-
+    
     /* Get all the entities assigned to this user */
     $AllUserAssignments = assignments::where('user_id', Auth::user()->id )->get();
 
@@ -704,16 +618,51 @@ class LoansController extends Controller
     }
 
     /* Flatten the zone list into a 1-dimentional array of ids */
-    foreach ($assignedZones as $az) $assignedZonesIds->push( $az->id );
+    foreach ($assignedZones as $az) 
+    {
+      $az->loans = collect();
+      $assignedZonesIds->push( $az->id );
+    }
 
     /* Get the list of clients assigned to this user */
     $manualClientAssigmentsCollect = $AllUserAssignments->where('type', 'C');
-    foreach ($manualClientAssigmentsCollect as $mca) $assignedClientsIds->push( $mca->target_id );
+    foreach ( $manualClientAssigmentsCollect as $mca ) 
+    {
+      $assignedClientsIds->push( $mca->target_id );
+    }
 
-    $activeLoansForCollection = Loan::where('delays', '>', 0)
-    ->where('collect_date', '<=', date('Y-m-d 23:59:59'))
-    ->where('status', 1)
-    ->get();
+    /* ----------------- filter the loans ----------------- */
+    $activeLoansForCollection = collect();
+
+    $today = date('Y-m-d');
+    $todayTs = strtotime( $today );
+
+    $activeLoans = Loan::where('status', 1)->get();
+
+    foreach ( $activeLoans as $loan )
+    {
+      $collectDateTs = strtotime( $loan->collect_date );
+      $lastOrderTs = strtotime( $loan->last_order );
+
+      /* if the loan has a "promise of payment" */
+      if( $collectDateTs > $lastOrderTs )
+      {
+        if ( $collectDateTs === $todayTs )
+        {
+          $activeLoansForCollection->push( $loan );
+        }
+      }
+      else
+      {
+        /* check for the normal allocation - by next_order() */
+        if ( $lastOrderTs === $todayTs )
+        {
+          $activeLoansForCollection->push( $loan );
+        }
+      }
+    }
+
+    $assignedLoans = collect();
 
     foreach ($activeLoansForCollection as $loan)
     {
@@ -722,7 +671,10 @@ class LoansController extends Controller
       {
         foreach ($assignedZones as $zone)
         {
-          if ($loan->client->zone_id == $zone->id) $zone->loans->push( $loan );
+          if ($loan->client->zone_id == $zone->id)
+          {
+            $zone->loans->push( $loan );
+          }
         }
       } /* When the loan belongs to a client assigned to this user */
       else if( $assignedClientsIds->contains($loan->client_id) )
@@ -759,30 +711,6 @@ class LoansController extends Controller
     return round( $amount / 1000, 0, PHP_ROUND_HALF_UP) * 1000;
   }
 
-
-
-  private function getLastPaymentDate( Loan $loan)
-  {
-    /* Set the date to either the last payment or the loan date */
-    $lastPayment = $loan->payments->sortByDesc('id')->first();
-    $lastPaymentDate = ($lastPayment) ? (string) $lastPayment->created_at : (string) $loan->created_at;
-    return $lastPaymentDate;
-  }
-
-  public function getLastOrderDate( Loan $loan )
-  {
-    $lastOrder = PayOrder::where('loan_id', $loan->id)
-    ->orderBy("date", "desc")
-    ->first();
-    
-    if( $lastOrder )
-    {
-      return $lastOrder->date;
-    }
-    echo "no orders: " . $loan->client_id . "<hr>";
-    return $this->getLastPaymentDate($loan);
-  }
-
   private function translateDay($timestamp)
   {
     $eng = date('D', $timestamp);
@@ -799,6 +727,114 @@ class LoansController extends Controller
   }
 
   /* ---------------------------------- DEBUG FUNCTIONS ---------------------------------- */
+  
+  /* ---------------------------------- DEBUG FUNCTIONS ---------------------------------- */
+  
+  public function fix()
+  {
+    $this->fix_PaymentsDate();
+  }
+
+  private function fix_MissingOrders()
+  {
+    return;
+
+    DB::beginTransaction();
+
+    $today = date('Y-m-d');
+    $todayTs = strtotime( $today );
+
+    $activeLoans = Loan::where('status', 1)->get();
+
+    echo '<pre>';
+    foreach ( $activeLoans as $loan )
+    {
+      $lastOrderDate = $this->getLastOrderDate( $loan );
+      $lastOrderDateTs = strtotime( $lastOrderDate );
+
+      $nextOrderDate = $this->getNextPeriod(  $loan->payplan, $lastOrderDate );
+      $nextOrderDateTs = strtotime( $nextOrderDate );
+
+      $needsOrders = $nextOrderDateTs < $todayTs;
+
+      if ( $needsOrders )
+      {
+        // echo $nextOrderDateTs . " " . $todayTs . "<br>";
+        $this->fix_CreateOrderRecursive( $loan, $nextOrderDate );
+      }
+    }
+
+    DB::commit();
+  }
+
+  private function fix_CreateOrderRecursive( Loan $loan, $currentOrderDate )
+  {
+    return;
+    $today = date('Y-m-d');
+    $todayTs = strtotime( $today );
+    
+    $currentOrderDateTs = strtotime( $currentOrderDate );
+
+    $this->createOrder( $loan, $currentOrderDate );
+
+    echo "created order for client: " . $loan->client_id . " date: " . $currentOrderDate . "<br>";
+    
+    $loan->collect_date = $currentOrderDate;
+    $loan->update();
+
+    /* evaluate recursivity */
+    $nextOrderDate = $this->getNextPeriod(  $loan->payplan, $currentOrderDate );
+    $nextOrderDateTs = strtotime( $nextOrderDate );
+
+    $needsOrders = $nextOrderDateTs < $todayTs;
+
+    if( $needsOrders )
+    {
+      return $this->fix_CreateOrderRecursive( $loan, $nextOrderDate );
+    }
+
+    return $needsOrders;
+  }
+
+  private function fix_DuplicateOrders()
+  {
+    $allOrders = PayOrder::where("status", 1)->get();
+    // $allOrders = PayOrder::where("loan_id", 397)->where("status", 1)->get();
+
+    $uniqueOrders = $allOrders->unique("date");
+
+    echo "<pre>";
+    echo $allOrders->count() . $this->br();
+    echo $uniqueOrders->count() . $this->br();
+
+    $uniqueOrderIds = collect();
+    foreach ($uniqueOrders as $order)
+    {
+      $uniqueOrderIds->push( $order->id );
+    }
+
+    foreach ($allOrders as $order)
+    {
+      if( !$uniqueOrderIds->contains( $order->id ) )
+      {
+        echo "deleted order: " . $order->id . $this->br();
+        // PayOrder::where("id", $order->id)->delete();
+        $order->delete();
+      }
+    }
+  }
+  
+  private function fix_PaymentsDate()
+  {
+    $allPayments = Payment::all();
+
+    foreach ($allPayments as $payment)
+    {
+      $date = date('Y-m-d', strtotime( $payment->created_at ));
+      $payment->date = $date;
+      $payment->update();
+    }
+  }
 
   private function createOrder(Loan $loan, $date)
   {
@@ -810,6 +846,32 @@ class LoansController extends Controller
     $po->save();
   }
 
+  private function getLastOrderDate( Loan $loan )
+  {
+    $lastOrder = PayOrder::where('loan_id', $loan->id)
+    ->orderBy("date", "desc")
+    ->first();
+    
+    if( $lastOrder )
+    {
+      return $lastOrder->date;
+    }
+    echo "no orders: " . $loan->client_id . "<hr>";
+    return $this->getLastPaymentDate();
+  }
+
+  private function getLastPaymentDate( Loan $loan)
+  {
+    $lastPayment = Payments::where('loan_id', $loan->id)
+    ->orderBy("date", "desc")
+    ->first();
+
+    if( $lastPayment )
+    {
+      return $lastPayment->date;
+    }
+    return $loan->created_at;
+  }
 
   function datediff($interval, $datefrom, $dateto, $using_timestamps = false)
   {

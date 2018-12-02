@@ -41,7 +41,7 @@ Route::prefix('debug')->group(function ()
   // Route::get('fix/{id}', 'LoansController@fix');
   // Route::get('fake/all', 'LoansController@fake');
   // Route::get('fake/{id}', 'LoansController@fake');
-  Route::get('test', 'LoansController@test');
+  Route::get('fix', 'LoansController@fix');
 });
 
 Route::prefix('clientes')->group(function ()
